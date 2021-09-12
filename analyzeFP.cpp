@@ -16,6 +16,7 @@ vector<string> sidName;
 vector<string> sidEven;
 vector<int> sidMin;
 vector<int> sidMax;
+vector<string> AircraftIgnore;
 
 using namespace std;
 using namespace EuroScopePlugIn;
@@ -81,7 +82,7 @@ void CVFPCPlugin::getSids() {
 
 		config.Parse<0>("[{\"icao\": \"XXXX\"}]");
 	}
-
+	
 	airports.clear();
 
 	for (SizeType i = 0; i < config.Size(); i++) {
@@ -376,12 +377,26 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 
 //
 void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT Pt, RECT Area) {
+	CFlightPlan fp = FlightPlanSelectASEL();
+	
 	if (FunctionId == TAG_FUNC_CHECKFP_MENU) {
 		OpenPopupList(Area, "Check FP", 1);
 		AddPopupListElement("Show Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
+
+		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
+			AddPopupListElement("Enable", "", TAG_FUNC_ON_OFF, false, 2, false);
+		else
+			AddPopupListElement("Disable", "", TAG_FUNC_ON_OFF, false, 2, false);
 	}
 	if (FunctionId == TAG_FUNC_CHECKFP_CHECK) {
 		checkFPDetail();
+	}
+	if (FunctionId == TAG_FUNC_ON_OFF) {
+		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
+			AircraftIgnore.erase(remove(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()), AircraftIgnore.end());
+		else
+			AircraftIgnore.emplace_back(fp.GetCallsign());
+
 	}
 }
 
@@ -401,10 +416,16 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 		}
 		else {
 			vector<string> messageBuffer{ validizeSid(FlightPlan) }; // 0 = Callsign, 1 = valid/invalid SID, 2 = SID Name, 3 = Destination, 4 = Airway, 5 = Engine Type, 6 = Even/Odd, 7 = Minimum Flight Level, 8 = Maximum Flight Level, 9 = Navigation restriction, 10 = Passed
+
 			
-			if (messageBuffer.at(10) == "Passed") {
+			if (find(AircraftIgnore.begin(), AircraftIgnore.end(), FlightPlan.GetCallsign()) != AircraftIgnore.end()) {
+				*pRGB = TAG_GREY;
+				strcpy_s(sItemString, 16, "-");
+			}
+			else if (messageBuffer.at(10) == "Passed") {
 				*pRGB = TAG_GREEN;
 				strcpy_s(sItemString, 16, "OK!");
+
 			}
 			else {
 				*pRGB = TAG_RED;
@@ -416,6 +437,13 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 	}
 }
 
+//
+void CVFPCPlugin::OnFlightPlanDisconnect(CFlightPlan FlightPlan)
+{
+	AircraftIgnore.erase(remove(AircraftIgnore.begin(), AircraftIgnore.end(), FlightPlan.GetCallsign()), AircraftIgnore.end());	
+}
+
+//
 bool CVFPCPlugin::OnCompileCommand(const char * sCommandLine) {
 	if (startsWith(".vfpc reload", sCommandLine))
 	{
