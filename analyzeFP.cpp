@@ -405,9 +405,6 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 {
 	if (ItemCode == TAG_ITEM_FPCHECK)
 	{
-		string FlightPlanString = FlightPlan.GetFlightPlanData().GetRoute();
-		int RFL = FlightPlan.GetFlightPlanData().GetFinalAltitude();
-
 		*pColorCode = TAG_COLOR_RGB_DEFINED;
 		string fpType{ FlightPlan.GetFlightPlanData().GetPlanType() };
 		if (fpType == "V") {
@@ -417,7 +414,6 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 		else {
 			vector<string> messageBuffer{ validizeSid(FlightPlan) }; // 0 = Callsign, 1 = valid/invalid SID, 2 = SID Name, 3 = Destination, 4 = Airway, 5 = Engine Type, 6 = Even/Odd, 7 = Minimum Flight Level, 8 = Maximum Flight Level, 9 = Navigation restriction, 10 = Passed
 
-			
 			if (find(AircraftIgnore.begin(), AircraftIgnore.end(), FlightPlan.GetCallsign()) != AircraftIgnore.end()) {
 				*pRGB = TAG_GREY;
 				strcpy_s(sItemString, 16, "-");
@@ -425,7 +421,6 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 			else if (messageBuffer.at(10) == "Passed") {
 				*pRGB = TAG_GREEN;
 				strcpy_s(sItemString, 16, "OK!");
-
 			}
 			else {
 				*pRGB = TAG_RED;
@@ -433,7 +428,6 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 				strcpy_s(sItemString, 16, code.c_str());
 			}
 		}
-
 	}
 }
 
@@ -538,7 +532,6 @@ string CVFPCPlugin::getFails(vector<string> messageBuffer) {
 }
 
 void CVFPCPlugin::OnTimer(int Counter) {
-
 	blink = !blink;
 
 	if (blink) {
