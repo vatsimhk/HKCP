@@ -31,6 +31,8 @@ CVFPCPlugin::CVFPCPlugin(void) :CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_
 
 	// Register Tag Item "VFPC"
 	RegisterTagItemType("VFPC", TAG_ITEM_FPCHECK);
+	RegisterTagItemType("VFPC (if failed)", TAG_ITEM_FPCHECK_IF_FAILED);
+	RegisterTagItemType("VFPC (if failed, static)", TAG_ITEM_FPCHECK_IF_FAILED_STATIC);
 	RegisterTagItemFunction("Check FP", TAG_FUNC_CHECKFP_MENU);
 
 	// Get Path of the Sid.txt
@@ -403,9 +405,10 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 // Get FlightPlan, and therefore get the first waypoint of the flightplan (ie. SID). Check if the (RFL/1000) corresponds to the SID Min FL and report output "OK" or "FPL"
 void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
+	*pColorCode = TAG_COLOR_RGB_DEFINED;
+
 	if (ItemCode == TAG_ITEM_FPCHECK)
 	{
-		*pColorCode = TAG_COLOR_RGB_DEFINED;
 		if (strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "V") > -1) {
 			*pRGB = TAG_GREEN;
 			strcpy_s(sItemString, 16, "VFR");
@@ -426,6 +429,22 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 				string code = getFails(validizeSid(FlightPlan));
 				strcpy_s(sItemString, 16, code.c_str());
 			}
+		}
+	}
+	else if ((ItemCode == TAG_ITEM_FPCHECK_IF_FAILED || ItemCode == TAG_ITEM_FPCHECK_IF_FAILED_STATIC) && FlightPlan.GetFlightPlanData().GetPlanType() != "V")
+	{
+		vector<string> messageBuffer{ validizeSid(FlightPlan) }; // 0 = Callsign, 1 = valid/invalid SID, 2 = SID Name, 3 = Destination, 4 = Airway, 5 = Engine Type, 6 = Even/Odd, 7 = Minimum Flight Level, 8 = Maximum Flight Level, 9 = Navigation restriction, 10 = Passed
+
+		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), FlightPlan.GetCallsign()) == AircraftIgnore.end() &&
+			messageBuffer.at(10) != "Passed") {
+			*pRGB = TAG_RED;
+
+			if (ItemCode == TAG_ITEM_FPCHECK_IF_FAILED) {
+				string code = getFails(validizeSid(FlightPlan));
+				strcpy_s(sItemString, 16, code.c_str());
+			}
+			else
+				strcpy_s(sItemString, 16, "E");
 		}
 	}
 }

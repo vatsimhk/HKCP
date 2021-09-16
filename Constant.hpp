@@ -2,6 +2,8 @@
 #include "stdafx.h"
 
 const int TAG_ITEM_FPCHECK = 1;
+const int TAG_ITEM_FPCHECK_IF_FAILED = 2;
+const int TAG_ITEM_FPCHECK_IF_FAILED_STATIC = 3;
 
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;
