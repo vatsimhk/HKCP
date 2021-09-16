@@ -406,8 +406,7 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 	if (ItemCode == TAG_ITEM_FPCHECK)
 	{
 		*pColorCode = TAG_COLOR_RGB_DEFINED;
-		string fpType{ FlightPlan.GetFlightPlanData().GetPlanType() };
-		if (fpType == "V") {
+		if (strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "V") > -1) {
 			*pRGB = TAG_GREEN;
 			strcpy_s(sItemString, 16, "VFR");
 		}
