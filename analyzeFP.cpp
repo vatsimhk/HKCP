@@ -213,7 +213,7 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			}
 		}
 		else {
-			returnValid.push_back("No Destination restriction");
+			returnValid.push_back("No Destination restr");
 			passed[0] = true;
 		}
 
@@ -229,7 +229,7 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			}
 		}
 		else {
-			returnValid.push_back("No Airway restriction");
+			returnValid.push_back("No Airway restr");
 			passed[1] = true;
 		}
 
@@ -240,7 +240,7 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				passed[2] = true;
 			}
 			else {
-				returnValid.push_back("Failed Engine type. Needed Type: " + (string)conditions[i]["engine"].GetString());
+				returnValid.push_back("Failed Engine type. Needed: " + (string)conditions[i]["engine"].GetString());
 			}
 		}
 		else if (conditions[i]["engine"].IsArray() && conditions[i]["engine"].Size()) {
@@ -249,11 +249,11 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				passed[2] = true;
 			}
 			else {
-				returnValid.push_back("Failed Engine type. Needed Type: " + arrayToString(conditions[i]["engine"], ','));
+				returnValid.push_back("Failed Engine type. Needed: " + arrayToString(conditions[i]["engine"], ','));
 			}
 		}
 		else {
-			returnValid.push_back("No Engine type restriction");
+			returnValid.push_back("No Engine type restr");
 			passed[2] = true;
 		}
 
@@ -285,7 +285,7 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			}
 		}
 		else if (direction == "ANY") {
-			returnValid.push_back("No Direction restriction");
+			returnValid.push_back("No Direction restr");
 			passed[3] = true;
 		}
 		else {
@@ -299,29 +299,29 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		int min_fl, max_fl;
 		if (conditions[i].HasMember("min_fl") && (min_fl = conditions[i]["min_fl"].GetInt()) > 0) {
 			if ((RFL / 100) >= min_fl) {
-				returnValid.push_back("Passed Minimum Flight Level (" + to_string(conditions[i]["min_fl"].GetInt()) + ')');
+				returnValid.push_back("Passed Minimum FL (" + to_string(conditions[i]["min_fl"].GetInt()) + ')');
 				passed[4] = true;
 			}
 			else {
-				returnValid.push_back("Failed Minimum Flight Level. Min FL: " + to_string(min_fl));
+				returnValid.push_back("Failed Minimum FL. Min FL: " + to_string(min_fl));
 			}
 		}
 		else {
-			returnValid.push_back("No Minimum Flight Level");
+			returnValid.push_back("No Minimum FL");
 			passed[4] = true;
 		}
 
 		if (conditions[i].HasMember("max_fl") && (max_fl = conditions[i]["max_fl"].GetInt()) > 0) {
 			if ((RFL / 100) <= max_fl) {
-				returnValid.push_back("Passed Maximum Flight Level (" + to_string(conditions[i]["max_fl"].GetInt()) + ')');
+				returnValid.push_back("Passed Maximum FL (" + to_string(conditions[i]["max_fl"].GetInt()) + ')');
 				passed[5] = true;
 			}
 			else {
-				returnValid.push_back("Failed Maximum Flight Level. Max FL: " + to_string(max_fl));
+				returnValid.push_back("Failed Maximum FL. Max FL: " + to_string(max_fl));
 			}
 		}
 		else {
-			returnValid.push_back("No Maximum Flight Level");
+			returnValid.push_back("No Maximum FL");
 			passed[5] = true;
 		}
 
@@ -329,16 +329,16 @@ vector<string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		if (conditions[i]["navigation"].IsString()) {
 			string navigation_constraints(conditions[i]["navigation"].GetString());
 			if (string::npos == navigation_constraints.find_first_of(flightPlan.GetFlightPlanData().GetCapibilities())) {
-				returnValid.push_back("Failed navigation capability restriction. Req. capability: " + navigation_constraints);
+				returnValid.push_back("Failed navigation capability restr. Needed: " + navigation_constraints);
 				passed[6] = false;
 			}
 			else {
-				returnValid.push_back("No navigation capability restriction");
+				returnValid.push_back("No navigation capability restr");
 				passed[6] = true;
 			}
 		}
 		else {
-			returnValid.push_back("No navigation capability restriction");
+			returnValid.push_back("No navigation capability restr");
 			passed[6] = true;
 		}
 
@@ -504,7 +504,7 @@ void CVFPCPlugin::checkFPDetail() {
 			buffer += ", ";
 		}
 		buffer += messageBuffer.at(10);
-		buffer += " FlightPlan Check. Check complete.";
+		buffer += " FlightPlan Check.";
 	} else {
 		buffer += " ";
 		buffer += messageBuffer.at(2);
