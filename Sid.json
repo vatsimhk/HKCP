@@ -11,6 +11,7 @@
             {
                "direction": "ODD",
                "max_fl": 290,
+               "forbidden_fls": ["240"],
                "destinations": [
                   "EDDF",
                   "EDFH"
