@@ -34,7 +34,7 @@ public:
 
 	virtual void getSids();
 
-	virtual vector<string> validizeSid(CFlightPlan flightPlan);
+	virtual map<string, string> validizeSid(CFlightPlan flightPlan);
 
 	virtual void OnFunctionCall(int FunctionId, const char * ItemString, POINT Pt, RECT Area);
 
@@ -119,7 +119,7 @@ public:
 
 	virtual void checkFPDetail();
 
-	virtual string getFails(vector<string> messageBuffer);
+	virtual string getFails(map<string, string> messageBuffer);
 
 	virtual void OnTimer(int Count);
 
