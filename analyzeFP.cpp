@@ -433,7 +433,12 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 				strcpy_s(sItemString, 16, "OK!");
 			}
 			else {
-				string code = getFails(messageBuffer);
+				string code; int count;
+				tie(code, count) = getFails(messageBuffer);
+
+				if (messageBuffer["FORBIDDEN_FL"].find_first_of("Failed") == 0 && count == 1)
+					*pRGB = TAG_YELLOW;
+				else
 				*pRGB = TAG_RED;
 				strcpy_s(sItemString, 16, code.c_str());
 			}
@@ -449,7 +454,8 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 			*pRGB = TAG_RED;
 
 			if (ItemCode == TAG_ITEM_FPCHECK_IF_FAILED) {
-				string code = getFails(messageBuffer);
+				string code; int count;
+				tie(code, count) = getFails(messageBuffer);
 				strcpy_s(sItemString, 16, code.c_str());
 			}
 			else
@@ -523,8 +529,10 @@ void CVFPCPlugin::checkFPDetail() {
 	sendMessage(messageBuffer["CS"], buffer);
 }
 
-string CVFPCPlugin::getFails(vector<string> messageBuffer) {
+pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 	vector<string> fails;
+	int failCount = 0;
+	
 	fails.push_back("FPL");
 
 	if (messageBuffer.find("STATUS") != messageBuffer.end()) {
@@ -542,24 +550,29 @@ string CVFPCPlugin::getFails(vector<string> messageBuffer) {
 
 	if (messageBuffer["DIRECTION"].find_first_of("Failed") == 0) {
 		fails.push_back("E/O");
+		failCount++;
 	}
 	if (messageBuffer["MIN_FL"].find_first_of("Failed") == 0) {
 		fails.push_back("MIN");
+		failCount++;
 	}
 	if (messageBuffer["MAX_FL"].find_first_of("Failed") == 0) {
 		fails.push_back("MAX");
+		failCount++;
 	}
 	if (messageBuffer["FORBIDDEN_FL"].find_first_of("Failed") == 0) {
 		fails.push_back("FLR");
+		failCount++;
 	}
 	if (messageBuffer["NAVIGATION"].find_first_of("Failed") == 0) {
 		fails.push_back("NAV");
+		failCount++;
 	}
 
 	std::size_t couldnt = disCount;
 	while (couldnt >= fails.size())
 		couldnt -= fails.size();
-	return fails[couldnt];
+	return pair<string, int>(fails[couldnt], failCount);
 }
 
 void CVFPCPlugin::OnTimer(int Counter) {

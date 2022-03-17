@@ -119,7 +119,7 @@ public:
 
 	virtual void checkFPDetail();
 
-	virtual string getFails(map<string, string> messageBuffer);
+	virtual pair<string, int> getFails(map<string, string> messageBuffer);
 
 	virtual void OnTimer(int Count);
 
