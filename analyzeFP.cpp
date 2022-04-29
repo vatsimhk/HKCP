@@ -214,9 +214,18 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		}
 
 		// Does Condition contain our first airway if it's limited
+		string rte = flightPlan.GetFlightPlanData().GetRoute();
 		if (conditions[i]["airways"].IsArray() && conditions[i]["airways"].Size()) {
-			string rte = flightPlan.GetFlightPlanData().GetRoute();
 			if (routeContains(rte, conditions[i]["airways"])) {
+				returnValid["AIRWAYS"] = "Passed Transition Route";
+				passed[1] = true;
+			}
+			else {
+				continue;
+			}
+		}
+		else if (conditions[i]["airways"].IsString()) {
+			if (rte.find(conditions[i]["airways"].GetString()) != std::string::npos) {
 				returnValid["AIRWAYS"] = "Passed Transition Route";
 				passed[1] = true;
 			}
