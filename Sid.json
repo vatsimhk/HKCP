@@ -1,1094 +1,405 @@
 [
    {
-      "icao": "EDDH",
+      "icao": "VHHH",
       "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "AMLUH": [
-            {
-               "direction": "ODD",
-               "max_fl": 290,
-               "forbidden_fls": ["240"],
-               "destinations": [
-                  "EDDF",
-                  "EDFH"
-               ]
-            },
-            {
-               "direction": "ODD",
-               "min_fl": 0,
-               "max_fl": 0,
-               "destinations": [
-                  "ED"
-               ],
-               "airways": [],
-               "engine": []
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "BASUM": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "ELSOB": [
-            {
-               "direction": "EVEN",
-               "airways": [
-                  "L619",
-                  "P992"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "EKERN": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "HAM": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "IDEKO": [
-            {
-               "direction": "EVEN",
-               "destinations": [
-                  "EDDK",
-                  "EDDL",
-                  "EDDG",
-                  "EDLW",
-                  "EDLN",
-                  "EDLP",
-                  "EDGS",
-                  "EDLV"
-               ]
-            },
-            {
-               "direction": "ODD",
-               "max_fl": 230,
-               "destinations": [
-                  "EDDF",
-                  "EDFH"
-               ]
-            },
-            {
-               "direction": "EVEN",
-               "max_fl": 100,
-               "destinations": [
-                  "EDDV"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "LBV": [
-            {
-               "direction": "EVEN",
-               "airways": [
-                  "L619",
-                  "P992"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "LUB": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "LUGEG": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "RAMAR": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "WSN": [
-            {
-               "direction": "EVEN",
-               "max_fl": 100,
-               "destinations": [
-                  "EDDW"
-               ]
-            },
-            {
-               "direction": "EVEN"
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDW",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "BASUM": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "EEL": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "ERLAD": [
-            {
-               "direction": "EVEN",
-               "destinations": [
-                  "EDDK",
-                  "EDDL",
-                  "EDDG",
-                  "EDLW",
-                  "EDLN",
-                  "EDLP",
-                  "EDGS",
-                  "EDLV"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "GESTO": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "NIE": [
-            {
-               "direction": "ODD",
-               "max_fl": 90,
-               "destinations": [
-                  "EDDV",
-                  "EDVE"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "WSN": [
-            {
-               "direction": "ODD",
-               "max_fl": 90,
-               "destinations": [
-                  "EDDH"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDV",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "CEL": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "MULDO": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "NIE": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "POVEL": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "TOLTA": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "VAXEV": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "WERRA": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "WRB": [
-            {
-               "direction": "EVEN",
-               "airways": [
-                  "T858",
-                  "P12"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDT",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "BKD": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "BRANE": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "GERGA": [
-            {
-               "direction": "EVEN",
-               "destinations": [
-                  "EDDM"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "RAKIT": [
-            {
-               "direction": "EVEN",
-               "airways": [
-                  "M725",
-                  "UM725"
-               ]
-            },
-            {
-               "direction": "ODD"
-            }
-         ],
-         "LANUM": [
-            {
-               "direction": "ANY",
-               "destinations": [
-                  "EDDT",
-                  "EDDB",
-                  "EDDI"
-               ]
-            }
-         ],
-         "TERDA": [
-            {
-               "direction": "ANY",
-               "destinations": [
-                  "EDDT",
-                  "EDDB",
-                  "EDDI"
-               ]
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDB",
-      "sids": {
-         "VCT": [
-            {
-                "direction": "ANY"
-            }
-         ],
-         "ARSAP": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1M",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1Q",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1Z",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            }
-         ],
-         "GERGA": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1M",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1Q",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1Z",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            }
-         ],
-         "LUROS": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1M",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1Q",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            },
-            {
-                "suffix": "1Z",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "ODD"
-            }
-         ],
-         "POVEL": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1C",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1K",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1J",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1P",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Q",
-                "engine": "J",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1R",
-                "engine": "T",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Y",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Z",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            }
-         ],
-         "HLZ": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1C",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1K",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1J",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1P",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Q",
-                "engine": "J",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1R",
-                "engine": "T",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Y",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Z",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            }
-         ],
-         "MAXAN": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1C",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1K",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1J",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Q",
-                "engine": "J",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1R",
-                "engine": "T",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Y",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Z",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            }
-         ],
-         "ODLUN": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1C",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1K",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1J",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1P",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Q",
-                "engine": "J",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1R",
-                "engine": "T",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Y",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Z",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            }
-         ],
-         "SOGMA": [
-            {
-                "suffix": "1A",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1B",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1C",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1D",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1K",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1J",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1N",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1P",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Q",
-                "engine": "J",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1R",
-                "engine": "T",
-                "min_fl": 120,
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Y",
-                "engine": "T",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            },
-            {
-                "suffix": "1Z",
-                "engine": "J",
-                "navigation": "MNPYLCIEFGRWHQS",
-                "direction": "EVEN"
-            }
-         ],
-         "ROKMU": [
-            {
-                "suffix": "1P",
-                "engine": "T",
-                "navigation": "TXU",
-                "direction": "EVEN"
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDP",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "LELMA": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "MAG": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "NAMUB": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "ODLUN": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "ORTAG": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "TORPU": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "UMBAL": [
-            {
-               "direction": "ODD"
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDF",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "ANEKI": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "CINDY": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "KOMIB": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "MARUN": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "OBOKA": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "SOBRA": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "SULUS": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "TOBAK": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "ULKIG": [
-            {
-               "direction": "EVEN"
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDL",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "COL": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "DODEN": [
-            {
-               "direction": "ODD",
-               "min_fl": 250
-            }
-         ],
-         "GMH": [
-            {
-               "direction": "ODD",
-               "max_fl": 140
-            }
-         ],
-         "KUMIK": [
-            {
-               "direction": "ODD",
-               "min_fl": 150
-            }
-         ],
-         "LMA": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "MEVEL": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "MODRU": [
-            {
-               "direction": "EVEN",
-               "min_fl": 210
-            }
-         ],
-         "NETEX": [
-            {
-               "direction": "EVEN",
-               "min_fl": 100,
-               "max_fl": 200
-            }
-         ],
-         "NUDGO": [
-            {
-               "direction": "ODD",
-               "max_fl": 245
-            }
-         ],
-         "NVO": [
-            {
-               "direction": "EVEN",
-               "max_fl": 90
-            }
-         ],
-         "SONEB": [
-            {
-               "direction": "EVEN",
-               "min_fl": 140
-            }
-         ]
-      }
-   },
-   {
-      "icao": "EDDS",
-      "sids": {
-         "VCT": [
-            {
-               "direction": "ANY"
-            }
-         ],
-         "ABTAL": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "DKB": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "ETASA": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "GEBNO": [
-            {
-               "direction": "EVEN",
-               "max_fl": 180
-            }
-         ],
-         "KRH": [
-            {
-               "direction": "EVEN",
-               "max_fl": 80
-            }
-         ],
-         "KUNOD": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "OKIBA": [
-            {
-               "direction": "EVEN",
-               "min_fl": 200
-            }
-         ],
-         "ROTWE": [
-            {
-               "direction": "EVEN"
-            }
-         ],
-         "STG": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "SUL": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "TAGIK": [
-            {
-               "direction": "EVEN",
-               "max_fl": 240
-            }
-         ],
-         "TEDGO": [
-            {
-               "direction": "ODD"
-            }
-         ],
-         "VESID": [
-            {
-               "direction": "EVEN"
-            }
-         ]
+        "OCEAN": [
+          {
+            "direction": "ODD",
+            "min_fl": 270,
+            "airways": [
+              "V3",
+              "M750"
+            ],
+            "FLAS": "Odd Levels at or above FL290",
+            "noise":  "N"
+          },
+          {
+            "direction": "ODD",
+            "max_fl": 270,
+            "airways": [
+              "V2",
+              "A1"
+            ],
+            "noise": "N",
+            "FLAS": "Odd Levels at or below FL290"
+          },
+          {
+            "direction": "ODD",
+            "allowed_fls": [ "290", "330", "370", "410" ],
+            "airways": [ "V4", "V5" ],
+            "noise": "N",
+            "FLAS": "FL290, FL330, FL370, FL410"
+          }
+        ],
+        "RASSE": [
+          {
+            "direction": "ODD",
+            "min_fl": 270,
+            "airways": [
+              "V3",
+              "M750"
+            ],
+            "noise": "Y",
+            "FLAS": "Odd Levels at or above FL290"
+          },
+          {
+            "direction": "ODD",
+            "max_fl": 270,
+            "airways": [
+              "V2",
+              "A1"
+            ],
+            "noise": "Y",
+            "FLAS": "Odd Levels at or below FL270"
+          }
+        ],
+        "SKATE":[
+            {
+              "direction": "ODD",
+              "allowed_fls": [ "290", "330", "370", "410" ],
+              "airways": [ "V4", "V5" ],
+              "noise":  "Y",
+              "FLAS": "FL290, FL330, FL370, FL410"
+            }
+         ],
+        "BEKOL": [
+          {
+            "direction": "ANY",
+            "destinations": [ "ZGGG" ],
+            "noise": "N",
+            "allowed_fls": [ "138", "148" ],
+            "FLAS": "FL138 (4200m), FL148 (4500m)"
+          },
+          {
+            "direction": "ANY",
+            "destinations": [ "ZGSZ" ],
+            "allowed_fls": [ "059" ],
+            "noise": "N",
+            "FLAS": "5900ft (1800m)"
+          },
+          {
+            "direction": "ANY",
+            "airways": [ "B330", "G586", "W90" ],
+            "noise": "N",
+            "allowed_fls": [ "276", "301", "321", "341", "361", "381", "401" ],
+            "FLAS": "Metric RVSM Westbound Levels"
+          },
+          {
+            "direction": "ANY",
+            "airways": [ "A461" ],
+            "noise": "N",
+            "allowed_fls": [ "291", "311", "331", "351", "371", "391", "411" ],
+            "FLAS": "Metric RVSM Eastbound Levels"
+          }
+        ],
+        "ATENA": [
+            {
+              "direction": "ANY",
+              "destinations": [ "ZGGG" ],
+              "noise":  "Y",
+              "allowed_fls": [ "138","148" ],
+              "FLAS": "FL138 (4200m), FL148 (4500m)"
+            },
+            {
+              "direction": "ANY",
+              "destinations": [ "ZGSZ" ],
+              "allowed_fls": [ "059" ],
+              "noise":  "Y",
+              "FLAS": "5900ft (1800m)"
+            },
+            {
+              "direction": "ANY",
+              "airways": [ "B330", "G586", "W90" ],
+              "noise":  "Y",
+              "allowed_fls": [ "276", "301", "321", "341", "361", "381", "401" ],
+              "FLAS": "Metric RVSM Westbound Levels"
+            },
+            {
+              "direction": "ANY",
+              "airways": [ "A461" ],
+              "noise":  "Y",
+              "allowed_fls": [ "291", "311", "331", "351", "371", "391", "411" ],
+              "FLAS": "Metric RVSM Eastbound Levels"
+            }
+         ],
+         "LAKES": [
+            {
+              "destinations": [ "ZGOW" ],
+              "airways": [ "V1" ],
+              "direction": "ANY",
+              "noise":  "N",
+              "allowed_fls": [ "148" ],
+              "FLAS": "FL148 (4500m)"
+            },
+            {
+              "destinations": [ "ZSAM", "ZSQZ" ],
+              "airways": [ "V1" ],
+              "direction": "ANY",
+              "noise":  "N",
+              "allowed_fls": [ "207", "226" ],
+              "FLAS": "FL207 (6300m), FL226 (6900m)"
+            },
+            {
+              "destinations": [ "ZSFZ", "ZSWY" ],
+              "airways": [ "V1" ],
+              "direction": "ANY",
+              "noise":  "N",
+              "allowed_fls": [ "226", "246", "266", "290" ],
+              "FLAS": "FL226 (6900m), FL246 (7500m), Fl266 (8100m), FL290"
+            },
+            {
+              "direction": "ODD",
+              "airways": [ "V1" ],
+              "noise":  "N",
+              "allowed_fls": [ "290", "330", "350", "390" ],
+              "FLAS": "FL290, FL330, FL350, FL390"
+            },
+            {
+              "direction": "ANY",
+              "airways": [ "V13" ],
+              "noise":  "N",
+              "allowed_fls": [ "291", "311", "331", "351", "371", "391", "411" ], 
+              "FLAS": "Metric RVSM Eastbound Levels"
+            }
+         ],
+        "VENGO": [
+          {
+            "destinations": [ "ZGOW" ],
+            "airways": [ "V1" ],
+            "direction": "ANY",
+            "noise":  "Y",
+            "allowed_fls": [ "148" ],
+            "FLAS": "FL148 (4500m)"
+          },
+          {
+            "destinations": [ "ZSAM", "ZSQZ" ],
+            "airways": [ "V1" ],
+            "direction": "ANY",
+            "noise": "Y",
+            "allowed_fls": [ "207", "226" ],
+            "FLAS": "FL207 (6300m), FL226 (6900m)"
+          },
+          {
+            "destinations": [ "ZSFZ", "ZSWY" ],
+            "airways": [ "V1" ],
+            "direction": "ANY",
+            "noise": "Y",
+            "allowed_fls": [ "226", "246", "266", "290" ],
+            "FLAS": "FL226 (6900m), FL246 (7500m), Fl266 (8100m), FL290"
+          },
+          {
+            "direction": "ODD",
+            "airways": [ "V1" ],
+            "noise": "Y",
+            "allowed_fls": [ "290", "330", "350", "390" ],
+            "FLAS": "FL290, FL330, FL350, FL390"
+          },
+          {
+            "direction": "ANY",
+            "airways": [ "V13" ],
+            "noise": "Y",
+            "allowed_fls": [ "291", "311", "331", "351", "371", "391", "411" ],
+            "FLAS": "Metric RVSM Eastbound Levels"
+          }
+        ],
+        "PECAN": [
+          {
+            "destinations": [ "ZJHK" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "217", "236" ],
+            "FLAS": "FL217 (6600m), FL236 (7200m)"
+          },
+          {
+            "destinations": [ "ZJSY" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "276" ],
+            "FLAS": "FL276 (8400m)"
+          },
+          {
+            "destinations": [ "ZGZJ", "ZGNU" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "197" ],
+            "FLAS": "FL197 (6000m)"
+          },
+          {
+            "destinations": [ "ZGBH", "ZGNN" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "236", "256" ],
+            "FLAS": "FL236 (7200m), FL256 (7800m)"
+          },
+          {
+            "airways": [ "A202" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "341", "381", "401" ],
+            "FLAS": "FL341 (10400m), FL381 (11600m), FL401 (12200m)"
+          },
+          {
+            "airways": [ "R339" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "281", "301", "321", "341", "361", "381", "401" ],
+            "FLAS": "Metric RVSM Westbound Levels"
+          },
+          {
+            "airways": [ "V11", "A1", "P901" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "280", "300", "340", "380", "400", "430" ],
+            "FLAS": "FL280, FL300, FL340, FL380, FL400, FL430"
+          },
+          {
+            "airways": [ "V12", "L642" ],
+            "direction": "ANY",
+            "suffix": "1X",
+            "noise": "Y",
+            "allowed_fls": [ "280", "310", "320", "350", "360", "390", "400" ],
+            "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
+          },
+          {
+            "destinations": [ "ZJHK" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "217", "236" ],
+            "FLAS": "FL217 (6600m), FL236 (7200m)"
+          },
+          {
+            "destinations": [ "ZJSY" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "276" ],
+            "FLAS": "FL276 (8400m)"
+          },
+          {
+            "destinations": [ "ZGZJ", "ZGNU" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "197" ],
+            "FLAS": "FL197 (6000m)"
+          },
+          {
+            "destinations": [ "ZGBH", "ZGNN" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "236", "256" ],
+            "FLAS": "FL236 (7200m), FL256 (7800m)"
+          },
+          {
+            "airways": [ "A202" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "341", "381", "401" ],
+            "FLAS": "FL341 (10400m), FL381 (11600m), FL401 (12200m)"
+          },
+          {
+            "airways": [ "R339" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "281", "301", "321", "341", "361", "381", "401" ],
+            "FLAS": "Metric RVSM Westbound Levels"
+          },
+          {
+            "airways": [ "V11", "A1", "P901" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "280", "300", "340", "380", "400", "430" ],
+            "FLAS": "FL280, FL300, FL340, FL380, FL400, FL430"
+          },
+          {
+            "airways": [ "V12", "L642" ],
+            "direction": "ANY",
+            "suffix": "1Y",
+            "noise": "Y",
+            "allowed_fls": [ "280", "310", "320", "350", "360", "390", "400" ],
+            "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
+          },
+          {
+            "destinations": [ "ZJHK" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "217", "236" ],
+            "FLAS": "FL217 (6600m), FL236 (7200m)"
+          },
+          {
+            "destinations": [ "ZJSY" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "276" ],
+            "FLAS": "FL276 (8400m)"
+          },
+          {
+            "destinations": [ "ZGZJ", "ZGNU" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "197" ],
+            "FLAS": "FL197 (6000m)"
+          },
+          {
+            "destinations": [ "ZGBH", "ZGNN" ],
+            "airways": [ "V10" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "236", "256" ],
+            "FLAS": "FL236 (7200m), FL256 (7800m)"
+          },
+          {
+            "airways": [ "A202" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "341", "381", "401" ],
+            "FLAS": "FL341 (10400m), FL381 (11600m), FL401 (12200m)"
+          },
+          {
+            "airways": [ "R339" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "281", "301", "321", "341", "361", "381", "401" ],
+            "FLAS": "Metric RVSM Westbound Levels"
+          },
+          {
+            "airways": [ "V11", "A1", "P901" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "280", "300", "340", "380", "400", "430" ],
+            "FLAS": "FL280, FL300, FL340, FL380, FL400, FL430"
+          },
+          {
+            "airways": [ "V12", "L642" ],
+            "direction": "ANY",
+            "noise": "N",
+            "allowed_fls": [ "280", "310", "320", "350", "360", "390", "400" ],
+            "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
+          }
+        ]
       }
    }
 ]

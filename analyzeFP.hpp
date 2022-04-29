@@ -12,13 +12,13 @@
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
 
-#define MY_PLUGIN_NAME      "VFPC"
-#define MY_PLUGIN_VERSION   "2.1.0"
-#define MY_PLUGIN_DEVELOPER "Jan Fries, Hendrik Peter, Sven Czarnian"
+#define MY_PLUGIN_NAME      "HKvACC VFPC"
+#define MY_PLUGIN_VERSION   "0.1a"
+#define MY_PLUGIN_DEVELOPER "Justin Wai. Jan Fries, Hendrik Peter, Sven Czarnian"
 #define MY_PLUGIN_COPYRIGHT "GPL v3"
-#define MY_PLUGIN_VIEW_AVISO  "Vatsim FlightPlan Checker"
+#define MY_PLUGIN_VIEW_AVISO  "HKvACC FlightPlan Checker"
 
-#define PLUGIN_WELCOME_MESSAGE	"Willkommen beim Vatsim Flugplan-RFL checker"
+#define PLUGIN_WELCOME_MESSAGE	"Welcome to the HKvACC Flight Plan Checker"
 
 using namespace std;
 using namespace boost;
@@ -118,6 +118,8 @@ public:
 	virtual void sendMessage(string message);
 
 	virtual void checkFPDetail();
+
+	virtual void checkFLAS();
 
 	virtual pair<string, int> getFails(map<string, string> messageBuffer);
 

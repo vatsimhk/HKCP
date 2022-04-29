@@ -8,11 +8,14 @@ const int TAG_ITEM_FPCHECK_IF_FAILED_STATIC = 3;
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;
 const int TAG_FUNC_ON_OFF = 102;
+const int TAG_FUNC_CHECKFP_FLAS = 103;
 
 const COLORREF TAG_GREEN = RGB(0, 190, 0);
 const COLORREF TAG_GREY = RGB(128, 128, 128);
-const COLORREF TAG_RED = RGB(190, 0, 0);
+const COLORREF TAG_RED = RGB(240, 40, 40);
 const COLORREF TAG_YELLOW = RGB(220, 220, 0);
+const COLORREF TAG_CYAN = RGB(114, 216, 250);
+const COLORREF TAG_BLUE = RGB(0, 90, 255);
 
 inline static bool startsWith(const char *pre, const char *str)
 {

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "analyzeFP.hpp"
+#include "EuroScopePlugIn.h"
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -103,11 +104,11 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		SID = SID,
 		DESTINATION = Destination,
 		AIRWAYS = Airway,
-		ENGINE = Engine Type,
+		NOISE = Engine Type,
 		DIRECTION = Even / Odd,
 		MIN_FL = Minimum Flight Level,
 		MAX_FL = Maximum Flight Level,
-		FORBIDDEN_FL = Forbidden Flight Level,
+		ALLOWED_FL = Allowed Flight Level,
 		NAVIGATION = Navigation restriction,
 		STATUS = Passed
 	*/
@@ -200,7 +201,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			if ((dest = destArrayContains(conditions[i]["destinations"], destination.c_str())).size()) {
 				if (dest.size() < 4)
 					dest += string(4 - dest.size(), '*');
-				returnValid["DESTINATION"] = "Passed Destination (" + dest + ")";
+				returnValid["DESTINATION"] = "For Destination (" + dest + "): ";
 				passed[0] = true;
 			}
 			else {
@@ -216,7 +217,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		if (conditions[i]["airways"].IsArray() && conditions[i]["airways"].Size()) {
 			string rte = flightPlan.GetFlightPlanData().GetRoute();
 			if (routeContains(rte, conditions[i]["airways"])) {
-				returnValid["AIRWAYS"] = "Passed Airways";
+				returnValid["AIRWAYS"] = "Passed Transition Route";
 				passed[1] = true;
 			}
 			else {
@@ -224,31 +225,23 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			}
 		}
 		else {
-			returnValid["AIRWAYS"] = "No Airway restr";
+			returnValid["AIRWAYS"] = "";
 			passed[1] = true;
 		}
 
-		// Is Engine Type if it's limited (P=piston, T=turboprop, J=jet, E=electric)
-		if (conditions[i]["engine"].IsString()) {
-			if (conditions[i]["engine"].GetString()[0] == flightPlan.GetFlightPlanData().GetEngineType()) {
-				returnValid["ENGINE"] = "Passed Engine type (" + (string)conditions[i]["engine"].GetString() + ')';
-				passed[2] = true;
+		// Noise Abatement test
+		string noise = conditions[i]["noise"].GetString();
+		if (conditions[i]["noise"].IsString() == true) {
+			if (noise == "Y") {
+				returnValid["NOISE"] = "Noise abatement procedure";
 			}
 			else {
-				returnValid["ENGINE"] = "Failed Engine type. Needed: " + (string)conditions[i]["engine"].GetString();
-			}
-		}
-		else if (conditions[i]["engine"].IsArray() && conditions[i]["engine"].Size()) {
-			if (arrayContains(conditions[i]["engine"], flightPlan.GetFlightPlanData().GetEngineType())) {
-				returnValid["ENGINE"] = "Passed Engine type (" + arrayToString(conditions[i]["engine"], ',') + ")";
+				returnValid["NOISE"] = "Regular procedure";
 				passed[2] = true;
-			}
-			else {
-				returnValid["ENGINE"] = "Failed Engine type. Needed: " + arrayToString(conditions[i]["engine"], ',');
 			}
 		}
 		else {
-			returnValid["ENGINE"] = "No Engine type restr";
+			returnValid["NOISE"] = "";
 			passed[2] = true;
 		}
 
@@ -262,24 +255,24 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 
 		if (direction == "EVEN") {
 			if ((RFL / 1000) % 2 == 0) {
-				returnValid["DIRECTION"] = "Passed Even";
+				returnValid["DIRECTION"] = "Even FLs (Passed)";
 				passed[3] = true;
 			}
 			else {
-				returnValid["DIRECTION"] = "Failed Even";
+				returnValid["DIRECTION"] = "Even FLs (Failed)";
 			}
 		}
 		else if (direction == "ODD") {
 			if ((RFL / 1000) % 2 != 0) {
-				returnValid["DIRECTION"] = "Passed Odd";
+				returnValid["DIRECTION"] = "Odd FLs (Passed)";
 				passed[3] = true;
 			}
 			else {
-				returnValid["DIRECTION"] = "Failed Odd";
+				returnValid["DIRECTION"] = "ODD FLs (Failed)";
 			}
 		}
 		else if (direction == "ANY") {
-			returnValid["DIRECTION"] = "No Direction restr";
+			returnValid["DIRECTION"] = "";
 			passed[3] = true;
 		}
 		else {
@@ -293,11 +286,11 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		int min_fl, max_fl;
 		if (conditions[i].HasMember("min_fl") && (min_fl = conditions[i]["min_fl"].GetInt()) > 0) {
 			if ((RFL / 100) >= min_fl) {
-				returnValid["MIN_FL"] = "Passed Minimum FL (" + to_string(conditions[i]["min_fl"].GetInt()) + ')';
+				returnValid["MIN_FL"] = "at or above FL" + to_string(conditions[i]["min_fl"].GetInt()) + " (Passed)";
 				passed[4] = true;
 			}
 			else {
-				returnValid["MIN_FL"] = "Failed Minimum FL. Min FL: " + to_string(min_fl);
+				returnValid["MIN_FL"] = "at or above FL" + to_string(min_fl) + " (Failed)";
 			}
 		}
 		else {
@@ -307,11 +300,11 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 
 		if (conditions[i].HasMember("max_fl") && (max_fl = conditions[i]["max_fl"].GetInt()) > 0) {
 			if ((RFL / 100) <= max_fl) {
-				returnValid["MAX_FL"] = "Passed Maximum FL (" + to_string(conditions[i]["max_fl"].GetInt()) + ')';
+				returnValid["MAX_FL"] = "at or below FL" + to_string(conditions[i]["max_fl"].GetInt()) + " (Passed)";
 				passed[5] = true;
 			}
 			else {
-				returnValid["MAX_FL"] = "Failed Maximum FL. Max FL: " + to_string(max_fl);
+				returnValid["MAX_FL"] = "at or below FL" + to_string(max_fl) + " (Failed)";
 			}
 		}
 		else {
@@ -319,19 +312,20 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			passed[5] = true;
 		}
 
-		// Flight level (forbidden)
+		// Flight level allocation scheme
 		// Does Condition contain our first airway if it's limited
-		if (conditions[i]["forbidden_fls"].IsArray() && conditions[i]["forbidden_fls"].Size()) {
-			if (routeContains(to_string(RFL / 100), conditions[i]["forbidden_fls"])) {
-				returnValid["FORBIDDEN_FL"] = "Failed forbidden FLs. Forbidden FL: " + to_string(RFL / 100);
+		string allowed_fls = conditions[i]["FLAS"].GetString();
+		if (conditions[i]["allowed_fls"].IsArray() && conditions[i]["allowed_fls"].Size()) {
+			if (routeContains(to_string(RFL / 100), conditions[i]["allowed_fls"])) {
+				returnValid["ALLOWED_FL"] =  allowed_fls + " (Passed)";
+				passed[6] = true;
 			}
 			else {
-				returnValid["FORBIDDEN_FL"] = "Passed forbidden FLs";
-				passed[6] = true;
+				returnValid["ALLOWED_FL"] = allowed_fls + " (Failed)";
 			}
 		}
 		else {
-			returnValid["FORBIDDEN_FL"] = "No forbidden FL";
+			returnValid["ALLOWED_FL"] = "No FLAS";
 			passed[6] = true;
 		}
 
@@ -348,7 +342,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			}
 		}
 		else {
-			returnValid["NAVIGATION"] = "No navigation capability restr";
+			returnValid["NAVIGATION"] = "";
 			passed[7] = true;
 		}
 
@@ -391,7 +385,8 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 	
 	if (FunctionId == TAG_FUNC_CHECKFP_MENU) {
 		OpenPopupList(Area, "Check FP", 1);
-		AddPopupListElement("Show Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
+		//AddPopupListElement("Show All Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
+		AddPopupListElement("Show FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, 2, false);
 
 		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
 			AddPopupListElement("Enable", "", TAG_FUNC_ON_OFF, false, 2, false);
@@ -400,6 +395,9 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 	}
 	if (FunctionId == TAG_FUNC_CHECKFP_CHECK) {
 		checkFPDetail();
+	}
+	if (FunctionId == TAG_FUNC_CHECKFP_FLAS) {
+		checkFLAS();
 	}
 	if (FunctionId == TAG_FUNC_ON_OFF) {
 		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
@@ -414,11 +412,10 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
 	*pColorCode = TAG_COLOR_RGB_DEFINED;
-
 	if (ItemCode == TAG_ITEM_FPCHECK)
 	{
 		if (strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "V") > -1) {
-			*pRGB = TAG_GREEN;
+			*pRGB = TAG_CYAN;
 			strcpy_s(sItemString, 16, "VFR");
 		}
 		else {
@@ -436,10 +433,13 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 				string code; int count;
 				tie(code, count) = getFails(messageBuffer);
 
-				if (messageBuffer["FORBIDDEN_FL"].find_first_of("Failed") == 0 && count == 1)
+				if (count == 100)
+					*pRGB = TAG_RED;
+				else if (count != 1) {
 					*pRGB = TAG_YELLOW;
+				}
 				else
-				*pRGB = TAG_RED;
+				*pRGB = TAG_GREEN;
 				strcpy_s(sItemString, 16, code.c_str());
 			}
 			
@@ -507,7 +507,7 @@ bool CVFPCPlugin::OnCompileCommand(const char * sCommandLine) {
 	return false;
 }
 
-// Sends to you, which checks were failed and which were passed on the selected aircraft
+// the original checking algorithm, unused in hk
 void CVFPCPlugin::checkFPDetail() {	
 	map<string, string> messageBuffer = validizeSid(FlightPlanSelectASEL());
 	string buffer{};
@@ -529,13 +529,36 @@ void CVFPCPlugin::checkFPDetail() {
 	sendMessage(messageBuffer["CS"], buffer);
 }
 
+//sends valid FLs for route
+void CVFPCPlugin::checkFLAS() {
+	map<string, string> messageBuffer = validizeSid(FlightPlanSelectASEL());
+	string buffer{};
+
+	buffer = messageBuffer["ALLOWED_FL"];
+	if (buffer == "No FLAS") {
+		if (messageBuffer["DIRECTION"] != "") {
+			buffer = messageBuffer["DIRECTION"] + ", ";
+		}
+		if (messageBuffer["MIN_FL"] != "No Minimum FL") {
+			buffer += messageBuffer["MIN_FL"] + ", ";
+		}
+		if (messageBuffer["MAX_FL"] != "No Maximum FL") {
+			buffer += messageBuffer["MAX_FL"];
+		}
+	}
+	else if (buffer == "") {
+		buffer = "Unable to find altitude restriction for route! Please check manually.";
+	}
+	sendMessage("Valid FLs for " + messageBuffer["CS"], buffer);
+}
+
 pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 	vector<string> fails;
-	int failCount = 0;
+	int failCode = 0;
 	
-	fails.push_back("FPL");
+	//fails.push_back("FPL");
 
-	if (messageBuffer.find("STATUS") != messageBuffer.end()) {
+	/*if (messageBuffer.find("STATUS") != messageBuffer.end()) {
 		fails.push_back("SID");
 	}
 	if (messageBuffer["DESTINATION"].find_first_of("Failed") == 0) {
@@ -543,36 +566,43 @@ pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 	}
 	if (messageBuffer["AIRWAYS"].find_first_of("Failed") == 0) {
 		fails.push_back("AWY");
+	}*/
+
+	if (messageBuffer["DIRECTION"].find("Failed") != std::string::npos) {
+		fails.push_back("E/O");
+		failCode = 2;
 	}
-	if (messageBuffer["ENGINE"].find_first_of("Failed") == 0) {
-		fails.push_back("ENG");
+	if (messageBuffer["MIN_FL"].find("Failed") != std::string::npos) {
+		fails.push_back("MIN");
+		failCode = 3;
+	}
+	if (messageBuffer["MAX_FL"].find("Failed") != std::string::npos) {
+		fails.push_back("MAX");
+		failCode = 4;
+	}
+	if (messageBuffer["ALLOWED_FL"].find("Failed") != std::string::npos) {
+		fails.push_back("FLR");
+		failCode = 5;
 	}
 
-	if (messageBuffer["DIRECTION"].find_first_of("Failed") == 0) {
-		fails.push_back("E/O");
-		failCount++;
-	}
-	if (messageBuffer["MIN_FL"].find_first_of("Failed") == 0) {
-		fails.push_back("MIN");
-		failCount++;
-	}
-	if (messageBuffer["MAX_FL"].find_first_of("Failed") == 0) {
-		fails.push_back("MAX");
-		failCount++;
-	}
-	if (messageBuffer["FORBIDDEN_FL"].find_first_of("Failed") == 0) {
-		fails.push_back("FLR");
-		failCount++;
-	}
-	if (messageBuffer["NAVIGATION"].find_first_of("Failed") == 0) {
+	/*if (messageBuffer["NAVIGATION"].find_first_of("Failed") == 0) {
 		fails.push_back("NAV");
-		failCount++;
+		failCode++;
+	}*/
+	if (failCode == 0) {
+		if (messageBuffer["NOISE"].find("Noise") != std::string::npos) {
+			fails.push_back("NAP");
+			failCode = 1;
+		} else {
+			fails.push_back("CHK");
+			failCode = 100;
+		}
 	}
 
 	std::size_t couldnt = disCount;
 	while (couldnt >= fails.size())
 		couldnt -= fails.size();
-	return pair<string, int>(fails[couldnt], failCount);
+	return pair<string, int>(fails[couldnt], failCode);
 }
 
 void CVFPCPlugin::OnTimer(int Counter) {
