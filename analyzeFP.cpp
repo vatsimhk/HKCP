@@ -239,8 +239,8 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		}
 
 		// Noise Abatement test
-		string noise = conditions[i]["noise"].GetString();
 		if (conditions[i]["noise"].IsString() == true) {
+			string noise = conditions[i]["noise"].GetString();
 			if (noise == "Y") {
 				returnValid["NOISE"] = "Noise abatement procedure";
 			}
@@ -259,37 +259,44 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		returnValid["SID"] = first_wp;
 
 		// Direction of condition (EVEN, ODD, ANY)
-		string direction = conditions[i]["direction"].GetString();
-		boost::to_upper(direction);
-
-		if (direction == "EVEN") {
-			if ((RFL / 1000) % 2 == 0) {
-				returnValid["DIRECTION"] = "Even FLs (Passed)";
+		if (conditions[i]["direction"].IsString() == true) {
+			string direction = conditions[i]["direction"].GetString();
+			boost::to_upper(direction);
+			if (direction == "EVEN") {
+				if ((RFL / 1000) % 2 == 0) {
+					returnValid["DIRECTION"] = "Even FLs (Passed)";
+					passed[3] = true;
+				}
+				else {
+					returnValid["DIRECTION"] = "Even FLs (Failed)";
+				}
+			}
+			else if (direction == "ODD") {
+				if ((RFL / 1000) % 2 != 0) {
+					returnValid["DIRECTION"] = "Odd FLs (Passed)";
+					passed[3] = true;
+				}
+				else {
+					returnValid["DIRECTION"] = "ODD FLs (Failed)";
+				}
+			}
+			else if (direction == "ANY") {
+				returnValid["DIRECTION"] = "";
 				passed[3] = true;
 			}
 			else {
-				returnValid["DIRECTION"] = "Even FLs (Failed)";
+				string errorText{ "Config Error for Even/Odd on SID: " };
+				errorText += first_wp;
+				sendMessage("Error", errorText);
+				returnValid["DIRECTION"] = "Config Error for Even/Odd on this SID!";
 			}
 		}
-		else if (direction == "ODD") {
-			if ((RFL / 1000) % 2 != 0) {
-				returnValid["DIRECTION"] = "Odd FLs (Passed)";
-				passed[3] = true;
-			}
-			else {
-				returnValid["DIRECTION"] = "ODD FLs (Failed)";
-			}
-		}
-		else if (direction == "ANY") {
+		else {
 			returnValid["DIRECTION"] = "";
 			passed[3] = true;
 		}
-		else {
-			string errorText{ "Config Error for Even/Odd on SID: " };
-			errorText += first_wp;
-			sendMessage("Error", errorText);
-			returnValid["DIRECTION"] = "Config Error for Even/Odd on this SID!";
-		}
+
+
 		
 		// Flight level (min_fl, max_fl)
 		int min_fl, max_fl;
@@ -323,14 +330,22 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 
 		// Flight level allocation scheme
 		// Does Condition contain our first airway if it's limited
-		string allowed_fls = conditions[i]["FLAS"].GetString();
 		if (conditions[i]["allowed_fls"].IsArray() && conditions[i]["allowed_fls"].Size()) {
-			if (routeContains(to_string(RFL / 100), conditions[i]["allowed_fls"])) {
-				returnValid["ALLOWED_FL"] =  allowed_fls + " (Passed)";
-				passed[6] = true;
+			if (conditions[i]["FLAS"].IsString()) {
+				string allowed_fls = conditions[i]["FLAS"].GetString();
+				if (routeContains(to_string(RFL / 100), conditions[i]["allowed_fls"])) {
+					returnValid["ALLOWED_FL"] = allowed_fls + " (Passed)";
+					passed[6] = true;
+				}
+				else {
+					returnValid["ALLOWED_FL"] = allowed_fls + " (Failed)";
+				}
 			}
 			else {
-				returnValid["ALLOWED_FL"] = allowed_fls + " (Failed)";
+				string errorText{ "Config Error for FLAS on SID: " };
+				errorText += first_wp;
+				sendMessage("Error", errorText);
+				returnValid["DIRECTION"] = "Config Error for FLAS on this SID! Check JSON file.";
 			}
 		}
 		else {
@@ -346,7 +361,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				passed[7] = false;
 			}
 			else {
-				returnValid["NAVIGATION"] = "No navigation capability restr";
+				returnValid["NAVIGATION"] = "Passed navigation capability restr";
 				passed[7] = true;
 			}
 		}
