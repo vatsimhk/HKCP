@@ -31,4 +31,6 @@
 *.out
 *.app
 .vs/
+Debug/
 Release/
+.vscode/
