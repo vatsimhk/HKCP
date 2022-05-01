@@ -11,6 +11,7 @@ While it will greatly aid delivery controllers, it **does not negate the need fo
 - Load up the plugin
 - Add Tag Item type & function to Departure List
 
+If you get an error on load, please install the [latest C++ redistributables](https://aka.ms/vs/17/release/vc_redist.x86.exe)
 
 ### How to define configurations
 Examples can be found in the given Sid.json file.
