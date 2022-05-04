@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "analyzeFP.hpp"
 #include "EuroScopePlugIn.h"
+#include <time.h> 
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -241,11 +242,23 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		// Noise Abatement test
 		if (conditions[i]["noise"].IsString() == true) {
 			string noise = conditions[i]["noise"].GetString();
-			if (noise == "Y") {
-				returnValid["NOISE"] = "Noise abatement procedure";
+			time_t rawtime;
+			struct tm * ptm;
+			time ( &rawtime );
+			ptm = gmtime ( &rawtime );
+			int hr = ptm->tm_hour;
+			if (noise == "Y" && hr >= 15 && hr < 23) {
+				returnValid["NOISE"] = "Noise abatement procedure (Passed)";
+				passed[2] = true;
+			}
+			else if (noise == "Y" && !(hr >= 15 && hr < 23)) {
+				returnValid["NOISE"] = "Noise abatement procedure (Failed)";
+			}
+			else if (noise == "N" && hr >= 15 && hr < 23) {
+				returnValid["NOISE"] = "Regular procedure (Failed)";
 			}
 			else {
-				returnValid["NOISE"] = "Regular procedure";
+				returnValid["NOISE"] = "Regular procedure (Passed)";
 				passed[2] = true;
 			}
 		}
@@ -559,6 +572,7 @@ void CVFPCPlugin::checkFLAS() {
 	string buffer{};
 
 	buffer = messageBuffer["ALLOWED_FL"];
+	buffer += ", " + messageBuffer["NOISE"];
 	if (buffer == "No FLAS") {
 		if (messageBuffer["DIRECTION"] != "") {
 			buffer = messageBuffer["DIRECTION"] + ", ";
@@ -614,10 +628,12 @@ pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 		failCode++;
 	}*/
 	if (failCode == 0) {
-		if (messageBuffer["NOISE"].find("Noise") != std::string::npos) {
-			fails.push_back("NAP");
-			failCode = 1;
-		} else {
+		if (messageBuffer["NOISE"].find("Failed") != std::string::npos) {
+			fails.push_back("NAP?");
+			failCode = 6;
+		}
+
+		else {
 			fails.push_back("CHK");
 			failCode = 100;
 		}
