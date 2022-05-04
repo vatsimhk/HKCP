@@ -242,11 +242,12 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		// Noise Abatement test
 		if (conditions[i]["noise"].IsString() == true) {
 			string noise = conditions[i]["noise"].GetString();
-			time_t rawtime;
-			struct tm * ptm;
-			time ( &rawtime );
-			ptm = gmtime ( &rawtime );
-			int hr = ptm->tm_hour;
+			time_t rawtime = time(NULL);
+			struct tm timeinfo;
+			gmtime_s(&timeinfo, &rawtime);
+			char buffer[3];
+			strftime(buffer, 3, "%H", &timeinfo);
+			int hr = atoi(buffer);
 			if (noise == "Y" && hr >= 15 && hr < 23) {
 				returnValid["NOISE"] = "Noise abatement procedure (Passed)";
 				passed[2] = true;
