@@ -255,10 +255,10 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				returnValid["NOISE"] = "Noise abatement procedure (Failed)";
 			}
 			else if (noise == "N" && hr >= 15 && hr < 23) {
-				returnValid["NOISE"] = "Regular procedure (Failed)";
+				returnValid["NOISE"] = "Not noise abatement (Failed)";
 			}
 			else {
-				returnValid["NOISE"] = "Regular procedure (Passed)";
+				returnValid["NOISE"] = "Not noise abatement (Passed)";
 				passed[2] = true;
 			}
 		}
@@ -422,7 +422,7 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 	
 	if (FunctionId == TAG_FUNC_CHECKFP_MENU) {
 		OpenPopupList(Area, "Check FP", 1);
-		//AddPopupListElement("Show All Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
+		AddPopupListElement("Show All Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
 		AddPopupListElement("Show FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, 2, false);
 
 		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
@@ -544,26 +544,32 @@ bool CVFPCPlugin::OnCompileCommand(const char * sCommandLine) {
 	return false;
 }
 
-// the original checking algorithm, unused in hk
+
 void CVFPCPlugin::checkFPDetail() {	
 	map<string, string> messageBuffer = validizeSid(FlightPlanSelectASEL());
 	string buffer{};
-
-	if (messageBuffer.find("SEARCH") == messageBuffer.end()) {
-		buffer += messageBuffer["STATUS"] + " SID " + messageBuffer["SID"] + ": ";
-
-		map<string, string>::iterator it;
-		for (it = messageBuffer.begin(); it != messageBuffer.end(); it++)
-		{
-			if (it->first == "CS" || it->first == "STATUS" || it->first == "SID")
-				continue;
-			buffer += it->second + ", ";
-		}
-	} else {
-		buffer = "Failed: " + messageBuffer["SEARCH"];
+	if (messageBuffer["SEARCH"] == "No valid SID found!" || messageBuffer["SEARCH"] == "Flightplan doesn't have SID set!") {
+		buffer += "No valid SID found, Please check FPL manually";
 	}
-
-	sendMessage(messageBuffer["CS"], buffer);
+	else if (messageBuffer["AIRWAYS"] == "") {
+		buffer += "SID does not connect to valid airways or transition route, Please check FPL manually";
+	}
+	else {
+		buffer += "SID and route valid, ";
+		if (messageBuffer["ALLOWED_FL"].find("Failed") != std::string::npos || messageBuffer["MAX_FL"].find("Failed") != std::string::npos || messageBuffer["MIN_FL"].find("Failed") != std::string::npos || messageBuffer["DIRECTION"].find("Failed") != std::string::npos) {
+			buffer += "Cruise FL invalid, ";
+		}
+		else {
+			buffer += "Cruise FL valid, ";
+		}
+		if (messageBuffer["NOISE"] != "") {
+			buffer += "SID is " + messageBuffer["NOISE"];
+		}
+		else {
+			buffer += "No noise abatement data.";
+		}
+	}
+	sendMessage("FPL Check for " + messageBuffer["CS"], buffer);
 }
 
 //sends valid FLs for route
@@ -572,7 +578,6 @@ void CVFPCPlugin::checkFLAS() {
 	string buffer{};
 
 	buffer = messageBuffer["ALLOWED_FL"];
-	buffer += ", " + messageBuffer["NOISE"];
 	if (buffer == "No FLAS") {
 		if (messageBuffer["DIRECTION"] != "") {
 			buffer = messageBuffer["DIRECTION"] + ", ";
@@ -627,16 +632,13 @@ pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 		fails.push_back("NAV");
 		failCode++;
 	}*/
+	if (messageBuffer["NOISE"].find("Failed") != std::string::npos) {
+		fails.push_back("NAP");
+		failCode = 6;
+	}
 	if (failCode == 0) {
-		if (messageBuffer["NOISE"].find("Failed") != std::string::npos) {
-			fails.push_back("NAP?");
-			failCode = 6;
-		}
-
-		else {
-			fails.push_back("CHK");
-			failCode = 100;
-		}
+		fails.push_back("CHK");
+		failCode = 100;
 	}
 
 	std::size_t couldnt = disCount;
