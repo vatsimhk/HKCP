@@ -628,7 +628,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 
 	// Flightplan has SID
 	if (!sid.length()) {
-		return sendMessage("Unable, No SID");
+		return sendMessage("No SID or FLAS found");
 	}
 
 	string first_wp = sid.substr(0, sid.find_first_of("0123456789"));
@@ -643,7 +643,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 
 	// Did not find a valid SID
 	if (sid_suffix.length() == 0 && "VCT" != first_wp) {
-		return sendMessage("Unable, No SID");;
+		return sendMessage("No SID or FLAS found");;
 	}
 
 	vector<string>::iterator it = find(route.begin(), route.end(), first_wp);
@@ -654,19 +654,19 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 
 	// Airport defined
 	if (airports.find(origin) == airports.end()) {
-		return sendMessage("Unable, No valid airport");;
+		return sendMessage("Unable, No valid departure airport");;
 	}
 	else
 		origin_int = airports[origin];
 
 	// Any SIDs defined
 	if (!config[origin_int].HasMember("sids") || config[origin_int]["sids"].IsArray()) {
-		return sendMessage("Unable, No SID");;
+		return sendMessage("No SID or FLAS found");;
 	}
 
 	// Needed SID defined
 	if (!config[origin_int]["sids"].HasMember(first_wp.c_str()) || !config[origin_int]["sids"][first_wp.c_str()].IsArray()) {
-		return sendMessage("Unable, No SID");;
+		return sendMessage("No SID or FLAS found");;
 	}
 	vector<int> availFls {};
 	const Value& conditions = config[origin_int]["sids"][first_wp.c_str()];
@@ -773,7 +773,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 280; e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 300;
@@ -791,7 +791,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 						int initFl = 80;
 						int currentFl = 80;
 						for (int e = 0; currentFl < 280 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 300;
@@ -811,7 +811,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 270; e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 290;
@@ -829,7 +829,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 						int initFl = 70;
 						int currentFl = 70;
 						for (int e = 0; currentFl < 290 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 300;
@@ -892,7 +892,7 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 
 	// Did not find a valid SID
 	if (sid_suffix.length() == 0 && "VCT" != first_wp) {
-		return sendMessage("Unable, No SID");;
+		return sendMessage("No SID or FLAS found");;
 	}
 
 	vector<string>::iterator it = find(route.begin(), route.end(), first_wp);
@@ -903,19 +903,19 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 
 	// Airport defined
 	if (airports.find(origin) == airports.end()) {
-		return sendMessage("Unable, No valid airport");;
+		return sendMessage("Unable, No valid departure airport");;
 	}
 	else
 		origin_int = airports[origin];
 
 	// Any SIDs defined
 	if (!config[origin_int].HasMember("sids") || config[origin_int]["sids"].IsArray()) {
-		return sendMessage("Unable, No SID");;
+		return sendMessage("No SID or FLAS found");;
 	}
 
 	// Needed SID defined
 	if (!config[origin_int]["sids"].HasMember(first_wp.c_str()) || !config[origin_int]["sids"][first_wp.c_str()].IsArray()) {
-		return sendMessage("Unable, No SID");;
+		return sendMessage("No SID or FLAS found");;
 	}
 	vector<int> availFls{};
 	const Value& conditions = config[origin_int]["sids"][first_wp.c_str()];
@@ -1022,7 +1022,7 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 280; e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 300;
@@ -1040,7 +1040,7 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 						int initFl = 80;
 						int currentFl = 80;
 						for (int e = 0; currentFl < 280 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 300;
@@ -1060,7 +1060,7 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 270; e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 290;
@@ -1078,7 +1078,7 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 						int initFl = 70;
 						int currentFl = 70;
 						for (int e = 0; currentFl < 290 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 40);
+							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
 						}
 						initFl = 300;
