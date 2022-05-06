@@ -35,7 +35,8 @@ CVFPCPlugin::CVFPCPlugin(void) :CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_
 	RegisterTagItemType("VFPC", TAG_ITEM_FPCHECK);
 	RegisterTagItemType("VFPC (if failed)", TAG_ITEM_FPCHECK_IF_FAILED);
 	RegisterTagItemType("VFPC (if failed, static)", TAG_ITEM_FPCHECK_IF_FAILED_STATIC);
-	RegisterTagItemFunction("Check FP", TAG_FUNC_CHECKFP_MENU);
+	RegisterTagItemFunction("Check FP Menu", TAG_FUNC_CHECKFP_MENU);
+	RegisterTagItemFunction("Modify RFL Menu", TAG_FUNC_MODRFL_MENU);
 
 	// Get Path of the Sid.txt
 	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
@@ -424,15 +425,18 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 	
 	if (FunctionId == TAG_FUNC_CHECKFP_MENU) {
 		OpenPopupList(Area, "Check FP", 1);
-		AddPopupListElement("Show All Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
 		AddPopupListElement("Show FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, 2, false);
-		AddPopupListElement("Increase FL", "", TAG_FUNC_FL_UP, false, 2, false);
-		AddPopupListElement("Decrease FL", "", TAG_FUNC_FL_DOWN, false, 2, false);
+		AddPopupListElement("Show All Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
 
 		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
 			AddPopupListElement("Enable", "", TAG_FUNC_ON_OFF, false, 2, false);
 		else
 			AddPopupListElement("Disable", "", TAG_FUNC_ON_OFF, false, 2, false);
+	}
+	if (FunctionId == TAG_FUNC_MODRFL_MENU) {
+		OpenPopupList(Area, "Modify RFL", 1);
+		AddPopupListElement("Increase RFL", "", TAG_FUNC_FL_UP, false, 2, false);
+		AddPopupListElement("Decrease RFL", "", TAG_FUNC_FL_DOWN, false, 2, false);
 	}
 	if (FunctionId == TAG_FUNC_CHECKFP_CHECK) {
 		checkFPDetail();
