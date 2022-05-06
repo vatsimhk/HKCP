@@ -776,11 +776,6 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 					if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
-						for (int e = 0; currentFl < 280; e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 300;
 						for (int e = 0; currentFl < 400; e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -794,11 +789,6 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 					else if (matched[5] == true) {
 						int initFl = 80;
 						int currentFl = 80;
-						for (int e = 0; currentFl < 280 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 300;
 						for (int e = 0; currentFl < 400 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -814,11 +804,6 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 					if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
-						for (int e = 0; currentFl < 270; e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 290;
 						for (int e = 0; currentFl < 410; e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -832,11 +817,6 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 					else if (matched[5] == true) {
 						int initFl = 70;
 						int currentFl = 70;
-						for (int e = 0; currentFl < 290 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 300;
 						for (int e = 0; currentFl < 410 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -1025,11 +1005,6 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 					if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
-						for (int e = 0; currentFl < 280; e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 300;
 						for (int e = 0; currentFl < 400; e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -1043,11 +1018,6 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 					else if (matched[5] == true) {
 						int initFl = 80;
 						int currentFl = 80;
-						for (int e = 0; currentFl < 280 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 300;
 						for (int e = 0; currentFl < 400 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -1063,11 +1033,6 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 					if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
-						for (int e = 0; currentFl < 270; e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 290;
 						for (int e = 0; currentFl < 410; e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
@@ -1081,11 +1046,6 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 					else if (matched[5] == true) {
 						int initFl = 70;
 						int currentFl = 70;
-						for (int e = 0; currentFl < 290 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
-							currentFl = initFl + (e * 20);
-							availFls.push_back(currentFl);
-						}
-						initFl = 300;
 						for (int e = 0; currentFl < 410 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
 							currentFl = initFl + (e * 20);
 							availFls.push_back(currentFl);
