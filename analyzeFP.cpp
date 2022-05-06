@@ -122,7 +122,8 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 	string origin = flightPlan.GetFlightPlanData().GetOrigin(); boost::to_upper(origin);
 	string destination = flightPlan.GetFlightPlanData().GetDestination(); boost::to_upper(destination);
 	SizeType origin_int;
-	int RFL = flightPlan.GetFlightPlanData().GetFinalAltitude();
+	int RFL = flightPlan.GetControllerAssignedData().GetFinalAltitude();
+	if (RFL == 0) RFL = flightPlan.GetFlightPlanData().GetFinalAltitude();
 	
 	vector<string> route = split(flightPlan.GetFlightPlanData().GetRoute(), ' ');
 	for (std::size_t i = 0; i < route.size(); i++) {
@@ -385,7 +386,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		}
 
 		bool passedVeri{ false };
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 8; i++) { // 0: Dest, 1: Airway, 2: NAP, 3: Direction, 4: Min FL, 5: Max FL, 6: Allowed FL, 7: Equipment 
 			if (passed[i])
 			{
 				passedVeri = true;
@@ -425,6 +426,8 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 		OpenPopupList(Area, "Check FP", 1);
 		AddPopupListElement("Show All Checks", "", TAG_FUNC_CHECKFP_CHECK, false, 2, false);
 		AddPopupListElement("Show FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, 2, false);
+		AddPopupListElement("Increase FL", "", TAG_FUNC_FL_UP, false, 2, false);
+		AddPopupListElement("Decrease FL", "", TAG_FUNC_FL_DOWN, false, 2, false);
 
 		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), fp.GetCallsign()) != AircraftIgnore.end())
 			AddPopupListElement("Enable", "", TAG_FUNC_ON_OFF, false, 2, false);
@@ -443,6 +446,12 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char * ItemString, POINT 
 		else
 			AircraftIgnore.emplace_back(fp.GetCallsign());
 
+	}
+	if (FunctionId == TAG_FUNC_FL_UP) {
+		flUp(FlightPlanSelectASEL());
+	}
+	if (FunctionId == TAG_FUNC_FL_DOWN) {
+		flDown(FlightPlanSelectASEL());
 	}
 }
 
@@ -594,6 +603,504 @@ void CVFPCPlugin::checkFLAS() {
 		buffer = "Unable to find altitude restriction for route! Please check manually.";
 	}
 	sendMessage("Valid FLs for " + messageBuffer["CS"], buffer);
+}
+
+void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
+	map<string, string> returnFPL;
+
+	returnFPL["CS"] = flightPlan.GetCallsign();
+	string origin = flightPlan.GetFlightPlanData().GetOrigin(); boost::to_upper(origin);
+	string destination = flightPlan.GetFlightPlanData().GetDestination(); boost::to_upper(destination);
+	SizeType origin_int;
+	int RFL = flightPlan.GetControllerAssignedData().GetFinalAltitude();
+	if (RFL == 0) RFL = flightPlan.GetFlightPlanData().GetFinalAltitude();
+
+	vector<string> route = split(flightPlan.GetFlightPlanData().GetRoute(), ' ');
+	for (std::size_t i = 0; i < route.size(); i++) {
+		boost::to_upper(route[i]);
+	}
+
+	string sid = flightPlan.GetFlightPlanData().GetSidName(); boost::to_upper(sid);
+
+	// Flightplan has SID
+	if (!sid.length()) {
+		return sendMessage("Unable, No SID");
+	}
+
+	string first_wp = sid.substr(0, sid.find_first_of("0123456789"));
+	if (0 != first_wp.length())
+		boost::to_upper(first_wp);
+	string sid_suffix;
+	if (first_wp.length() != sid.length()) {
+		sid_suffix = sid.substr(sid.find_first_of("0123456789"), sid.length());
+		boost::to_upper(sid_suffix);
+	}
+	string first_airway;
+
+	// Did not find a valid SID
+	if (sid_suffix.length() == 0 && "VCT" != first_wp) {
+		return sendMessage("Unable, No SID");;
+	}
+
+	vector<string>::iterator it = find(route.begin(), route.end(), first_wp);
+	if (it != route.end() && (it - route.begin()) != route.size() - 1) {
+		first_airway = route[(it - route.begin()) + 1];
+		boost::to_upper(first_airway);
+	}
+
+	// Airport defined
+	if (airports.find(origin) == airports.end()) {
+		return sendMessage("Unable, No valid airport");;
+	}
+	else
+		origin_int = airports[origin];
+
+	// Any SIDs defined
+	if (!config[origin_int].HasMember("sids") || config[origin_int]["sids"].IsArray()) {
+		return sendMessage("Unable, No SID");;
+	}
+
+	// Needed SID defined
+	if (!config[origin_int]["sids"].HasMember(first_wp.c_str()) || !config[origin_int]["sids"][first_wp.c_str()].IsArray()) {
+		return sendMessage("Unable, No SID");;
+	}
+	vector<int> availFls {};
+	const Value& conditions = config[origin_int]["sids"][first_wp.c_str()];
+	for (SizeType i = 0; i < conditions.Size(); i++) {
+		bool matched[8]{ false };
+		// Destination?
+		if (conditions[i]["destinations"].IsArray() && conditions[i]["destinations"].Size()) {
+			string dest;
+			if ((dest = destArrayContains(conditions[i]["destinations"], destination.c_str())).size()) {
+				matched[0] = true;
+			}
+			else continue;
+		}
+		else matched[0] = true;
+
+		// Airway?
+		string rte = flightPlan.GetFlightPlanData().GetRoute();
+		if (conditions[i]["airways"].IsArray() && conditions[i]["airways"].Size()) {
+			if (routeContains(rte, conditions[i]["airways"])) {
+				matched[1] = true;
+			}
+			else continue;
+		}
+		else if (conditions[i]["airways"].IsString()) {
+			if (rte.find(conditions[i]["airways"].GetString()) != std::string::npos) {
+				matched[1] = true;
+			}
+			else continue;
+		}
+		else {
+			matched[1] = true;
+		}
+
+		//Direction of condition (EVEN, ODD, ANY)
+		if (conditions[i]["direction"].IsString() == true) {
+			string direction = conditions[i]["direction"].GetString();
+			boost::to_upper(direction);
+			if (direction == "EVEN") {
+				matched[2] = true;
+				matched[3] = false;
+			}
+			else if (direction == "ODD") {
+				matched[2] = false;
+				matched[3] = true;
+			}
+			else {
+				matched[2] = false;
+				matched[3] = false;
+
+			}
+		}
+
+		// Flight level (min_fl, max_fl)
+		int min_fl, max_fl;
+		if (conditions[i].HasMember("min_fl") && (min_fl = conditions[i]["min_fl"].GetInt()) > 0) {
+			matched[4] = true;
+		}
+		else {
+			matched[4] = false;
+		}
+
+		if (conditions[i].HasMember("max_fl") && (max_fl = conditions[i]["max_fl"].GetInt()) > 0) {
+			matched[5] = true;
+		}
+		else {
+			matched[5] = false;
+		}
+
+		// Flight level allocation scheme
+		// Does Condition contain our first airway if it's limited
+		if (conditions[i]["allowed_fls"].IsArray() && conditions[i]["allowed_fls"].Size()) {
+			if (conditions[i]["FLAS"].IsString()) {
+				string allowed_fls = conditions[i]["FLAS"].GetString();
+				matched[6] = true;
+			}
+			else {
+				return sendMessage("Sid.json ERROR!");
+			}
+		}
+		else {
+			matched[6] = false;
+		}
+
+		bool passedVeri{ false };
+		for (int i = 0; i < 2; i++) { // 0: Dest, 1: Airway, 2: Even, 3: Odd, 4: Min FL, 5: Max FL, 6: limited by allowed
+			if (matched[i] == true)
+			{
+				passedVeri = true;
+			}
+			else {
+				passedVeri = false;
+				continue;
+			}
+		}
+		if (passedVeri == true) {
+			if (matched[6] == true) {
+				for (SizeType e = 0; e < conditions[i]["allowed_fls"].Size(); e++) {
+					availFls.push_back(atoi(conditions[i]["allowed_fls"][e].GetString()));
+				}
+			}
+			else {
+				if (matched[2] == true) {
+					if (matched[4] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 280; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 300;
+						for (int e = 0; currentFl < 400; e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 430;
+						for (int e = 0; currentFl < 600; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[5] == true) {
+						int initFl = 80;
+						int currentFl = 80;
+						for (int e = 0; currentFl < 280 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 300;
+						for (int e = 0; currentFl < 400 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 430;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+				}
+				else if (matched[3] == true) {
+					if (matched[4] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 270; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 290;
+						for (int e = 0; currentFl < 410; e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 450;
+						for (int e = 0; currentFl < 600; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[5] == true) {
+						int initFl = 70;
+						int currentFl = 70;
+						for (int e = 0; currentFl < 290 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 300;
+						for (int e = 0; currentFl < 410 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 450;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+				}
+			}
+			int higher = 0;
+			for (higher = 0; higher <= availFls.size(); higher++) {
+				if (higher == availFls.size()) return sendMessage("There are no higher FLs available.");
+				if (availFls[higher] > (RFL / 100) + 1) break;
+			}
+			if (higher == availFls.size()) return;
+			flightPlan.GetControllerAssignedData().SetFinalAltitude(availFls[higher] * 100);
+			flightPlan.GetFlightPlanData().SetFinalAltitude(flightPlan.GetControllerAssignedData().GetFinalAltitude());
+		}
+	}
+	return;
+}
+
+void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
+	map<string, string> returnFPL;
+
+	returnFPL["CS"] = flightPlan.GetCallsign();
+	string origin = flightPlan.GetFlightPlanData().GetOrigin(); boost::to_upper(origin);
+	string destination = flightPlan.GetFlightPlanData().GetDestination(); boost::to_upper(destination);
+	SizeType origin_int;
+	int RFL = flightPlan.GetControllerAssignedData().GetFinalAltitude();
+	if (RFL == 0) RFL = flightPlan.GetFlightPlanData().GetFinalAltitude();
+
+	vector<string> route = split(flightPlan.GetFlightPlanData().GetRoute(), ' ');
+	for (std::size_t i = 0; i < route.size(); i++) {
+		boost::to_upper(route[i]);
+	}
+
+	string sid = flightPlan.GetFlightPlanData().GetSidName(); boost::to_upper(sid);
+
+	// Flightplan has SID
+	if (!sid.length()) {
+		return sendMessage("Unable, No SID");
+	}
+
+	string first_wp = sid.substr(0, sid.find_first_of("0123456789"));
+	if (0 != first_wp.length())
+		boost::to_upper(first_wp);
+	string sid_suffix;
+	if (first_wp.length() != sid.length()) {
+		sid_suffix = sid.substr(sid.find_first_of("0123456789"), sid.length());
+		boost::to_upper(sid_suffix);
+	}
+	string first_airway;
+
+	// Did not find a valid SID
+	if (sid_suffix.length() == 0 && "VCT" != first_wp) {
+		return sendMessage("Unable, No SID");;
+	}
+
+	vector<string>::iterator it = find(route.begin(), route.end(), first_wp);
+	if (it != route.end() && (it - route.begin()) != route.size() - 1) {
+		first_airway = route[(it - route.begin()) + 1];
+		boost::to_upper(first_airway);
+	}
+
+	// Airport defined
+	if (airports.find(origin) == airports.end()) {
+		return sendMessage("Unable, No valid airport");;
+	}
+	else
+		origin_int = airports[origin];
+
+	// Any SIDs defined
+	if (!config[origin_int].HasMember("sids") || config[origin_int]["sids"].IsArray()) {
+		return sendMessage("Unable, No SID");;
+	}
+
+	// Needed SID defined
+	if (!config[origin_int]["sids"].HasMember(first_wp.c_str()) || !config[origin_int]["sids"][first_wp.c_str()].IsArray()) {
+		return sendMessage("Unable, No SID");;
+	}
+	vector<int> availFls{};
+	const Value& conditions = config[origin_int]["sids"][first_wp.c_str()];
+	for (SizeType i = 0; i < conditions.Size(); i++) {
+		bool matched[8]{ false };
+		// Destination?
+		if (conditions[i]["destinations"].IsArray() && conditions[i]["destinations"].Size()) {
+			string dest;
+			if ((dest = destArrayContains(conditions[i]["destinations"], destination.c_str())).size()) {
+				matched[0] = true;
+			}
+			else continue;
+		}
+		else matched[0] = true;
+
+		// Airway?
+		string rte = flightPlan.GetFlightPlanData().GetRoute();
+		if (conditions[i]["airways"].IsArray() && conditions[i]["airways"].Size()) {
+			if (routeContains(rte, conditions[i]["airways"])) {
+				matched[1] = true;
+			}
+			else continue;
+		}
+		else if (conditions[i]["airways"].IsString()) {
+			if (rte.find(conditions[i]["airways"].GetString()) != std::string::npos) {
+				matched[1] = true;
+			}
+			else continue;
+		}
+		else {
+			matched[1] = true;
+		}
+
+		//Direction of condition (EVEN, ODD, ANY)
+		if (conditions[i]["direction"].IsString() == true) {
+			string direction = conditions[i]["direction"].GetString();
+			boost::to_upper(direction);
+			if (direction == "EVEN") {
+				matched[2] = true;
+				matched[3] = false;
+			}
+			else if (direction == "ODD") {
+				matched[2] = false;
+				matched[3] = true;
+			}
+			else {
+				matched[2] = false;
+				matched[3] = false;
+
+			}
+		}
+
+		// Flight level (min_fl, max_fl)
+		int min_fl, max_fl;
+		if (conditions[i].HasMember("min_fl") && (min_fl = conditions[i]["min_fl"].GetInt()) > 0) {
+			matched[4] = true;
+		}
+		else {
+			matched[4] = false;
+		}
+
+		if (conditions[i].HasMember("max_fl") && (max_fl = conditions[i]["max_fl"].GetInt()) > 0) {
+			matched[5] = true;
+		}
+		else {
+			matched[5] = false;
+		}
+
+		// Flight level allocation scheme
+		// Does Condition contain our first airway if it's limited
+		if (conditions[i]["allowed_fls"].IsArray() && conditions[i]["allowed_fls"].Size()) {
+			if (conditions[i]["FLAS"].IsString()) {
+				string allowed_fls = conditions[i]["FLAS"].GetString();
+				matched[6] = true;
+			}
+			else {
+				return sendMessage("Sid.json ERROR!");
+			}
+		}
+		else {
+			matched[6] = false;
+		}
+
+		bool passedVeri{ false };
+		for (int i = 0; i < 2; i++) { // 0: Dest, 1: Airway, 2: Even, 3: Odd, 4: Min FL, 5: Max FL, 6: limited by allowed
+			if (matched[i] == true)
+			{
+				passedVeri = true;
+			}
+			else {
+				passedVeri = false;
+				continue;
+			}
+		}
+		if (passedVeri == true) {
+			if (matched[6] == true) {
+				for (SizeType e = 0; e < conditions[i]["allowed_fls"].Size(); e++) {
+					availFls.push_back(atoi(conditions[i]["allowed_fls"][e].GetString()));
+				}
+			}
+			else {
+				if (matched[2] == true) {
+					if (matched[4] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 280; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 300;
+						for (int e = 0; currentFl < 400; e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 430;
+						for (int e = 0; currentFl < 600; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[5] == true) {
+						int initFl = 80;
+						int currentFl = 80;
+						for (int e = 0; currentFl < 280 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 300;
+						for (int e = 0; currentFl < 400 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 430;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+				}
+				else if (matched[3] == true) {
+					if (matched[4] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 270; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 290;
+						for (int e = 0; currentFl < 410; e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 450;
+						for (int e = 0; currentFl < 600; e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[5] == true) {
+						int initFl = 70;
+						int currentFl = 70;
+						for (int e = 0; currentFl < 290 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+						initFl = 300;
+						for (int e = 0; currentFl < 410 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 450;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+				}
+			}
+			int lower = 0;
+			for (lower = availFls.size() - 1; lower >= -1; lower--) {
+				if (lower == -1) return sendMessage("There are no lower FLs available.");
+				if (availFls[lower] < (RFL / 100) - 1) break;
+			}
+			if (lower == -1) return;
+			flightPlan.GetControllerAssignedData().SetFinalAltitude(availFls[lower] * 100);
+			flightPlan.GetFlightPlanData().SetFinalAltitude(flightPlan.GetControllerAssignedData().GetFinalAltitude());
+		}
+	}
+	return;
 }
 
 pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {

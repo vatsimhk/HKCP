@@ -121,6 +121,10 @@ public:
 
 	virtual void checkFLAS();
 
+	virtual void flUp(CFlightPlan FlightPlan);
+
+	virtual void flDown(CFlightPlan FlightPlan);
+
 	virtual pair<string, int> getFails(map<string, string> messageBuffer);
 
 	virtual void OnTimer(int Count);
