@@ -469,7 +469,7 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 			*pRGB = TAG_CYAN;
 			strcpy_s(sItemString, 16, "VFR");
 		}
-		else if (strcmp(FlightPlan.GetFlightPlanData().GetOrigin(), FlightPlan.GetFlightPlanData().GetDestination()) > -1 && strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "I") > -1) {
+		else if (strcmp(FlightPlan.GetFlightPlanData().GetOrigin(), FlightPlan.GetFlightPlanData().GetDestination()) == 0 && strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "I") > -1) {
 			*pRGB = TAG_CYAN;
 			strcpy_s(sItemString, 16, "LIFR");
 		}
