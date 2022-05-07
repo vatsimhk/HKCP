@@ -310,6 +310,13 @@
           "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
         },
         {
+          "destinations": [ "VMMC" ],
+          "direction": "ANY",
+          "min_fl": 50,
+          "suffix": "1X",
+          "noise": "Y"
+        },
+        {
           "destinations": [ "ZJHK" ],
           "airways": "V10 SIKOU A202",
           "direction": "ANY",
@@ -378,6 +385,13 @@
           "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
         },
         {
+          "destinations": [ "VMMC" ],
+          "direction": "ANY",
+          "min_fl": 50,
+          "suffix": "1Y",
+          "noise": "Y"
+        },
+        {
           "destinations": [ "ZJHK" ],
           "airways": "V10 SIKOU A202",
           "direction": "ANY",
@@ -436,6 +450,12 @@
           "noise": "N",
           "allowed_fls": [ "280", "310", "320", "350", "360", "390", "400" ],
           "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
+        },
+        {
+          "destinations": ["VMMC"],
+          "direction": "ANY",
+          "noise": "N",
+          "min_fl": 50
         }
       ]
     }
@@ -777,6 +797,11 @@
           "direction": "ANY",
           "allowed_fls": [ "280", "310", "320", "350", "360", "390", "400" ],
           "FLAS": "FL280, FL310, FL320, FL350, FL360, FL390, FL400"
+        },
+        {
+          "destinations": [ "VHHH" ],
+          "direction": "ANY",
+          "min_fl": 60
         }
       ]
     }
