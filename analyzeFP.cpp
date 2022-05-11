@@ -503,15 +503,24 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 	else if ((ItemCode == TAG_ITEM_FPCHECK_IF_FAILED || ItemCode == TAG_ITEM_FPCHECK_IF_FAILED_STATIC) && FlightPlan.GetFlightPlanData().GetPlanType() != "V")
 	{
 		map<string, string> messageBuffer = validizeSid(FlightPlan);
-
-		if (find(AircraftIgnore.begin(), AircraftIgnore.end(), FlightPlan.GetCallsign()) == AircraftIgnore.end() &&
-			messageBuffer["STATUS"] != "Passed") {
+		if (strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "V") > -1) {
+			*pRGB = TAG_CYAN;
+			strcpy_s(sItemString, 16, "VFR");
+		}
+		else if (strcmp(FlightPlan.GetFlightPlanData().GetOrigin(), FlightPlan.GetFlightPlanData().GetDestination()) == 0 && strcmp(FlightPlan.GetFlightPlanData().GetPlanType(), "I") > -1) {
+			*pRGB = TAG_CYAN;
+			strcpy_s(sItemString, 16, "LIFR");
+		}
+		else if (find(AircraftIgnore.begin(), AircraftIgnore.end(), FlightPlan.GetCallsign()) == AircraftIgnore.end() && messageBuffer["STATUS"] != "Passed") {
 			*pRGB = TAG_RED;
 
 			if (ItemCode == TAG_ITEM_FPCHECK_IF_FAILED) {
 				string code; int count;
 				tie(code, count) = getFails(messageBuffer);
 				strcpy_s(sItemString, 16, code.c_str());
+				if (count != 100) {
+					*pRGB = TAG_YELLOW;
+				}
 			}
 			else
 				strcpy_s(sItemString, 16, "E");
