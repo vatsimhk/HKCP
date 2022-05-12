@@ -782,7 +782,20 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 			}
 			else {
 				if (matched[2] == true) {
-					if (matched[4] == true) {
+					if (matched[4] == true && matched[5] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 400 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 430;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 400; e++) {
@@ -810,7 +823,20 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 					}
 				}
 				else if (matched[3] == true) {
-					if (matched[4] == true) {
+					if (matched[4] == true && matched[5] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 410 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 450;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 410; e++) {
@@ -1011,7 +1037,20 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 			}
 			else {
 				if (matched[2] == true) {
-					if (matched[4] == true) {
+					if (matched[4] == true && matched[5] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 400 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 430;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 400; e++) {
@@ -1039,7 +1078,20 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 					}
 				}
 				else if (matched[3] == true) {
-					if (matched[4] == true) {
+					if (matched[4] == true && matched[5] == true) {
+						int initFl = conditions[i]["min_fl"].GetInt();
+						int currentFl = conditions[i]["min_fl"].GetInt();
+						for (int e = 0; currentFl < 410 && currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 20);
+							availFls.push_back(currentFl);
+						}
+						initFl = 450;
+						for (int e = 0; currentFl < conditions[i]["max_fl"].GetInt(); e++) {
+							currentFl = initFl + (e * 40);
+							availFls.push_back(currentFl);
+						}
+					}
+					else if (matched[4] == true) {
 						int initFl = conditions[i]["min_fl"].GetInt();
 						int currentFl = conditions[i]["min_fl"].GetInt();
 						for (int e = 0; currentFl < 410; e++) {
