@@ -279,7 +279,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			string direction = conditions[i]["direction"].GetString();
 			boost::to_upper(direction);
 			if (direction == "EVEN") {
-				if ((RFL / 1000) % 2 == 0) {
+				if (fmod(RFL, 2000) == 0) {
 					returnValid["DIRECTION"] = "Even FLs (Passed)";
 					passed[3] = true;
 				}
@@ -288,7 +288,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				}
 			}
 			else if (direction == "ODD") {
-				if ((RFL / 1000) % 2 != 0) {
+				if (fmod(RFL, 2000) == 1000) {
 					returnValid["DIRECTION"] = "Odd FLs (Passed)";
 					passed[3] = true;
 				}
@@ -296,15 +296,9 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 					returnValid["DIRECTION"] = "ODD FLs (Failed)";
 				}
 			}
-			else if (direction == "ANY") {
+			else {
 				returnValid["DIRECTION"] = "";
 				passed[3] = true;
-			}
-			else {
-				string errorText{ "Config Error for Even/Odd on SID: " };
-				errorText += first_wp;
-				sendMessage("Error", errorText);
-				returnValid["DIRECTION"] = "Config Error for Even/Odd on this SID!";
 			}
 		}
 		else {
