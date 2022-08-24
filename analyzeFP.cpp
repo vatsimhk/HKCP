@@ -197,6 +197,9 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		if (conditions[i]["suffix"].IsString() && conditions[i]["suffix"].GetString() != sid_suffix) {
 			continue;
 		}
+		else if (conditions[i]["suffix"].IsArray() && routeContains(sid_suffix, conditions[i]["suffix"]) == false) {
+			continue;
+		}
 
 		// Does Condition contain our destination if it's limited
 		if (conditions[i]["destinations"].IsArray() && conditions[i]["destinations"].Size()) {
