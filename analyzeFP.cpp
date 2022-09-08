@@ -197,6 +197,9 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		if (conditions[i]["suffix"].IsString() && conditions[i]["suffix"].GetString() != sid_suffix) {
 			continue;
 		}
+		else if (conditions[i]["suffix"].IsArray() && routeContains(sid_suffix, conditions[i]["suffix"]) == false) {
+			continue;
+		}
 
 		// Does Condition contain our destination if it's limited
 		if (conditions[i]["destinations"].IsArray() && conditions[i]["destinations"].Size()) {
@@ -279,7 +282,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			string direction = conditions[i]["direction"].GetString();
 			boost::to_upper(direction);
 			if (direction == "EVEN") {
-				if ((RFL / 1000) % 2 == 0) {
+				if (fmod(RFL, 2000) == 0) {
 					returnValid["DIRECTION"] = "Even FLs (Passed)";
 					passed[3] = true;
 				}
@@ -288,7 +291,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				}
 			}
 			else if (direction == "ODD") {
-				if ((RFL / 1000) % 2 != 0) {
+				if (fmod(RFL, 2000) == 1000) {
 					returnValid["DIRECTION"] = "Odd FLs (Passed)";
 					passed[3] = true;
 				}
@@ -296,15 +299,9 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 					returnValid["DIRECTION"] = "ODD FLs (Failed)";
 				}
 			}
-			else if (direction == "ANY") {
+			else {
 				returnValid["DIRECTION"] = "";
 				passed[3] = true;
-			}
-			else {
-				string errorText{ "Config Error for Even/Odd on SID: " };
-				errorText += first_wp;
-				sendMessage("Error", errorText);
-				returnValid["DIRECTION"] = "Config Error for Even/Odd on this SID!";
 			}
 		}
 		else {
@@ -576,10 +573,10 @@ void CVFPCPlugin::checkFPDetail() {
 	map<string, string> messageBuffer = validizeSid(FlightPlanSelectASEL());
 	string buffer{};
 	if (messageBuffer["SEARCH"] == "No valid SID found!" || messageBuffer["SEARCH"] == "Flightplan doesn't have SID set!") {
-		buffer += "No valid SID found, Please check FPL manually";
+		buffer += "No valid SID found, please check FPL manually";
 	}
 	else if (messageBuffer["AIRWAYS"] == "") {
-		buffer += "SID does not connect to valid airways or transition route, Please check FPL manually";
+		buffer += "SID does not connect to valid airways or transition route, please check FPL manually";
 	}
 	else {
 		buffer += "SID and route valid, ";
@@ -593,7 +590,7 @@ void CVFPCPlugin::checkFPDetail() {
 			buffer += "SID is " + messageBuffer["NOISE"];
 		}
 		else {
-			buffer += "No noise abatement data.";
+			buffer += "No noise abatement restrictions.";
 		}
 	}
 	sendMessage("FPL Check for " + messageBuffer["CS"], buffer);
