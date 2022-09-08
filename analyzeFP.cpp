@@ -573,10 +573,10 @@ void CVFPCPlugin::checkFPDetail() {
 	map<string, string> messageBuffer = validizeSid(FlightPlanSelectASEL());
 	string buffer{};
 	if (messageBuffer["SEARCH"] == "No valid SID found!" || messageBuffer["SEARCH"] == "Flightplan doesn't have SID set!") {
-		buffer += "No valid SID found, Please check FPL manually";
+		buffer += "No valid SID found, please check FPL manually";
 	}
 	else if (messageBuffer["AIRWAYS"] == "") {
-		buffer += "SID does not connect to valid airways or transition route, Please check FPL manually";
+		buffer += "SID does not connect to valid airways or transition route, please check FPL manually";
 	}
 	else {
 		buffer += "SID and route valid, ";
@@ -590,7 +590,7 @@ void CVFPCPlugin::checkFPDetail() {
 			buffer += "SID is " + messageBuffer["NOISE"];
 		}
 		else {
-			buffer += "No noise abatement data.";
+			buffer += "No noise abatement restrictions.";
 		}
 	}
 	sendMessage("FPL Check for " + messageBuffer["CS"], buffer);
