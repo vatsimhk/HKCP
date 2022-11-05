@@ -869,6 +869,7 @@ void CVFPCPlugin::flUp(CFlightPlan flightPlan) {
 			if (higher == availFls.size()) return;
 			flightPlan.GetControllerAssignedData().SetFinalAltitude(availFls[higher] * 100);
 			flightPlan.GetFlightPlanData().SetFinalAltitude(flightPlan.GetControllerAssignedData().GetFinalAltitude());
+			flightPlan.GetControllerAssignedData().SetFinalAltitude(NULL);
 		}
 	}
 	return;
@@ -1125,6 +1126,7 @@ void CVFPCPlugin::flDown(CFlightPlan flightPlan) {
 			for (i = 0; i < availFls.size(); i++) NULL;
 			flightPlan.GetControllerAssignedData().SetFinalAltitude(availFls[lower] * 100);
 			flightPlan.GetFlightPlanData().SetFinalAltitude(flightPlan.GetControllerAssignedData().GetFinalAltitude());
+			flightPlan.GetControllerAssignedData().SetFinalAltitude(NULL);
 		}
 	}
 	return;
