@@ -128,6 +128,9 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 	
 	vector<string> route = split(flightPlan.GetFlightPlanData().GetRoute(), ' ');
 	for (std::size_t i = 0; i < route.size(); i++) {
+		if (i != 0 && i != route.size()) {
+			route[i] = route[i].substr(0, route[i].find_first_of('/'));
+		}
 		boost::to_upper(route[i]);
 	}
 
