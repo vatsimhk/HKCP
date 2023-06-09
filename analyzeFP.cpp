@@ -127,11 +127,13 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 	if (RFL == 0) RFL = flightPlan.GetFlightPlanData().GetFinalAltitude();
 	
 	vector<string> route = split(flightPlan.GetFlightPlanData().GetRoute(), ' ');
+	string rte = "";
 	for (std::size_t i = 0; i < route.size(); i++) {
 		if (i != 0 && i != route.size()) {
 			route[i] = route[i].substr(0, route[i].find_first_of('/'));
 		}
 		boost::to_upper(route[i]);
+		rte = rte + route[i] + " ";
 	}
 
 	string sid = flightPlan.GetFlightPlanData().GetSidName(); boost::to_upper(sid);
@@ -223,7 +225,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		}
 
 		// Does Condition contain our first airway if it's limited
-		string rte = flightPlan.GetFlightPlanData().GetRoute();
+		
 		if (conditions[i]["airways"].IsArray() && conditions[i]["airways"].Size()) {
 			if (routeContains(rte, conditions[i]["airways"])) {
 				returnValid["AIRWAYS"] = "Passed Transition Route";
