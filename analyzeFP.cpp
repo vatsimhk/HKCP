@@ -127,8 +127,13 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 	if (RFL == 0) RFL = flightPlan.GetFlightPlanData().GetFinalAltitude();
 	
 	vector<string> route = split(flightPlan.GetFlightPlanData().GetRoute(), ' ');
+	string rte = "";
 	for (std::size_t i = 0; i < route.size(); i++) {
+		if (i != 0 && i != route.size()) {
+			route[i] = route[i].substr(0, route[i].find_first_of('/'));
+		}
 		boost::to_upper(route[i]);
+		rte = rte + route[i] + " ";
 	}
 
 	string sid = flightPlan.GetFlightPlanData().GetSidName(); boost::to_upper(sid);
@@ -220,7 +225,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		}
 
 		// Does Condition contain our first airway if it's limited
-		string rte = flightPlan.GetFlightPlanData().GetRoute();
+		
 		if (conditions[i]["airways"].IsArray() && conditions[i]["airways"].Size()) {
 			if (routeContains(rte, conditions[i]["airways"])) {
 				returnValid["AIRWAYS"] = "Passed Transition Route";
@@ -283,20 +288,20 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			boost::to_upper(direction);
 			if (direction == "EVEN") {
 				if (fmod(RFL, 2000) == 0) {
-					returnValid["DIRECTION"] = "Even FLs (Passed)";
+					returnValid["DIRECTION"] = "Even FLs (Passed) / ";
 					passed[3] = true;
 				}
 				else {
-					returnValid["DIRECTION"] = "Even FLs (Failed)";
+					returnValid["DIRECTION"] = "Even FLs (Failed) / ";
 				}
 			}
 			else if (direction == "ODD") {
 				if (fmod(RFL, 2000) == 1000) {
-					returnValid["DIRECTION"] = "Odd FLs (Passed)";
+					returnValid["DIRECTION"] = "Odd FLs (Passed) / ";
 					passed[3] = true;
 				}
 				else {
-					returnValid["DIRECTION"] = "ODD FLs (Failed)";
+					returnValid["DIRECTION"] = "ODD FLs (Failed) / ";
 				}
 			}
 			else {
@@ -315,29 +320,29 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 		int min_fl, max_fl;
 		if (conditions[i].HasMember("min_fl") && (min_fl = conditions[i]["min_fl"].GetInt()) > 0) {
 			if ((RFL / 100) >= min_fl) {
-				returnValid["MIN_FL"] = "at or above FL" + to_string(conditions[i]["min_fl"].GetInt()) + " (Passed)";
+				returnValid["MIN_FL"] = "At or above FL" + to_string(conditions[i]["min_fl"].GetInt()) + " (Passed) / ";
 				passed[4] = true;
 			}
 			else {
-				returnValid["MIN_FL"] = "at or above FL" + to_string(min_fl) + " (Failed)";
+				returnValid["MIN_FL"] = "At or above FL" + to_string(min_fl) + " (Failed) / ";
 			}
 		}
 		else {
-			returnValid["MIN_FL"] = "No Minimum FL";
+			returnValid["MIN_FL"] = "";
 			passed[4] = true;
 		}
 
 		if (conditions[i].HasMember("max_fl") && (max_fl = conditions[i]["max_fl"].GetInt()) > 0) {
 			if ((RFL / 100) <= max_fl) {
-				returnValid["MAX_FL"] = "at or below FL" + to_string(conditions[i]["max_fl"].GetInt()) + " (Passed)";
+				returnValid["MAX_FL"] = "At or below FL" + to_string(conditions[i]["max_fl"].GetInt()) + " (Passed) / ";
 				passed[5] = true;
 			}
 			else {
-				returnValid["MAX_FL"] = "at or below FL" + to_string(max_fl) + " (Failed)";
+				returnValid["MAX_FL"] = "At or below FL" + to_string(max_fl) + " (Failed) / ";
 			}
 		}
 		else {
-			returnValid["MAX_FL"] = "No Maximum FL";
+			returnValid["MAX_FL"] = "";
 			passed[5] = true;
 		}
 
@@ -604,15 +609,7 @@ void CVFPCPlugin::checkFLAS() {
 
 	buffer = messageBuffer["ALLOWED_FL"];
 	if (buffer == "No FLAS") {
-		if (messageBuffer["DIRECTION"] != "") {
-			buffer = messageBuffer["DIRECTION"] + ", ";
-		}
-		if (messageBuffer["MIN_FL"] != "No Minimum FL") {
-			buffer += messageBuffer["MIN_FL"] + ", ";
-		}
-		if (messageBuffer["MAX_FL"] != "No Maximum FL") {
-			buffer += messageBuffer["MAX_FL"];
-		}
+		buffer = messageBuffer["DIRECTION"] + messageBuffer["MIN_FL"] + messageBuffer["MAX_FL"];
 	}
 	else if (buffer == "") {
 		buffer = "Unable to find altitude restriction for route! Please check manually.";

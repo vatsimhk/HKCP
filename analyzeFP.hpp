@@ -13,8 +13,8 @@
 #include "rapidjson/stringbuffer.h"
 
 #define MY_PLUGIN_NAME      "HKvACC VFPC"
-#define MY_PLUGIN_VERSION   "1.1"
-#define MY_PLUGIN_DEVELOPER "Justin Wai, Jamie Kong, Jan Fries, Hendrik Peter, Sven Czarnian"
+#define MY_PLUGIN_VERSION   "1.2"
+#define MY_PLUGIN_DEVELOPER "HKvACC, Jan Fries, Hendrik Peter, Sven Czarnian"
 #define MY_PLUGIN_COPYRIGHT "GPL v3"
 #define MY_PLUGIN_VIEW_AVISO  "HKvACC FlightPlan Checker"
 
