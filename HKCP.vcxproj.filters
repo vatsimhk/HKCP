@@ -30,6 +30,9 @@
     <ClInclude Include="targetver.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="MissedApproachAlarm.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="analyzeFP.cpp">
@@ -38,7 +41,10 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="VFPC.cpp">
+    <ClCompile Include="HKCP.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="MissedApproachAlarm.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
