@@ -7,7 +7,6 @@
 #include "MissedApproachAlarm.hpp"
 
 CVFPCPlugin* gpMyPlugin = NULL;
-vector<MissedApproachAlarm*> ScreensOpened;
 
 void    __declspec (dllexport)    EuroScopePlugInInit(EuroScopePlugIn::CPlugIn** ppPlugInInstance)
 {
@@ -17,9 +16,7 @@ void    __declspec (dllexport)    EuroScopePlugInInit(EuroScopePlugIn::CPlugIn**
 
 CRadarScreen* CVFPCPlugin::OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated)
 {
-	MissedApproachAlarm* rd = new MissedApproachAlarm();
-	ScreensOpened.push_back(rd);
-	return rd;
+	return new MissedApproachAlarm();
 }
 
 //---EuroScopePlugInExit-----------------------------------------------

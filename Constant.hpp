@@ -23,6 +23,8 @@ const int TAG_FUNC_MODRFL_MENU = 106;
 
 const int DRAWING_APPWINDOW = 1211;
 const int ACK_BUTTON = 1212;
+const int RWY_ENABLE_BUTTON = 1213;
+const int WINDOW_TITLE_BAR = 1214;
 
 const COLORREF TAG_GREEN = RGB(0, 190, 0);
 const COLORREF TAG_GREY = RGB(128, 128, 128);
@@ -38,7 +40,8 @@ const COLORREF qBorderColor(RGB(45, 45, 48));
 const COLORREF qTextColor(RGB(255, 255, 255));
 const COLORREF ACK_BUTTON_OFF = RGB(159, 80, 0);
 const COLORREF ACK_BUTTON_ON = (RGB(255, 128, 0));
-const COLORREF ACK_BUTTON_GREEN = RGB(91, 194, 54);
+const COLORREF BUTTON_GREEN = RGB(91, 194, 54);
+const COLORREF BUTTON_RED = RGB(240, 50, 50);
 
 inline static bool startsWith(const char *pre, const char *str)
 {

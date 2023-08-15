@@ -19,7 +19,9 @@ public:
 
 	vector<string>  getMissedApproaches(const char * dest);
 
-	void ackMissedApproach(void);
+	void ackMissedApproach(const char * callsign);
+
+	vector<string> getArrivalRunways();
 
 };
 
@@ -28,11 +30,16 @@ class MissedApproachAlarm :
 {
 protected:
 
-	RECT m_Area = { 190, 523, 590, 863 };
-	RECT b_Area = { 9, 7, 30, 30 };
-	POINT m_Offset = { 857, 310 };
+	static RECT m_Area;
+	static RECT b_Area;
+	static RECT c_Area;
+	static RECT c_Area_Min;
+	static POINT m_Offset;
 private:
-	int ackButtonState = 0;
+	static int ackButtonState;
+	static int configWindowState; // 0 = hidden, 1 = minimised, 2 = full
+	static vector<string> missedAcftData;
+	static vector<string> activeMAPPRunways;
 
 public:
 
@@ -68,7 +75,13 @@ public:
 
 	virtual void OnButtonUpScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button);
 
+	virtual void OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType);
+
+	virtual bool OnCompileCommand(const char* sCommandLine);
+
 	void flashButton(HDC hDC, CRect button);
+
+	void drawConfigWindow(HDC hDC, MissedApproachAlarmLogic ma);
 
 	//  This gets called before OnAsrContentToBeSaved()
 	inline virtual void OnAsrContentToBeClosed(void)
