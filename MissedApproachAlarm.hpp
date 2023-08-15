@@ -22,11 +22,21 @@ public:
 
 	void ackMissedApproach(const char * callsign);
 
+	void initMissedApproach(const char * callsign);
+
+	void resetMissedApproach(const char* callsign);
+
 	vector<string> getArrivalRunways();
 
 	virtual void OnAirportRunwayActivityChanged(void);
 
 	int getPositionType();
+
+	vector<string> getASELAircraftData(void);
+
+	bool matchArrivalAirport(const char* arrivalArpt);
+
+	const char * checkForAck(const char* callsign);
 
 };
 
@@ -39,12 +49,17 @@ protected:
 	static RECT b_Area;
 	static RECT c_Area;
 	static RECT c_Area_Min;
+	static RECT i_Area;
 	static POINT m_Offset;
 private:
 	static int ackButtonState;
+	static int actButtonState;
+	static int resetButtonState;
 	static int configWindowState; // 0 = hidden, 1 = minimised, 2 = full
 	static vector<string> missedAcftData;
 	static vector<string> activeMAPPRunways;
+	static vector<string> selectedAcftData;
+	static string ackStation;
 
 public:
 
@@ -89,6 +104,8 @@ public:
 	void drawAlarmWindow(HDC hDC);
 
 	void drawConfigWindow(HDC hDC);
+
+	void drawIndicatorUnit(HDC hDC);
 
 	//  This gets called before OnAsrContentToBeSaved()
 	inline virtual void OnAsrContentToBeClosed(void)

@@ -11,12 +11,17 @@ RECT MissedApproachAlarm::m_Area = { 190, 523, 590, 863 };
 RECT MissedApproachAlarm::b_Area = { 9, 7, 30, 30 };
 RECT MissedApproachAlarm::c_Area = { 600, 900, 800, 1300 };
 RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 800, 980 };
+RECT MissedApproachAlarm::i_Area = { 190, 523, 690, 823 };
 POINT MissedApproachAlarm::m_Offset = { 400, 340 };
 
-int MissedApproachAlarm::ackButtonState = 0;
+int MissedApproachAlarm::ackButtonState = 0; //0 off, 1 flashing, 2 green ack
+int MissedApproachAlarm::actButtonState = 0; //-1 disabled, 0 off, 1 act flashing, 2 on
+int MissedApproachAlarm::resetButtonState = 0; //-1 red on (no ack), 0 off, 1 green on (ack received)
 int MissedApproachAlarm::configWindowState = 2; // 0 = hidden, 1 = minimised, 2 = full
 vector<string> MissedApproachAlarm::missedAcftData = {};
 vector<string> MissedApproachAlarm::activeMAPPRunways = {};
+vector<string> MissedApproachAlarm::selectedAcftData = {};
+string MissedApproachAlarm::ackStation = "???";
 
 vector<string> MissedApproachPlugin::activeArrRunways = {};
 
@@ -78,7 +83,7 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 		//Logged in as TWR
 
 		//TODO: draw tower window
-
+		drawIndicatorUnit(hDC);
 		return;
 	}
 
@@ -137,12 +142,17 @@ void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 
 	dc.SetTextColor(BLACK);
 	dc.SelectObject(&fontTitle);
-	CRect northACK(windowAreaCRect.left + 150, windowAreaCRect.top + 99, windowAreaCRect.left + 250, windowAreaCRect.top + 194);
-	northACK.NormalizeRect();
+	CRect ackButton(windowAreaCRect.left + 150, windowAreaCRect.top + 99, windowAreaCRect.left + 250, windowAreaCRect.top + 194);
+	ackButton.NormalizeRect();
 
-	flashButton(hDC, northACK);
-	dc.DrawText("ACK", strlen("ACK"), northACK, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	AddScreenObject(ACK_BUTTON, "", northACK, false, "");
+	if (ackButtonState == 1) {
+		dc.FillSolidRect(ackButton, BUTTON_GREEN);
+	}
+	else {
+		flashButton(hDC, ackButton);
+	}
+	dc.DrawText("ACK", strlen("ACK"), ackButton, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	AddScreenObject(ACK_BUTTON, "", ackButton, false, "");
 
 	dc.SelectObject(oldFont);
 	dc.Detach();
@@ -206,7 +216,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 			dc.FillSolidRect(checkBox, BUTTON_GREEN);
 		}
 		else {
-			dc.FillSolidRect(checkBox, BUTTON_RED);
+			dc.FillSolidRect(checkBox, BUTTON_RED_ON);
 		}
 		string buttonNo = "runway_button_" + currentRunway;
 		AddScreenObject(RWY_ENABLE_BUTTON, buttonNo.c_str(), checkBox, true, "");
@@ -215,14 +225,112 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 	dc.Detach();
 }
 
+void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
+	if (configWindowState == 0) {
+		return;
+	}
+
+	CDC dc;
+	dc.Attach(hDC);
+	MissedApproachPlugin ma;
+
+	string ackLabel = "ACK";
+
+	CFont fontTitle, fontLabel, fontLabelSmall;
+	dc.SetTextColor(qTextColor);
+	fontTitle.CreateFont(36, 0, 0, 0, 3, false, false,
+		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		FIXED_PITCH | FF_MODERN, _T("Arial"));
+	fontLabel.CreateFont(30, 0, 0, 0, 0, false, false,
+		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		FIXED_PITCH | FF_MODERN, _T("Arial"));
+	fontLabelSmall.CreateFont(24, 0, 0, 0, 0, false, false,
+		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		FIXED_PITCH | FF_MODERN, _T("Arial"));
+
+	CRect indicatorWindowRect(i_Area);
+	indicatorWindowRect.NormalizeRect();
+	dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
+	AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
+
+	CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 20, indicatorWindowRect.right, indicatorWindowRect.top + 60);
+	dc.SelectObject(&fontTitle);
+	dc.DrawText("Missed Approach Light Indicator", strlen("Missed Approach Light Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+
+	//Draw ACT Button
+	CRect buttonACT(indicatorWindowRect.left + 300, indicatorWindowRect.top + 100, indicatorWindowRect.left + 450, indicatorWindowRect.top + 200);
+	CRect selectedAcftRect(indicatorWindowRect.left + 300, indicatorWindowRect.top + 200, indicatorWindowRect.left + 450, indicatorWindowRect.top + 300);
+	string selectedAcftText;
+
+	// Draw selected aircraft label below
+	dc.SelectObject(&fontLabelSmall);
+	if (actButtonState == 0 || actButtonState == -1) {
+		dc.SetTextColor(qTextColor);
+		dc.FillSolidRect(buttonACT, BUTTON_ORANGE_OFF);
+		selectedAcftData = ma.getASELAircraftData();
+		dc.SetTextColor(qTextColor);
+		if (!selectedAcftData.empty() && ma.matchArrivalAirport(selectedAcftData[1].c_str())) {
+			string selectedAcftText = "SEL: " + selectedAcftData[0] + " / " + selectedAcftData[2];
+			dc.DrawText(selectedAcftText.c_str(), selectedAcftText.length(), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+			actButtonState = 0;
+		}
+		else {
+			dc.DrawText("- / -", strlen("- / -"), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+			actButtonState = -1;
+		}
+	}
+	else if (actButtonState == 1) {
+		flashButton(hDC, buttonACT);
+		dc.SetTextColor(BUTTON_ORANGE_ON);
+		selectedAcftText = "ACT: " + selectedAcftData[0] + " / " + selectedAcftData[2];
+		dc.DrawText(selectedAcftText.c_str(), selectedAcftText.length(), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	}
+	else {
+		dc.SetTextColor(qTextColor);
+		dc.FillSolidRect(buttonACT, BUTTON_ORANGE_ON);
+		selectedAcftText = "ACK: " + selectedAcftData[0] + " / " + selectedAcftData[2];
+		dc.DrawText(selectedAcftText.c_str(), selectedAcftText.length(), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	}
+
+	dc.SelectObject(&fontLabel);
+	dc.SetTextColor(BLACK);
+	dc.DrawText("ACT", strlen("ACT"), buttonACT, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	AddScreenObject(ACT_BUTTON, "act", buttonACT, true, "");
+
+	//Draw ACK Reset Button
+	CRect buttonReset(indicatorWindowRect.left + 50, indicatorWindowRect.top + 100, indicatorWindowRect.left + 150, indicatorWindowRect.top + 200);
+	if (resetButtonState == 0) {
+		dc.FillSolidRect(buttonReset, BUTTON_RED_OFF);
+	}
+	else if (resetButtonState == 1) {
+		dc.FillSolidRect(buttonReset, BUTTON_GREEN);
+		ackLabel.append(": ");
+		ackLabel.append(ackStation);
+	}
+	else {
+		dc.FillSolidRect(buttonReset, BUTTON_RED_ON);
+		//Check for acknowledgement
+		if (!selectedAcftData.empty() && ma.checkForAck(selectedAcftData[0].c_str()) != NULL) {
+			actButtonState = 2;
+			resetButtonState = 1;
+			ackStation = ma.checkForAck(selectedAcftData[0].c_str());
+		}
+	}
+	dc.SelectObject(&fontLabel);
+	dc.SetTextColor(BLACK);
+	dc.DrawText("RESET", strlen("RESET"), buttonReset, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	AddScreenObject(RESET_BUTTON, "reset", buttonReset, true, "");
+
+	CRect ackText(indicatorWindowRect.left + 50, indicatorWindowRect.top + 200, indicatorWindowRect.left + 150, indicatorWindowRect.top + 300);
+	dc.SelectObject(&fontLabelSmall);
+	dc.SetTextColor(qTextColor);
+	dc.DrawText(ackLabel.c_str(), ackLabel.length(), ackText, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	dc.Detach();
+}
+
 void MissedApproachAlarm::flashButton(HDC hDC, CRect button) {
 	CDC dc;
 	dc.Attach(hDC);
-	if (ackButtonState == 1) {
-		dc.FillSolidRect(button, BUTTON_GREEN);
-		dc.Detach();
-		return;
-	}
 
 	// Play Sound
 	char DllPathFile[_MAX_PATH];
@@ -241,10 +349,10 @@ void MissedApproachAlarm::flashButton(HDC hDC, CRect button) {
 	int sec = atoi(buffer);
 
 	if (sec % 2 == 0) {
-		dc.FillSolidRect(button, ACK_BUTTON_ON);
+		dc.FillSolidRect(button, BUTTON_ORANGE_ON);
 	}
 	else {
-		dc.FillSolidRect(button, ACK_BUTTON_OFF);
+		dc.FillSolidRect(button, BUTTON_ORANGE_OFF);
 	}
 	dc.Detach();
 }
@@ -256,11 +364,27 @@ void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjec
 	if (ObjectType == ACK_BUTTON) {
 		if (ackButtonState == 0) {
 			ackButtonState = 1;
+			ma.ackMissedApproach(missedAcftData[0].c_str());
 		}
 		else {
-			ma.ackMissedApproach(missedAcftData[0].c_str());
 			missedAcftData.clear();
 			ackButtonState = 0;
+		}
+	}
+
+	if (ObjectType == ACT_BUTTON) {
+		if (actButtonState == 0) {
+			actButtonState = 1;
+			resetButtonState = -1;
+			ma.initMissedApproach(selectedAcftData[0].c_str());
+		}
+	}
+
+	if (ObjectType == RESET_BUTTON) {
+		if (resetButtonState == 1 || resetButtonState == -1) {
+			resetButtonState = 0;
+			ma.resetMissedApproach(selectedAcftData[0].c_str());
+			actButtonState = 0;
 		}
 	}
 
@@ -291,11 +415,20 @@ void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjec
 
 void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
 	if (DataType != CTR_DATA_TYPE_SCRATCH_PAD_STRING) return;
+	MissedApproachPlugin ma;
 	CFlightPlanData data = FlightPlan.GetFlightPlanData();
 	CFlightPlanControllerAssignedData controllerData = FlightPlan.GetControllerAssignedData();
 
+	//Filter from scratchpad message
 	if (strcmp(controllerData.GetScratchPadString(), "MISAP_") != 0) return;
 
+	//Handle tower case first
+	if (!selectedAcftData.empty()) {
+		if (ma.matchArrivalAirport(selectedAcftData[1].c_str())) {
+			actButtonState = 1;
+		}
+		return;
+	}
 	//Don't add to vector unless runway is selected and active
 	if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), data.GetArrivalRwy()) == activeMAPPRunways.end()) return;
 
@@ -318,6 +451,17 @@ void MissedApproachAlarm::OnMoveScreenObject(int ObjectType, const char* sObject
 		newPos.NormalizeRect();
 
 		m_Area = newPos;
+	}
+	if (strcmp(sObjectId, "indicator_window") == 0) {
+		CRect appWindowRect(i_Area);
+		appWindowRect.NormalizeRect();
+
+		POINT TopLeft = { Area.left, Area.top };
+		POINT BottomRight = { TopLeft.x + appWindowRect.Width(), TopLeft.y + appWindowRect.Height() };
+		CRect newPos(TopLeft, BottomRight);
+		newPos.NormalizeRect();
+
+		i_Area = newPos;
 	}
 	if (strcmp(sObjectId, "config_window") == 0 || strcmp(sObjectId, "config_minimised") == 0 || strcmp(sObjectId, "config_full") == 0) {
 
@@ -362,7 +506,7 @@ bool MissedApproachAlarm::OnCompileCommand(const char* sCommandLine) {
 	return false;
 }
 
-//PLUGIN BACKEND (Logic)
+//PLUGIN Helper Functions
 
 MissedApproachPlugin::MissedApproachPlugin(): CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT) {
 	activeArrRunways = getArrivalRunways();
@@ -380,15 +524,42 @@ vector<string> MissedApproachPlugin::getArrivalRunways() {
 		}
 	}
 	return activeRunways;
-}      
+}    
+
+void MissedApproachPlugin::initMissedApproach(const char * callsign) {
+	CFlightPlan fpl = FlightPlanSelect(callsign);
+	if (!fpl.IsValid()) return;
+
+	CFlightPlanData data;
+	CFlightPlanControllerAssignedData controllerData;
+	data = fpl.GetFlightPlanData();
+	controllerData = fpl.GetControllerAssignedData();
+	controllerData.SetScratchPadString("MISAP_");
+}
 
 void MissedApproachPlugin::ackMissedApproach(const char * callsign) {
+	CFlightPlan fpl = FlightPlanSelect(callsign);
+	CFlightPlanData data;
+	CController myself = ControllerMyself();
+	CFlightPlanControllerAssignedData controllerData;
+	data = fpl.GetFlightPlanData();
+	controllerData = fpl.GetControllerAssignedData();
+
+	string ackMessage = "MISAP_ACK_";
+	ackMessage.append(myself.GetPositionId());
+	if (strcmp(controllerData.GetScratchPadString(), "MISAP_") == 0) {
+		controllerData.SetScratchPadString(ackMessage.c_str());
+	}
+	//couldn't find it, handle error
+}
+
+void MissedApproachPlugin::resetMissedApproach(const char* callsign) {
 	CFlightPlan fpl = FlightPlanSelect(callsign);
 	CFlightPlanData data;
 	CFlightPlanControllerAssignedData controllerData;
 	data = fpl.GetFlightPlanData();
 	controllerData = fpl.GetControllerAssignedData();
-	if (strcmp(controllerData.GetScratchPadString(), "MISAP_") == 0) {
+	if (strstr(controllerData.GetScratchPadString(), "MISAP_") != NULL) {
 		controllerData.SetScratchPadString("");
 	}
 	//couldn't find it, handle error
@@ -401,4 +572,41 @@ void MissedApproachPlugin::OnAirportRunwayActivityChanged() {
 int MissedApproachPlugin::getPositionType() {
 	CController myself = ControllerMyself();
 	return myself.GetFacility();
+}
+
+vector<string> MissedApproachPlugin::getASELAircraftData() {
+	vector<string> acftData = {};
+	CFlightPlan fpl = FlightPlanSelectASEL();
+	activeArrRunways = getArrivalRunways();
+	CRadarTargetPositionData rdr = fpl.GetCorrelatedRadarTarget().GetPosition();
+	if (!fpl.IsValid() || rdr.GetPressureAltitude() < 150 || fpl.GetTrackingControllerId() == "") {
+		//return empty if FPL is invalid, on the ground, or tracked by another controller
+		return acftData;
+	}
+	else {
+		CFlightPlanData data = fpl.GetFlightPlanData();
+		acftData.push_back(fpl.GetCallsign());
+		acftData.push_back(data.GetDestination());
+		acftData.push_back(data.GetArrivalRwy());
+	}
+	
+	return acftData;
+}
+
+bool MissedApproachPlugin::matchArrivalAirport(const char* arrivalArpt) {
+	const char * myself = ControllerMyself().GetCallsign();
+	if (strstr(myself, arrivalArpt) == NULL) {
+		return false;
+	}
+	return true;
+}
+
+const char * MissedApproachPlugin::checkForAck(const char* callsign) {
+	CFlightPlanControllerAssignedData controllerData = FlightPlanSelect(callsign).GetControllerAssignedData();
+	const char* ptr = strstr(controllerData.GetScratchPadString(), "MISAP_ACK_");
+	if (ptr != NULL) {
+		ptr = ptr + strlen("MISAP_ACK_");
+		return (ptr != NULL && strlen(ptr) == 3) ? ptr : "???";
+	}
+	return NULL;
 }
