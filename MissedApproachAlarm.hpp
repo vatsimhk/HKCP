@@ -11,17 +11,20 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
-class MissedApproachAlarmLogic :
+class MissedApproachPlugin :
 	public EuroScopePlugIn::CPlugIn
+
 {
 public:
-	MissedApproachAlarmLogic();
+	static vector<string> activeArrRunways;
 
-	vector<string>  getMissedApproaches(const char * dest);
+	MissedApproachPlugin();
 
 	void ackMissedApproach(const char * callsign);
 
 	vector<string> getArrivalRunways();
+
+	virtual void OnAirportRunwayActivityChanged(void);
 
 };
 
@@ -81,7 +84,7 @@ public:
 
 	void flashButton(HDC hDC, CRect button);
 
-	void drawConfigWindow(HDC hDC, MissedApproachAlarmLogic ma);
+	void drawConfigWindow(HDC hDC);
 
 	//  This gets called before OnAsrContentToBeSaved()
 	inline virtual void OnAsrContentToBeClosed(void)

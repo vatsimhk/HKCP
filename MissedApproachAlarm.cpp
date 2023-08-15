@@ -18,6 +18,8 @@ int MissedApproachAlarm::configWindowState = 2; // 0 = hidden, 1 = minimised, 2 
 vector<string> MissedApproachAlarm::missedAcftData = {};
 vector<string> MissedApproachAlarm::activeMAPPRunways = {};
 
+vector<string> MissedApproachPlugin::activeArrRunways = {};
+
 MissedApproachAlarm::MissedApproachAlarm() {
 
 }
@@ -63,8 +65,8 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 	if (Phase != REFRESH_PHASE_AFTER_LISTS)
 		return;
 
-	MissedApproachAlarmLogic ma;
-	drawConfigWindow(hDC, ma);
+	MissedApproachPlugin ma;
+	drawConfigWindow(hDC);
 
 	if (missedAcftData.size() == 0) {
 		return;
@@ -126,11 +128,11 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 	dc.Detach();
 }
 
-void MissedApproachAlarm::drawConfigWindow(HDC hDC, MissedApproachAlarmLogic ma) {
+void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 	if (configWindowState == 0) {
 		return;
 	}
-	vector<string> activeRunways = ma.getArrivalRunways();
+	vector<string> activeRunways = MissedApproachPlugin::activeArrRunways;
 
 	CDC dc;
 	dc.Attach(hDC);
@@ -153,7 +155,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC, MissedApproachAlarmLogic ma)
 
 		CRect titleRect(configWindowRect.left, configWindowRect.top + 20, configWindowRect.right, configWindowRect.top + 50);
 		dc.SelectObject(&fontTitle);
-		dc.DrawText("MAPP Setup", strlen("MAPP Setup"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+		dc.DrawText("MAPP Config", strlen("MAPP Config"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 		AddScreenObject(WINDOW_TITLE_BAR, "config_minimised", titleRect, true, "");
 
 		dc.Detach();
@@ -169,7 +171,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC, MissedApproachAlarmLogic ma)
 	//Draw title
 	CRect titleRect(configWindowRect.left, configWindowRect.top + 20, configWindowRect.right, configWindowRect.top + 50);
 	dc.SelectObject(&fontTitle);
-	dc.DrawText("MAPP Setup", strlen("MAPP Setup"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	dc.DrawText("MAPP Config", strlen("MAPP Config"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 	AddScreenObject(WINDOW_TITLE_BAR, "config_full", titleRect, true, "");
 
 	//Loop, iterate through arrival runways, create buttons and text for each one
@@ -230,7 +232,7 @@ void MissedApproachAlarm::flashButton(HDC hDC, CRect button) {
 void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button) {
 	if (Button != BUTTON_LEFT) return;
 
-	MissedApproachAlarmLogic ma;
+	MissedApproachPlugin ma;
 	if (ObjectType == ACK_BUTTON) {
 		if (ackButtonState == 0) {
 			ackButtonState = 1;
@@ -254,7 +256,7 @@ void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjec
 	//Handle buttons for enable/disabling other runways
 
 	if (strstr(sObjectId, "runway_button_") != NULL) {
-		vector<string> runways = ma.getArrivalRunways();
+		vector<string> runways = MissedApproachPlugin::activeArrRunways;
 		string currentRunway = (sObjectId + 14);
 		auto it = find(activeMAPPRunways.begin(), activeMAPPRunways.end(), currentRunway);
 		if (it != activeMAPPRunways.end()) {
@@ -342,11 +344,11 @@ bool MissedApproachAlarm::OnCompileCommand(const char* sCommandLine) {
 
 //PLUGIN BACKEND (Logic)
 
-MissedApproachAlarmLogic::MissedApproachAlarmLogic(): CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT) {
-
+MissedApproachPlugin::MissedApproachPlugin(): CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT) {
+	activeArrRunways = getArrivalRunways();
 }
 
-vector<string> MissedApproachAlarmLogic::getArrivalRunways() {
+vector<string> MissedApproachPlugin::getArrivalRunways() {
 	CSectorElement runway;
 	vector<string> activeRunways;
 	for (runway = SectorFileElementSelectFirst(SECTOR_ELEMENT_RUNWAY); runway.IsValid(); runway = SectorFileElementSelectNext(runway, SECTOR_ELEMENT_RUNWAY)) {
@@ -358,30 +360,9 @@ vector<string> MissedApproachAlarmLogic::getArrivalRunways() {
 		}
 	}
 	return activeRunways;
-}
+}      
 
-vector<string> MissedApproachAlarmLogic::getMissedApproaches(const char * dest) {
-	//Unused, to delete
-	CFlightPlanData data;
-	CFlightPlanControllerAssignedData controllerData;
-	vector<string> acftData;
-	for (CFlightPlan fpl = FlightPlanSelectFirst(); fpl.IsValid();  fpl = FlightPlanSelectNext(fpl)) {
-		float distanceToDest = fpl.GetDistanceToDestination();
-		// if (distanceToDest > 20.0) continue;
-
-		data = fpl.GetFlightPlanData();
-		controllerData = fpl.GetControllerAssignedData();
-		if (strcmp(controllerData.GetScratchPadString(), "MISAP_") == 0) {
-			acftData.push_back(fpl.GetCallsign());
-			acftData.push_back(data.GetDestination());
-			acftData.push_back(data.GetArrivalRwy());
-			return acftData;
-		}
-	}
-	return acftData;
-}
-
-void MissedApproachAlarmLogic::ackMissedApproach(const char * callsign) {
+void MissedApproachPlugin::ackMissedApproach(const char * callsign) {
 	CFlightPlan fpl = FlightPlanSelect(callsign);
 	CFlightPlanData data;
 	CFlightPlanControllerAssignedData controllerData;
@@ -391,4 +372,8 @@ void MissedApproachAlarmLogic::ackMissedApproach(const char * callsign) {
 		controllerData.SetScratchPadString("");
 	}
 	//couldn't find it, handle error
+}
+
+void MissedApproachPlugin::OnAirportRunwayActivityChanged() {
+	activeArrRunways = getArrivalRunways();
 }
