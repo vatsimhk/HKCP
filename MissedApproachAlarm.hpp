@@ -26,6 +26,8 @@ public:
 
 	virtual void OnAirportRunwayActivityChanged(void);
 
+	int getPositionType();
+
 };
 
 class MissedApproachAlarm :
@@ -83,6 +85,8 @@ public:
 	virtual bool OnCompileCommand(const char* sCommandLine);
 
 	void flashButton(HDC hDC, CRect button);
+
+	void drawAlarmWindow(HDC hDC);
 
 	void drawConfigWindow(HDC hDC);
 

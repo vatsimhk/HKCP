@@ -66,12 +66,32 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 		return;
 
 	MissedApproachPlugin ma;
-	drawConfigWindow(hDC);
+	int position = ma.getPositionType();
 
-	if (missedAcftData.size() == 0) {
+	if (position <= 3) {
+		//Logged in as GND or DEL
+		activeMAPPRunways.clear();
 		return;
 	}
 
+	if (position == 4) {
+		//Logged in as TWR
+
+		//TODO: draw tower window
+
+		return;
+	}
+
+	//Logged in as APP or CTR
+	drawConfigWindow(hDC);
+
+	if (missedAcftData.size() != 0) {
+		drawAlarmWindow(hDC);
+	}
+
+}
+
+void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 	string callsignText = missedAcftData[0];
 	string destText = missedAcftData[1];
 	string rwyText = missedAcftData[2];
@@ -103,7 +123,7 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 	AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
 
 	CFont* oldFont = dc.SelectObject(&fontTitle);
-	CRect title(windowAreaCRect.left, windowAreaCRect.top+20, windowAreaCRect.left + 400, windowAreaCRect.top + 60);
+	CRect title(windowAreaCRect.left, windowAreaCRect.top + 20, windowAreaCRect.left + 400, windowAreaCRect.top + 60);
 	dc.DrawText("MISSED APPROACH", strlen("MISSED APPROACH"), title, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 
 	CFont* newFont = dc.SelectObject(&fontLabel);
@@ -376,4 +396,9 @@ void MissedApproachPlugin::ackMissedApproach(const char * callsign) {
 
 void MissedApproachPlugin::OnAirportRunwayActivityChanged() {
 	activeArrRunways = getArrivalRunways();
+}
+
+int MissedApproachPlugin::getPositionType() {
+	CController myself = ControllerMyself();
+	return myself.GetFacility();
 }
