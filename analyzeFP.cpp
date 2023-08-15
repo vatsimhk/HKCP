@@ -41,7 +41,7 @@ CVFPCPlugin::CVFPCPlugin(void) :CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_
 	// Get Path of the Sid.txt
 	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
 	pfad = DllPathFile;
-	pfad.resize(pfad.size() - strlen("VFPC.dll"));
+	pfad.resize(pfad.size() - strlen("HKCP.dll"));
 	pfad += "Sid.json";
 
 	debugMode = false;

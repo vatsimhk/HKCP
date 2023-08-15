@@ -1,5 +1,5 @@
 # HKCP Plugin
-The HKCP (Hong Kong Controller Pluging) contains improvements and added functionality to Euroscope for Hong Kong vACC Controllers. It currently has two main functions - a flight plan checker and a missed approach alarm.
+The HKCP (Hong Kong Controller Plugin) contains improvements and added functionality to Euroscope for Hong Kong vACC Controllers. It currently has two main functions - a flight plan checker and a missed approach alarm.
 
 ## VFPC
 VFPC (Virtual Flight Plan Checker) checks flight plans against relevant route and altitude restrictions. 
