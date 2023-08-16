@@ -55,6 +55,7 @@ protected:
 private:
 	static int ackButtonState;
 	static int actButtonState;
+	static int actButtonHold;
 	static int resetButtonState;
 	static int windowVisibility; // 0 = hidden, 1 = minimised, 2 = full
 	static vector<string> missedAcftData;

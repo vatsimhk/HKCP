@@ -17,6 +17,7 @@ POINT MissedApproachAlarm::m_Offset = { 400, 340 };
 
 int MissedApproachAlarm::ackButtonState = 0; //0 off, 1 flashing, 2 green ack
 int MissedApproachAlarm::actButtonState = 0; //-1 disabled, 0 off, 1 act flashing, 2 on
+int MissedApproachAlarm::actButtonHold = 100;
 int MissedApproachAlarm::resetButtonState = 0; //-1 red on (no ack), 0 off, 1 green on (ack received)
 int MissedApproachAlarm::windowVisibility = 2; // 0 = hidden, 1 = minimised, 2 = full
 vector<string> MissedApproachAlarm::missedAcftData = {};
@@ -62,6 +63,12 @@ void MissedApproachAlarm::OnAsrContentToBeSaved()
 {
 	SaveDataToAsr(string("AlarmTopLeftX").c_str(), "Alarm position", to_string(m_Area.left).c_str());
 	SaveDataToAsr(string("AlarmTopLeftY").c_str(), "Alarm position", to_string(m_Area.top).c_str());
+
+	SaveDataToAsr(string("ConfigTopLeftX").c_str(), "Config position", to_string(c_Area.left).c_str());
+	SaveDataToAsr(string("ConfigTopLeftY").c_str(), "Config position", to_string(c_Area.top).c_str());
+
+	SaveDataToAsr(string("IndTopLeftX").c_str(), "Indicator position", to_string(i_Area.left).c_str());
+	SaveDataToAsr(string("IndTopLeftY").c_str(), "Indicator position", to_string(i_Area.top).c_str());
 }
 
 //---OnRefresh------------------------------------------------------
@@ -284,16 +291,24 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	dc.SelectObject(&fontLabelSmall);
 	if (actButtonState == 0 || actButtonState == -1) {
 		dc.SetTextColor(qTextColor);
-		dc.FillSolidRect(buttonACT, BUTTON_ORANGE_OFF);
 		selectedAcftData = ma.getASELAircraftData();
 		dc.SetTextColor(qTextColor);
 		if (!selectedAcftData.empty() && ma.matchArrivalAirport(selectedAcftData[1].c_str())) {
 			string selectedAcftText = "SEL: " + selectedAcftData[0] + " / " + selectedAcftData[2];
 			dc.DrawText(selectedAcftText.c_str(), selectedAcftText.length(), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+			dc.FillSolidRect(buttonACT, BUTTON_ORANGE_OFF);
+
+			if (actButtonHold < 100) {
+				CRect buttonActPartial(indicatorWindowRect.left + 300, indicatorWindowRect.top + 100 + actButtonHold, indicatorWindowRect.left + 450, indicatorWindowRect.top + 200);
+				dc.FillSolidRect(buttonActPartial, BUTTON_ORANGE_ON);
+				actButtonHold = actButtonHold > 0 ? actButtonHold-1 : 0;
+				RequestRefresh();
+			}
 			actButtonState = 0;
 		}
 		else {
 			dc.DrawText("- / -", strlen("- / -"), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+			dc.FillSolidRect(buttonACT, BUTTON_GREY);
 			actButtonState = -1;
 		}
 	}
@@ -391,11 +406,7 @@ void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjec
 	}
 
 	if (ObjectType == ACT_BUTTON) {
-		if (actButtonState == 0) {
-			actButtonState = 1;
-			resetButtonState = -1;
-			ma.initMissedApproach(selectedAcftData[0].c_str());
-		}
+		return;
 	}
 
 	if (ObjectType == RESET_BUTTON) {
@@ -510,12 +521,30 @@ void MissedApproachAlarm::OnMoveScreenObject(int ObjectType, const char* sObject
 //---OnButtonDownScreenObject---------------------------------------------
 
 void MissedApproachAlarm::OnButtonDownScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button) {
+	if (Button != BUTTON_LEFT) {
+		return;
+	}
+	if (ObjectType == ACT_BUTTON && actButtonHold > 0) {
+		actButtonHold--;
+	}
 }
 
 //---OnButtonDownScreenObject---------------------------------------------
 
 void MissedApproachAlarm::OnButtonUpScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button) {
+	if (Button != BUTTON_LEFT) {
+		return;
+	}
 
+	if (ObjectType == ACT_BUTTON) {
+		if (actButtonHold == 0 && actButtonState == 0) {
+			actButtonState = 1;
+			resetButtonState = -1;
+			MissedApproachPlugin ma;
+			ma.initMissedApproach(selectedAcftData[0].c_str());
+		}
+		actButtonHold = 100;
+	}
 }
 
 bool MissedApproachAlarm::OnCompileCommand(const char* sCommandLine) {
