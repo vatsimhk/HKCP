@@ -12,12 +12,13 @@ RECT MissedApproachAlarm::b_Area = { 9, 7, 30, 30 };
 RECT MissedApproachAlarm::c_Area = { 600, 900, 800, 1300 };
 RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 800, 980 };
 RECT MissedApproachAlarm::i_Area = { 190, 523, 690, 823 };
+RECT MissedApproachAlarm::i_Area_Min = { 190, 523, 690, 600 };
 POINT MissedApproachAlarm::m_Offset = { 400, 340 };
 
 int MissedApproachAlarm::ackButtonState = 0; //0 off, 1 flashing, 2 green ack
 int MissedApproachAlarm::actButtonState = 0; //-1 disabled, 0 off, 1 act flashing, 2 on
 int MissedApproachAlarm::resetButtonState = 0; //-1 red on (no ack), 0 off, 1 green on (ack received)
-int MissedApproachAlarm::configWindowState = 2; // 0 = hidden, 1 = minimised, 2 = full
+int MissedApproachAlarm::windowVisibility = 2; // 0 = hidden, 1 = minimised, 2 = full
 vector<string> MissedApproachAlarm::missedAcftData = {};
 vector<string> MissedApproachAlarm::activeMAPPRunways = {};
 vector<string> MissedApproachAlarm::selectedAcftData = {};
@@ -76,13 +77,14 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 	if (position <= 3) {
 		//Logged in as GND or DEL
 		activeMAPPRunways.clear();
+		selectedAcftData.clear();
+		missedAcftData.clear();
 		return;
 	}
 
 	if (position == 4) {
 		//Logged in as TWR
 
-		//TODO: draw tower window
 		drawIndicatorUnit(hDC);
 		return;
 	}
@@ -159,7 +161,7 @@ void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 }
 
 void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
-	if (configWindowState == 0) {
+	if (windowVisibility == 0) {
 		return;
 	}
 	vector<string> activeRunways = MissedApproachPlugin::activeArrRunways;
@@ -176,7 +178,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 	dc.SetTextColor(qTextColor);
 
 
-	if (configWindowState == 1) {
+	if (windowVisibility == 1) {
 		//Draw minimised window
 		CRect configWindowRect(c_Area_Min);
 		configWindowRect.NormalizeRect();
@@ -226,7 +228,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 }
 
 void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
-	if (configWindowState == 0) {
+	if (windowVisibility == 0) {
 		return;
 	}
 
@@ -248,6 +250,21 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
 
+	if (windowVisibility == 1) {
+		//Draw minimised window
+		CRect indicatorWindowRect(i_Area_Min);
+		indicatorWindowRect.NormalizeRect();
+		dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
+		AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
+
+		CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 20, indicatorWindowRect.right, indicatorWindowRect.top + 60);
+		dc.SelectObject(&fontTitle);
+		dc.DrawText("Missed Approach Light Indicator", strlen("Missed Approach Light Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+		AddScreenObject(WINDOW_TITLE_BAR, "indicator_minimised", titleRect, true, "");
+		dc.Detach();
+		return;
+	}
+	//Draw Full Window
 	CRect indicatorWindowRect(i_Area);
 	indicatorWindowRect.NormalizeRect();
 	dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
@@ -256,6 +273,7 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 20, indicatorWindowRect.right, indicatorWindowRect.top + 60);
 	dc.SelectObject(&fontTitle);
 	dc.DrawText("Missed Approach Light Indicator", strlen("Missed Approach Light Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	AddScreenObject(WINDOW_TITLE_BAR, "indicator_full", titleRect, true, "");
 
 	//Draw ACT Button
 	CRect buttonACT(indicatorWindowRect.left + 300, indicatorWindowRect.top + 100, indicatorWindowRect.left + 450, indicatorWindowRect.top + 200);
@@ -389,11 +407,11 @@ void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjec
 	}
 
 	if (ObjectType == WINDOW_TITLE_BAR) {
-		if (strcmp(sObjectId, "config_minimised") == 0) {
-			configWindowState = 2;
+		if (strstr(sObjectId, "minimised") != NULL) {
+			windowVisibility = 2;
 		}
-		if (strcmp(sObjectId, "config_full") == 0) {
-			configWindowState = 1;
+		if (strstr(sObjectId, "full") != NULL) {
+			windowVisibility = 1;
 		}
 	}
 
@@ -452,7 +470,7 @@ void MissedApproachAlarm::OnMoveScreenObject(int ObjectType, const char* sObject
 
 		m_Area = newPos;
 	}
-	if (strcmp(sObjectId, "indicator_window") == 0) {
+	if (strcmp(sObjectId, "indicator_window") == 0 || strcmp(sObjectId, "indicator_minimised") == 0 || strcmp(sObjectId, "indicator_full") == 0) {
 		CRect appWindowRect(i_Area);
 		appWindowRect.NormalizeRect();
 
@@ -460,8 +478,14 @@ void MissedApproachAlarm::OnMoveScreenObject(int ObjectType, const char* sObject
 		POINT BottomRight = { TopLeft.x + appWindowRect.Width(), TopLeft.y + appWindowRect.Height() };
 		CRect newPos(TopLeft, BottomRight);
 		newPos.NormalizeRect();
+		
+		CRect appWindowMinRect(i_Area_Min);
+		BottomRight = { TopLeft.x + appWindowMinRect.Width(), TopLeft.y + appWindowMinRect.Height() };
+		CRect newMinPos(TopLeft, BottomRight);
+		newMinPos.NormalizeRect();
 
 		i_Area = newPos;
+		i_Area_Min = newMinPos;
 	}
 	if (strcmp(sObjectId, "config_window") == 0 || strcmp(sObjectId, "config_minimised") == 0 || strcmp(sObjectId, "config_full") == 0) {
 
@@ -496,11 +520,11 @@ void MissedApproachAlarm::OnButtonUpScreenObject(int ObjectType, const char* sOb
 
 bool MissedApproachAlarm::OnCompileCommand(const char* sCommandLine) {
 	if (strcmp(sCommandLine, ".mappshow") == 0) {
-		configWindowState = 2;
+		windowVisibility = 2;
 		return true;
 	}
 	if (strcmp(sCommandLine, ".mapphide") == 0) {
-		configWindowState = 0;
+		windowVisibility = 0;
 		return true;
 	}
 	return false;

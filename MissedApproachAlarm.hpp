@@ -50,12 +50,13 @@ protected:
 	static RECT c_Area;
 	static RECT c_Area_Min;
 	static RECT i_Area;
+	static RECT i_Area_Min;
 	static POINT m_Offset;
 private:
 	static int ackButtonState;
 	static int actButtonState;
 	static int resetButtonState;
-	static int configWindowState; // 0 = hidden, 1 = minimised, 2 = full
+	static int windowVisibility; // 0 = hidden, 1 = minimised, 2 = full
 	static vector<string> missedAcftData;
 	static vector<string> activeMAPPRunways;
 	static vector<string> selectedAcftData;
