@@ -45,6 +45,7 @@ const COLORREF BUTTON_ORANGE_ON = (RGB(255, 128, 0));
 const COLORREF BUTTON_GREEN = RGB(91, 194, 54);
 const COLORREF BUTTON_RED_OFF = RGB(120, 10, 10);
 const COLORREF BUTTON_RED_ON = RGB(240, 50, 50);
+const COLORREF BUTTON_GREY = RGB(140, 140, 140);
 
 inline static bool startsWith(const char *pre, const char *str)
 {

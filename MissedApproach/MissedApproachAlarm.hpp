@@ -11,35 +11,6 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
-class MissedApproachPlugin :
-	public EuroScopePlugIn::CPlugIn
-
-{
-public:
-	static vector<string> activeArrRunways;
-
-	MissedApproachPlugin();
-
-	void ackMissedApproach(const char * callsign);
-
-	void initMissedApproach(const char * callsign);
-
-	void resetMissedApproach(const char* callsign);
-
-	vector<string> getArrivalRunways();
-
-	virtual void OnAirportRunwayActivityChanged(void);
-
-	int getPositionType();
-
-	vector<string> getASELAircraftData(void);
-
-	bool matchArrivalAirport(const char* arrivalArpt);
-
-	const char * checkForAck(const char* callsign);
-
-};
-
 class MissedApproachAlarm :
     public EuroScopePlugIn::CRadarScreen
 {
@@ -52,6 +23,8 @@ protected:
 	static RECT i_Area;
 	static RECT i_Area_Min;
 	static POINT m_Offset;
+	static POINT c_Offset;
+	static POINT i_Offset;
 private:
 	static int ackButtonState;
 	static int actButtonState;

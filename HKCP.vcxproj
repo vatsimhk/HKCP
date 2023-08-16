@@ -19,20 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="analyzeFP.hpp" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constant.hpp" />
-    <ClInclude Include="MissedApproachAlarm.hpp" />
+    <ClInclude Include="MissedApproach\MissedApproachAlarm.hpp" />
+    <ClInclude Include="MissedApproach\MissedApproachPlugin.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VFPC\analyzeFP.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="analyzeFP.cpp" />
     <ClCompile Include="HKCP.cpp" />
-    <ClCompile Include="MissedApproachAlarm.cpp" />
+    <ClCompile Include="MissedApproach\MissedApproachAlarm.cpp" />
+    <ClCompile Include="MissedApproach\MissedApproachPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VFPC\analyzeFP.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sid.txt" />
@@ -112,7 +114,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;EDFFCHECKFP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_crt_secure_no_warnings</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Libs;$(ProjectDir)Libs\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Libs;$(ProjectDir)Libs\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>

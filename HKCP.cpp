@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 #include "EuroScopePlugIn.h"
-#include "analyzeFP.hpp"
-#include "MissedApproachAlarm.hpp"
+#include "VFPC/analyzeFP.hpp"
+#include "MissedApproach/MissedApproachAlarm.hpp"
 
 CVFPCPlugin* gpMyPlugin = NULL;
 
