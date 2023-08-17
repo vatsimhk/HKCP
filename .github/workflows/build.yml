@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'dev'
+  pull_request:
+jobs:
+  build:
+    name: Build
+    runs-on: windows-2019
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.3.1
+
+      - name: Build Solution
+        run: msbuild HKCP.vcxproj /p:configuration=release /p:platform=win32
+  
