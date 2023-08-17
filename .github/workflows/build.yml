@@ -5,6 +5,7 @@ on:
     branches:
       - 'master'
       - 'dev'
+      - 'actions-testing'
   pull_request:
 jobs:
   build:
@@ -19,4 +20,5 @@ jobs:
 
       - name: Build Solution
         run: msbuild HKCP.vcxproj /p:configuration=release /p:platform=win32
+        #test
   
