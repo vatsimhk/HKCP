@@ -564,6 +564,22 @@ void MissedApproachAlarm::OnButtonUpScreenObject(int ObjectType, const char* sOb
 	}
 }
 
+void MissedApproachAlarm::OnDoubleClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button) {
+	if (Button != BUTTON_LEFT) {
+		return;
+	}
+
+	if (ObjectType == ACT_BUTTON) {
+		if (actButtonState == 0) {
+			actButtonState = 1;
+			resetButtonState = -1;
+			MissedApproachPlugin ma;
+			ma.initMissedApproach(selectedAcftData[0].c_str());
+		}
+		actButtonHold = 50;
+	}
+}
+
 bool MissedApproachAlarm::OnCompileCommand(const char* sCommandLine) {
 	if (strcmp(sCommandLine, ".mappshow") == 0) {
 		windowVisibility = 2;
