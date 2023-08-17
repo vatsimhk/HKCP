@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: windows-2019
+    runs-on: windows-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -22,5 +22,5 @@ jobs:
         uses: microsoft/setup-msbuild@v1.3.1
 
       - name: Build Solution
-        run: msbuild HKCP.vcxproj /p:configuration=release /p:platform=win32
+        run: msbuild HKCP.vcxproj /p:configuration=release /p:platform=win32 /p:PlatformToolset="v143"
   
