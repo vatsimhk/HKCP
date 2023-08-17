@@ -8,19 +8,18 @@
 using namespace EuroScopePlugIn;
 
 //Initialize static variables
-RECT MissedApproachAlarm::m_Area = { 190, 523, 590, 863 };
-RECT MissedApproachAlarm::b_Area = { 9, 7, 30, 30 };
-RECT MissedApproachAlarm::c_Area = { 600, 900, 800, 1300 };
-RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 800, 980 };
-RECT MissedApproachAlarm::i_Area = { 190, 523, 690, 823 };
-RECT MissedApproachAlarm::i_Area_Min = { 190, 523, 690, 600 };
-POINT MissedApproachAlarm::m_Offset = { 400, 340 };
-POINT MissedApproachAlarm::c_Offset = { 200, 400 };
-POINT MissedApproachAlarm::i_Offset = { 500, 500 };
+RECT MissedApproachAlarm::m_Area = { 190, 500, 490, 740 };
+RECT MissedApproachAlarm::c_Area = { 600, 900, 750, 1150 };
+RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 750, 960 };
+RECT MissedApproachAlarm::i_Area = { 200, 500, 480, 650 };
+RECT MissedApproachAlarm::i_Area_Min = { 200, 500, 480, 570 };
+POINT MissedApproachAlarm::m_Offset = { 300, 240 };
+POINT MissedApproachAlarm::c_Offset = { 150, 250 };
+POINT MissedApproachAlarm::i_Offset = { 280, 150 };
 
 int MissedApproachAlarm::ackButtonState = 0; //0 off, 1 flashing, 2 green ack
 int MissedApproachAlarm::actButtonState = 0; //-1 disabled, 0 off, 1 act flashing, 2 on
-int MissedApproachAlarm::actButtonHold = 100;
+int MissedApproachAlarm::actButtonHold = 50;
 int MissedApproachAlarm::resetButtonState = 0; //-1 red on (no ack), 0 off, 1 green on (ack received)
 int MissedApproachAlarm::windowVisibility = 2; // 0 = hidden, 1 = minimised, 2 = full
 vector<string> MissedApproachAlarm::missedAcftData = {};
@@ -55,6 +54,22 @@ void MissedApproachAlarm::OnAsrContentLoaded(bool Loaded)
 	if ((p_value = GetDataFromAsr(string("AlarmTopLeftY").c_str())) != NULL) {
 		m_Area.top = atoi(p_value);
 		m_Area.bottom = m_Area.top + m_Offset.y;
+	}
+	if ((p_value = GetDataFromAsr(string("ConfigTopLeftX").c_str())) != NULL) {
+		c_Area.left = atoi(p_value);
+		c_Area.right = c_Area.left + c_Offset.x;
+	}
+	if ((p_value = GetDataFromAsr(string("ConfigTopLeftY").c_str())) != NULL) {
+		c_Area.top = atoi(p_value);
+		c_Area.bottom = c_Area.top + c_Offset.y;
+	}
+	if ((p_value = GetDataFromAsr(string("IndicatorTopLeftX").c_str())) != NULL) {
+		i_Area.left = atoi(p_value);
+		i_Area.right = i_Area.left + i_Offset.x;
+	}
+	if ((p_value = GetDataFromAsr(string("IndicatorTopLeftY").c_str())) != NULL) {
+		i_Area.top = atoi(p_value);
+		i_Area.bottom = i_Area.top + i_Offset.y;
 	}
 }
 
@@ -122,10 +137,10 @@ void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 	CBrush alrtButtonBrush(TAG_RED);
 
 	CFont fontTitle, fontLabel;
-	fontTitle.CreateFont(36, 0, 0, 0, 3, false, false,
+	fontTitle.CreateFont(26, 0, 0, 0, 3, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
-	fontLabel.CreateFont(30, 0, 0, 0, 0, false, false,
+	fontLabel.CreateFont(20, 0, 0, 0, 0, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
 
@@ -138,21 +153,21 @@ void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 	AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
 
 	CFont* oldFont = dc.SelectObject(&fontTitle);
-	CRect title(windowAreaCRect.left, windowAreaCRect.top + 20, windowAreaCRect.left + 400, windowAreaCRect.top + 60);
+	CRect title(windowAreaCRect.left, windowAreaCRect.top + 20, windowAreaCRect.right, windowAreaCRect.top + 40);
 	dc.DrawText("MISSED APPROACH", strlen("MISSED APPROACH"), title, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 
 	CFont* newFont = dc.SelectObject(&fontLabel);
 
-	CRect runwayAirport(windowAreaCRect.left, windowAreaCRect.top + 285, windowAreaCRect.left + 400, windowAreaCRect.top + 317);
+	CRect runwayAirport(windowAreaCRect.left, windowAreaCRect.top + 180, windowAreaCRect.right, windowAreaCRect.top + 200);
 	string runwayAirportText = destText + " / " + rwyText;
 	dc.DrawText(runwayAirportText.c_str(), runwayAirportText.length(), runwayAirport, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 
-	CRect callsign(windowAreaCRect.left, windowAreaCRect.top + 208, windowAreaCRect.left + 400, windowAreaCRect.top + 265);
+	CRect callsign(windowAreaCRect.left, windowAreaCRect.top + 200, windowAreaCRect.right, windowAreaCRect.top + 220);
 	dc.DrawText(callsignText.c_str(), callsignText.length(), callsign, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 
 	dc.SetTextColor(BLACK);
 	dc.SelectObject(&fontTitle);
-	CRect ackButton(windowAreaCRect.left + 150, windowAreaCRect.top + 99, windowAreaCRect.left + 250, windowAreaCRect.top + 194);
+	CRect ackButton(windowAreaCRect.left + 100, windowAreaCRect.top + 60, windowAreaCRect.left + 200, windowAreaCRect.top + 160);
 	ackButton.NormalizeRect();
 
 	if (ackButtonState == 1) {
@@ -177,10 +192,10 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 	CDC dc;
 	dc.Attach(hDC);
 	CFont fontTitle, fontLabel;
-	fontTitle.CreateFont(28, 0, 0, 0, 3, false, false,
+	fontTitle.CreateFont(24, 0, 0, 0, 3, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
-	fontLabel.CreateFont(24, 0, 0, 0, 0, false, false,
+	fontLabel.CreateFont(18, 0, 0, 0, 0, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
 	dc.SetTextColor(qTextColor);
@@ -218,10 +233,10 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 	dc.SelectObject(&fontLabel);
 	int offset = 0;
 	for (auto& currentRunway : activeRunways) {
-		CRect runwayText(configWindowRect.left + 60, configWindowRect.top + 80 + offset, configWindowRect.left + 100, configWindowRect.top + 110 + offset);
+		CRect runwayText(configWindowRect.left + 60, configWindowRect.top + 70 + offset, configWindowRect.left + 100, configWindowRect.top + 90 + offset);
 		dc.DrawText(currentRunway.c_str(), currentRunway.length(), runwayText, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 
-		CRect checkBox(configWindowRect.left + 20, configWindowRect.top + 80 + offset, configWindowRect.left + 50, configWindowRect.top + 110 + offset);
+		CRect checkBox(configWindowRect.left + 20, configWindowRect.top + 70 + offset, configWindowRect.left + 40, configWindowRect.top + 90 + offset);
 		if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), currentRunway) != activeMAPPRunways.end()) {
 			dc.FillSolidRect(checkBox, BUTTON_GREEN);
 		}
@@ -230,7 +245,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 		}
 		string buttonNo = "runway_button_" + currentRunway;
 		AddScreenObject(RWY_ENABLE_BUTTON, buttonNo.c_str(), checkBox, true, "");
-		offset += 50;
+		offset += 30;
 	}
 	dc.Detach();
 }
@@ -248,13 +263,13 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 
 	CFont fontTitle, fontLabel, fontLabelSmall;
 	dc.SetTextColor(qTextColor);
-	fontTitle.CreateFont(36, 0, 0, 0, 3, false, false,
+	fontTitle.CreateFont(24, 0, 0, 0, 3, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
-	fontLabel.CreateFont(30, 0, 0, 0, 0, false, false,
+	fontLabel.CreateFont(18, 0, 0, 0, 0, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
-	fontLabelSmall.CreateFont(24, 0, 0, 0, 0, false, false,
+	fontLabelSmall.CreateFont(16, 0, 0, 0, 0, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
 
@@ -265,9 +280,9 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 		dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
 		AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
 
-		CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 20, indicatorWindowRect.right, indicatorWindowRect.top + 60);
+		CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 15, indicatorWindowRect.right, indicatorWindowRect.top + 40);
 		dc.SelectObject(&fontTitle);
-		dc.DrawText("Missed Approach Light Indicator", strlen("Missed Approach Light Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+		dc.DrawText("Missed Approach Indicator", strlen("Missed Approach Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 		AddScreenObject(WINDOW_TITLE_BAR, "indicator_minimised", titleRect, true, "");
 		dc.Detach();
 		return;
@@ -278,14 +293,14 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
 	AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
 
-	CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 20, indicatorWindowRect.right, indicatorWindowRect.top + 60);
+	CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 15, indicatorWindowRect.right, indicatorWindowRect.top + 40);
 	dc.SelectObject(&fontTitle);
-	dc.DrawText("Missed Approach Light Indicator", strlen("Missed Approach Light Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	dc.DrawText("Missed Approach Indicator", strlen("Missed Approach Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 	AddScreenObject(WINDOW_TITLE_BAR, "indicator_full", titleRect, true, "");
 
 	//Draw ACT Button
-	CRect buttonACT(indicatorWindowRect.left + 300, indicatorWindowRect.top + 100, indicatorWindowRect.left + 450, indicatorWindowRect.top + 200);
-	CRect selectedAcftRect(indicatorWindowRect.left + 300, indicatorWindowRect.top + 200, indicatorWindowRect.left + 450, indicatorWindowRect.top + 300);
+	CRect buttonACT(indicatorWindowRect.left + 170, indicatorWindowRect.top + 60, indicatorWindowRect.left + 245, indicatorWindowRect.top + 110);
+	CRect selectedAcftRect(indicatorWindowRect.left + 170, indicatorWindowRect.top + 120, indicatorWindowRect.left + 245, indicatorWindowRect.top + 140);
 	string selectedAcftText;
 
 	// Draw selected aircraft label below
@@ -299,8 +314,8 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 			dc.DrawText(selectedAcftText.c_str(), selectedAcftText.length(), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 			dc.FillSolidRect(buttonACT, BUTTON_ORANGE_OFF);
 
-			if (actButtonHold < 100) {
-				CRect buttonActPartial(indicatorWindowRect.left + 300, indicatorWindowRect.top + 100 + actButtonHold, indicatorWindowRect.left + 450, indicatorWindowRect.top + 200);
+			if (actButtonHold < 50) {
+				CRect buttonActPartial(indicatorWindowRect.left + 170, indicatorWindowRect.top + 60 + actButtonHold, indicatorWindowRect.left + 245, indicatorWindowRect.top + 110);
 				dc.FillSolidRect(buttonActPartial, BUTTON_ORANGE_ON);
 				actButtonHold = actButtonHold > 0 ? actButtonHold-1 : 0;
 				RequestRefresh();
@@ -332,7 +347,7 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	AddScreenObject(ACT_BUTTON, "act", buttonACT, true, "");
 
 	//Draw ACK Reset Button
-	CRect buttonReset(indicatorWindowRect.left + 50, indicatorWindowRect.top + 100, indicatorWindowRect.left + 150, indicatorWindowRect.top + 200);
+	CRect buttonReset(indicatorWindowRect.left + 35, indicatorWindowRect.top + 60, indicatorWindowRect.left + 85, indicatorWindowRect.top + 110);
 	if (resetButtonState == 0) {
 		dc.FillSolidRect(buttonReset, BUTTON_RED_OFF);
 	}
@@ -350,12 +365,12 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 			ackStation = ma.checkForAck(selectedAcftData[0].c_str());
 		}
 	}
-	dc.SelectObject(&fontLabel);
+	dc.SelectObject(&fontLabelSmall);
 	dc.SetTextColor(BLACK);
 	dc.DrawText("RESET", strlen("RESET"), buttonReset, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 	AddScreenObject(RESET_BUTTON, "reset", buttonReset, true, "");
 
-	CRect ackText(indicatorWindowRect.left + 50, indicatorWindowRect.top + 200, indicatorWindowRect.left + 150, indicatorWindowRect.top + 300);
+	CRect ackText(indicatorWindowRect.left + 35, indicatorWindowRect.top + 120, indicatorWindowRect.left + 85, indicatorWindowRect.top + 140);
 	dc.SelectObject(&fontLabelSmall);
 	dc.SetTextColor(qTextColor);
 	dc.DrawText(ackLabel.c_str(), ackLabel.length(), ackText, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
@@ -545,7 +560,7 @@ void MissedApproachAlarm::OnButtonUpScreenObject(int ObjectType, const char* sOb
 			MissedApproachPlugin ma;
 			ma.initMissedApproach(selectedAcftData[0].c_str());
 		}
-		actButtonHold = 100;
+		actButtonHold = 50;
 	}
 }
 

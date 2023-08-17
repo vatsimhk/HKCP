@@ -17,7 +17,6 @@ class MissedApproachAlarm :
 protected:
 
 	static RECT m_Area;
-	static RECT b_Area;
 	static RECT c_Area;
 	static RECT c_Area_Min;
 	static RECT i_Area;
