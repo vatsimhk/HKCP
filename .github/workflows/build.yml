@@ -15,10 +15,12 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
     steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.3.1
 
       - name: Build Solution
         run: msbuild HKCP.vcxproj /p:configuration=release /p:platform=win32
-        #test
   
