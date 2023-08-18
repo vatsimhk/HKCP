@@ -6,6 +6,7 @@
 #include <mmsystem.h>
 #include <string>
 #include <iostream>
+#include <ctime>
 
 
 using namespace std;
@@ -28,6 +29,7 @@ private:
 	static int ackButtonState;
 	static int actButtonState;
 	static int actButtonHold;
+	static clock_t now;	
 	static int resetButtonState;
 	static int windowVisibility; // 0 = hidden, 1 = minimised, 2 = full
 	static vector<string> missedAcftData;
