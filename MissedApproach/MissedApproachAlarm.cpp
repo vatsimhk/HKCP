@@ -20,6 +20,7 @@ POINT MissedApproachAlarm::i_Offset = { 280, 150 };
 int MissedApproachAlarm::ackButtonState = 0; //0 off, 1 flashing, 2 green ack
 int MissedApproachAlarm::actButtonState = 0; //-1 disabled, 0 off, 1 act flashing, 2 on
 int MissedApproachAlarm::actButtonHold = 50;
+clock_t MissedApproachAlarm::now = 0;
 int MissedApproachAlarm::resetButtonState = 0; //-1 red on (no ack), 0 off, 1 green on (ack received)
 int MissedApproachAlarm::windowVisibility = 2; // 0 = hidden, 1 = minimised, 2 = full
 vector<string> MissedApproachAlarm::missedAcftData = {};
@@ -314,10 +315,11 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 			dc.DrawText(selectedAcftText.c_str(), selectedAcftText.length(), selectedAcftRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 			dc.FillSolidRect(buttonACT, BUTTON_ORANGE_OFF);
 
-			if (actButtonHold < 50) {
+			if (now != 0) {
+				actButtonHold = 50 - ((double)(clock() - now) / CLOCKS_PER_SEC * 50.0);
+				if (actButtonHold <= 0) actButtonHold = 0;
 				CRect buttonActPartial(indicatorWindowRect.left + 170, indicatorWindowRect.top + 60 + actButtonHold, indicatorWindowRect.left + 245, indicatorWindowRect.top + 110);
 				dc.FillSolidRect(buttonActPartial, BUTTON_ORANGE_ON);
-				actButtonHold = actButtonHold > 0 ? actButtonHold-1 : 0;
 				RequestRefresh();
 			}
 			actButtonState = 0;
@@ -390,12 +392,7 @@ void MissedApproachAlarm::flashButton(HDC hDC, CRect button) {
 	pfad += "missed_alarm.wav";
 	PlaySound(TEXT(pfad.c_str()), NULL, SND_NOSTOP | SND_FILENAME | SND_ASYNC);
 
-	time_t rawtime = time(NULL);
-	struct tm timeinfo;
-	gmtime_s(&timeinfo, &rawtime);
-	char buffer[3];
-	strftime(buffer, 3, "%S", &timeinfo);
-	int sec = atoi(buffer);
+	int sec = clock() / CLOCKS_PER_SEC;
 
 	if (sec % 2 == 0) {
 		dc.FillSolidRect(button, BUTTON_ORANGE_ON);
@@ -542,7 +539,7 @@ void MissedApproachAlarm::OnButtonDownScreenObject(int ObjectType, const char* s
 		return;
 	}
 	if (ObjectType == ACT_BUTTON && actButtonHold > 0) {
-		actButtonHold--;
+		now = clock();
 	}
 }
 
@@ -561,6 +558,7 @@ void MissedApproachAlarm::OnButtonUpScreenObject(int ObjectType, const char* sOb
 			ma.initMissedApproach(selectedAcftData[0].c_str());
 		}
 		actButtonHold = 50;
+		now = 0;
 	}
 }
 
