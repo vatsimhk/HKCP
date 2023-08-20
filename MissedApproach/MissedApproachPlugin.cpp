@@ -81,8 +81,8 @@ vector<string> MissedApproachPlugin::getASELAircraftData() {
 	CFlightPlan fpl = FlightPlanSelectASEL();
 	activeArrRunways = getArrivalRunways();
 	CRadarTargetPositionData rdr = fpl.GetCorrelatedRadarTarget().GetPosition();
-	if (!fpl.IsValid() || rdr.GetPressureAltitude() < 150 || fpl.GetTrackingControllerId() == "") {
-		//return empty if FPL is invalid, on the ground, or tracked by another controller
+	if (!fpl.IsValid() || rdr.GetPressureAltitude() < 50 || fpl.GetDistanceToDestination() > 20.0) {
+		//return empty if FPL is invalid, on the ground, or too far from destination
 		return acftData;
 	}
 	else {
