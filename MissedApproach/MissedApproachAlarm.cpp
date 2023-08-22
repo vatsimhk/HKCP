@@ -462,7 +462,7 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 	CFlightPlanControllerAssignedData controllerData = FlightPlan.GetControllerAssignedData();
 
 	//Filter from scratchpad message
-	if (strcmp(controllerData.GetScratchPadString(), "MISAP_") != 0) return;
+	if (strstr(controllerData.GetScratchPadString(), "\\MISS") == NULL) return;
 
 	//Handle tower case first
 	if (!selectedAcftData.empty()) {

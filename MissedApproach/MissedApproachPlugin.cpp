@@ -36,7 +36,9 @@ void MissedApproachPlugin::initMissedApproach(const char* callsign) {
 	CFlightPlanControllerAssignedData controllerData;
 	data = fpl.GetFlightPlanData();
 	controllerData = fpl.GetControllerAssignedData();
-	controllerData.SetScratchPadString("MISAP_");
+	string buf = controllerData.GetScratchPadString();
+	buf.append("\\MISS");
+	controllerData.SetScratchPadString(buf.c_str());
 }
 
 void MissedApproachPlugin::ackMissedApproach(const char* callsign) {
@@ -47,10 +49,11 @@ void MissedApproachPlugin::ackMissedApproach(const char* callsign) {
 	data = fpl.GetFlightPlanData();
 	controllerData = fpl.GetControllerAssignedData();
 
-	string ackMessage = "MISAP_ACK_";
-	ackMessage.append(myself.GetPositionId());
-	if (strcmp(controllerData.GetScratchPadString(), "MISAP_") == 0) {
-		controllerData.SetScratchPadString(ackMessage.c_str());
+	string buf = controllerData.GetScratchPadString();
+	if (buf.find("\\MISS") != string::npos) {
+		buf.append("\\ACK\\");
+		buf.append(myself.GetPositionId());
+		controllerData.SetScratchPadString(buf.c_str());
 	}
 	//couldn't find it, handle error
 }
@@ -61,9 +64,19 @@ void MissedApproachPlugin::resetMissedApproach(const char* callsign) {
 	CFlightPlanControllerAssignedData controllerData;
 	data = fpl.GetFlightPlanData();
 	controllerData = fpl.GetControllerAssignedData();
-	if (strstr(controllerData.GetScratchPadString(), "MISAP_") != NULL) {
-		controllerData.SetScratchPadString("");
+	string buf = controllerData.GetScratchPadString();
+	size_t index;
+	string miss = "\\MISS";
+	string ack = "\\ACK";
+	index = buf.find(miss);
+	if (index != string::npos) {
+		buf.erase(index, miss.length());
 	}
+	index = buf.find(ack);
+	if (index != string::npos) {
+		buf.erase(index, ack.length()+4);
+	}
+	controllerData.SetScratchPadString(buf.c_str());
 	//couldn't find it, handle error
 }
 
@@ -81,8 +94,8 @@ vector<string> MissedApproachPlugin::getASELAircraftData() {
 	CFlightPlan fpl = FlightPlanSelectASEL();
 	activeArrRunways = getArrivalRunways();
 	CRadarTargetPositionData rdr = fpl.GetCorrelatedRadarTarget().GetPosition();
-	if (!fpl.IsValid() || rdr.GetPressureAltitude() < 50 || fpl.GetDistanceToDestination() > 20.0) {
-		//return empty if FPL is invalid, on the ground, or too far from destination
+	if (!fpl.IsValid() || rdr.GetPressureAltitude() < 50 || fpl.GetDistanceToDestination() > 20.0 || *fpl.GetTrackingControllerId() != '\0') {
+		//return empty if FPL is invalid, on the ground, too far from destination, or tracked
 		return acftData;
 	}
 	else {
@@ -105,9 +118,9 @@ bool MissedApproachPlugin::matchArrivalAirport(const char* arrivalArpt) {
 
 const char* MissedApproachPlugin::checkForAck(const char* callsign) {
 	CFlightPlanControllerAssignedData controllerData = FlightPlanSelect(callsign).GetControllerAssignedData();
-	const char* ptr = strstr(controllerData.GetScratchPadString(), "MISAP_ACK_");
+	const char* ptr = strstr(controllerData.GetScratchPadString(), "\\MISS\\ACK\\");
 	if (ptr != NULL) {
-		ptr = ptr + strlen("MISAP_ACK_");
+		ptr = ptr + strlen("\\MISS\\ACK\\");
 		return (ptr != NULL && strlen(ptr) == 3) ? ptr : "???";
 	}
 	return NULL;
