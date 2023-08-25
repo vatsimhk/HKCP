@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "EuroScopePlugIn.h"
-#include "HKCPDisplay.hpp"
+#include "Constant.hpp"
 #include <sstream>
 #include <vector>
 #include <thread>
@@ -14,35 +14,14 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
-class MissedApproachAlarm :
-    public EuroScopePlugIn::CRadarScreen
+class HKCPDisplay :
+	public EuroScopePlugIn::CRadarScreen
 {
 protected:
-
-	static RECT m_Area;
-	static RECT c_Area;
-	static RECT c_Area_Min;
-	static RECT i_Area;
-	static RECT i_Area_Min;
-	static POINT m_Offset;
-	static POINT c_Offset;
-	static POINT i_Offset;
-private:
-	static int ackButtonState;
-	static int actButtonState;
-	static int actButtonHold;
-	static clock_t now;	
-	static int resetButtonState;
-	static int windowVisibility; // 0 = hidden, 1 = minimised, 2 = full
-	static vector<string> missedAcftData;
-	static vector<string> activeMAPPRunways;
-	static vector<string> selectedAcftData;
-	static string ackStation;
-
 public:
 
-    MissedApproachAlarm();
-    virtual ~MissedApproachAlarm();
+	HKCPDisplay();
+	virtual ~HKCPDisplay();
 
 	//---OnAsrContentLoaded--------------------------------------------
 
@@ -54,7 +33,7 @@ public:
 
 	//---OnRefresh------------------------------------------------------
 
-	void OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display);
+	virtual void OnRefresh(HDC hDC, int Phase);
 
 	//---OnClickScreenObject-----------------------------------------
 
@@ -79,15 +58,6 @@ public:
 
 	virtual bool OnCompileCommand(const char* sCommandLine);
 
-	void flashButton(HDC hDC, CRect button);
-
-	void drawAlarmWindow(HDC hDC, HKCPDisplay* Display);
-
-	void drawConfigWindow(HDC hDC, HKCPDisplay* Display);
-
-	void drawIndicatorUnit(HDC hDC, HKCPDisplay* Display);
-
-	//  This gets called before OnAsrContentToBeSaved()
 	inline virtual void OnAsrContentToBeClosed(void)
 	{
 		delete this;

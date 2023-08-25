@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MissedApproachAlarm.hpp"
 #include "MissedApproachPlugin.hpp"
+#include "HKCPDisplay.hpp"
 #include "Constant.hpp"
 #include "EuroScopePlugIn.h"
 #include <time.h>
@@ -90,7 +91,7 @@ void MissedApproachAlarm::OnAsrContentToBeSaved()
 
 //---OnRefresh------------------------------------------------------
 
-void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
+void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 {
 	if (Phase != REFRESH_PHASE_AFTER_LISTS)
 		return;
@@ -109,20 +110,20 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase)
 	if (position == 4) {
 		//Logged in as TWR
 
-		drawIndicatorUnit(hDC);
+		drawIndicatorUnit(hDC, Display);
 		return;
 	}
 
 	//Logged in as APP or CTR
-	drawConfigWindow(hDC);
+	drawConfigWindow(hDC, Display);
 
 	if (missedAcftData.size() != 0) {
-		drawAlarmWindow(hDC);
+		drawAlarmWindow(hDC, Display);
 	}
 
 }
 
-void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
+void MissedApproachAlarm::drawAlarmWindow(HDC hDC, HKCPDisplay* Display) {
 	string callsignText = missedAcftData[0];
 	string destText = missedAcftData[1];
 	string rwyText = missedAcftData[2];
@@ -151,7 +152,7 @@ void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 
 	dc.FillSolidRect(windowAreaCRect, qBackgroundColor);
 	dc.FrameRect(windowAreaCRect, &borderBrush);
-	AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
+	Display->AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
 
 	CFont* oldFont = dc.SelectObject(&fontTitle);
 	CRect title(windowAreaCRect.left, windowAreaCRect.top + 20, windowAreaCRect.right, windowAreaCRect.top + 40);
@@ -178,13 +179,13 @@ void MissedApproachAlarm::drawAlarmWindow(HDC hDC) {
 		flashButton(hDC, ackButton);
 	}
 	dc.DrawText("ACK", strlen("ACK"), ackButton, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	AddScreenObject(ACK_BUTTON, "", ackButton, false, "");
+	Display->AddScreenObject(ACK_BUTTON, "", ackButton, false, "");
 
 	dc.SelectObject(oldFont);
 	dc.Detach();
 }
 
-void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
+void MissedApproachAlarm::drawConfigWindow(HDC hDC, HKCPDisplay* Display) {
 	if (windowVisibility == 0) {
 		return;
 	}
@@ -207,12 +208,12 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 		CRect configWindowRect(c_Area_Min);
 		configWindowRect.NormalizeRect();
 		dc.FillSolidRect(configWindowRect, qBackgroundColor);
-		AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
+		Display->AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
 
 		CRect titleRect(configWindowRect.left, configWindowRect.top + 20, configWindowRect.right, configWindowRect.top + 50);
 		dc.SelectObject(&fontTitle);
 		dc.DrawText("MAPP Config", strlen("MAPP Config"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-		AddScreenObject(WINDOW_TITLE_BAR, "config_minimised", titleRect, true, "");
+		Display->AddScreenObject(WINDOW_TITLE_BAR, "config_minimised", titleRect, true, "");
 
 		dc.Detach();
 		return;
@@ -222,13 +223,13 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 	CRect configWindowRect(c_Area);
 	configWindowRect.NormalizeRect();
 	dc.FillSolidRect(configWindowRect, qBackgroundColor);
-	AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
+	Display->AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
 
 	//Draw title
 	CRect titleRect(configWindowRect.left, configWindowRect.top + 20, configWindowRect.right, configWindowRect.top + 50);
 	dc.SelectObject(&fontTitle);
 	dc.DrawText("MAPP Config", strlen("MAPP Config"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	AddScreenObject(WINDOW_TITLE_BAR, "config_full", titleRect, true, "");
+	Display->AddScreenObject(WINDOW_TITLE_BAR, "config_full", titleRect, true, "");
 
 	//Loop, iterate through arrival runways, create buttons and text for each one
 	dc.SelectObject(&fontLabel);
@@ -245,13 +246,13 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC) {
 			dc.FillSolidRect(checkBox, BUTTON_RED_ON);
 		}
 		string buttonNo = "runway_button_" + currentRunway;
-		AddScreenObject(RWY_ENABLE_BUTTON, buttonNo.c_str(), checkBox, true, "");
+		Display->AddScreenObject(RWY_ENABLE_BUTTON, buttonNo.c_str(), checkBox, true, "");
 		offset += 30;
 	}
 	dc.Detach();
 }
 
-void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
+void MissedApproachAlarm::drawIndicatorUnit(HDC hDC, HKCPDisplay* Display) {
 	if (windowVisibility == 0) {
 		return;
 	}
@@ -279,12 +280,12 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 		CRect indicatorWindowRect(i_Area_Min);
 		indicatorWindowRect.NormalizeRect();
 		dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
-		AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
+		Display->AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
 
 		CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 15, indicatorWindowRect.right, indicatorWindowRect.top + 40);
 		dc.SelectObject(&fontTitle);
 		dc.DrawText("Missed Approach Indicator", strlen("Missed Approach Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-		AddScreenObject(WINDOW_TITLE_BAR, "indicator_minimised", titleRect, true, "");
+		Display->AddScreenObject(WINDOW_TITLE_BAR, "indicator_minimised", titleRect, true, "");
 		dc.Detach();
 		return;
 	}
@@ -292,12 +293,12 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	CRect indicatorWindowRect(i_Area);
 	indicatorWindowRect.NormalizeRect();
 	dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
-	AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
+	Display->AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
 
 	CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 15, indicatorWindowRect.right, indicatorWindowRect.top + 40);
 	dc.SelectObject(&fontTitle);
 	dc.DrawText("Missed Approach Indicator", strlen("Missed Approach Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	AddScreenObject(WINDOW_TITLE_BAR, "indicator_full", titleRect, true, "");
+	Display->AddScreenObject(WINDOW_TITLE_BAR, "indicator_full", titleRect, true, "");
 
 	//Draw ACT Button
 	CRect buttonACT(indicatorWindowRect.left + 170, indicatorWindowRect.top + 60, indicatorWindowRect.left + 245, indicatorWindowRect.top + 110);
@@ -346,7 +347,7 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	dc.SelectObject(&fontLabel);
 	dc.SetTextColor(BLACK);
 	dc.DrawText("ACT", strlen("ACT"), buttonACT, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	AddScreenObject(ACT_BUTTON, "act", buttonACT, true, "");
+	Display->AddScreenObject(ACT_BUTTON, "act", buttonACT, true, "");
 
 	//Draw ACK Reset Button
 	CRect buttonReset(indicatorWindowRect.left + 35, indicatorWindowRect.top + 60, indicatorWindowRect.left + 85, indicatorWindowRect.top + 110);
@@ -370,7 +371,7 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC) {
 	dc.SelectObject(&fontLabelSmall);
 	dc.SetTextColor(BLACK);
 	dc.DrawText("RESET", strlen("RESET"), buttonReset, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	AddScreenObject(RESET_BUTTON, "reset", buttonReset, true, "");
+	Display->AddScreenObject(RESET_BUTTON, "reset", buttonReset, true, "");
 
 	CRect ackText(indicatorWindowRect.left + 35, indicatorWindowRect.top + 120, indicatorWindowRect.left + 85, indicatorWindowRect.top + 140);
 	dc.SelectObject(&fontLabelSmall);
@@ -483,6 +484,7 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 //---OnMoveScreenObject---------------------------------------------
 
 void MissedApproachAlarm::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released) {
+	
 	if (strcmp(sObjectId, "window") == 0) {
 
 		CRect appWindowRect(m_Area);

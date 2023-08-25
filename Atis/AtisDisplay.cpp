@@ -38,7 +38,7 @@ void AtisDisplay::OnAsrContentToBeSaved() {
 
 }
 
-void AtisDisplay::OnRefresh(HDC hDC, int Phase) {
+void AtisDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display) {
 	if (Phase != REFRESH_PHASE_AFTER_LISTS)
 		return;
 
@@ -67,7 +67,7 @@ void AtisDisplay::OnRefresh(HDC hDC, int Phase) {
 
 	dc.FillSolidRect(windowAreaCRect, qBackgroundColor);
 	dc.FrameRect(windowAreaCRect, &borderBrush);
-	AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
+	Display->AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
 
 
 	// Rects
@@ -131,4 +131,9 @@ void AtisDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POIN
 
 		a_Area = newPos;
 	}
+}
+
+bool AtisDisplay::OnCompileCommand(const char* sCommandLine)
+{
+	return false;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "EuroScopePlugIn.h"
 #include "Constant.hpp"
+#include "HKCPDisplay.hpp"
 #include <sstream>
 #include <vector>
 #include <string>
@@ -34,9 +35,11 @@ public:
 
     virtual void OnAsrContentToBeSaved();
 
-    virtual void OnRefresh(HDC hDC, int Phase);
+    void OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display);
 
     virtual void OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released);
+
+    virtual bool OnCompileCommand(const char* sCommandLine);
 
     inline virtual void OnAsrContentToBeClosed(void)
     {

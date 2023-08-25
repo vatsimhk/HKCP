@@ -1,0 +1,37 @@
+#pragma once
+#include "EuroScopePlugIn.h"
+#include <sstream>
+#include <iostream>
+#include <string>
+#include "Constant.hpp"
+
+using namespace std;
+using namespace EuroScopePlugIn;
+
+class HKCPPlugin :
+	public EuroScopePlugIn::CPlugIn
+{
+public:
+	HKCPPlugin();
+
+	~HKCPPlugin();
+
+	virtual void OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area);
+
+	virtual CRadarScreen* OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated);
+
+	virtual void OnGetTagItem(CFlightPlan FlightPlan,
+		CRadarTarget RadarTarget,
+		int ItemCode,
+		int TagData,
+		char sItemString[16],
+		int* pColorCode,
+		COLORREF* pRGB,
+		double* pFontSize);
+
+	virtual void OnFlightPlanDisconnect(CFlightPlan FlightPlan);
+
+	virtual bool OnCompileCommand(const char* sCommandLine);
+
+	virtual void OnTimer(int Count);
+};

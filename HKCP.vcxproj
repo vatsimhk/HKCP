@@ -22,6 +22,8 @@
     <ClInclude Include="Atis\AtisDisplay.hpp" />
     <ClInclude Include="Atis\AtisPlugin.hpp" />
     <ClInclude Include="Constant.hpp" />
+    <ClInclude Include="HKCP.hpp" />
+    <ClInclude Include="HKCPDisplay.hpp" />
     <ClInclude Include="MissedApproach\MissedApproachAlarm.hpp" />
     <ClInclude Include="MissedApproach\MissedApproachPlugin.hpp" />
     <ClInclude Include="stdafx.h" />
@@ -32,6 +34,7 @@
     <ClCompile Include="Atis\AtisDisplay.cpp" />
     <ClCompile Include="Atis\AtisPlugin.cpp" />
     <ClCompile Include="HKCP.cpp" />
+    <ClCompile Include="HKCPDisplay.cpp" />
     <ClCompile Include="MissedApproach\MissedApproachAlarm.cpp" />
     <ClCompile Include="MissedApproach\MissedApproachPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">

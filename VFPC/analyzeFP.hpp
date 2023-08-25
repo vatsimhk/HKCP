@@ -30,8 +30,6 @@ public:
 
 	virtual void OnFunctionCall(int FunctionId, const char * ItemString, POINT Pt, RECT Area);
 
-	virtual CRadarScreen* OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated);
-
 	//Define OnGetTagItem function
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
 		CRadarTarget RadarTarget,
