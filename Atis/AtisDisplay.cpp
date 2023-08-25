@@ -13,6 +13,7 @@ using namespace EuroScopePlugIn;
 RECT AtisDisplay::a_Area = { 50, 100, 175, 161 };
 RECT AtisDisplay::b_Area = { 9, 7, 30, 30 };
 POINT AtisDisplay::a_Offset = { 125, 61 };
+bool AtisDisplay::visible = true;
 
 AtisDisplay::AtisDisplay() {
 
@@ -31,15 +32,27 @@ AtisDisplay::~AtisDisplay() {
 }
 
 void AtisDisplay::OnAsrContentLoaded(bool Loaded) {
-
+	const char* p_value;
+	if ((p_value = GetDataFromAsr(string("AtisTopLeftX").c_str())) != NULL) {
+		a_Area.left = atoi(p_value);
+		a_Area.right = a_Area.left + a_Offset.x;
+	}
+	if ((p_value = GetDataFromAsr(string("AtisTopLeftY").c_str())) != NULL) {
+		a_Area.top = atoi(p_value);
+		a_Area.bottom = a_Area.top + a_Offset.y;
+	}
 }
 
 void AtisDisplay::OnAsrContentToBeSaved() {
-
+	SaveDataToAsr(string("AtisTopLeftX").c_str(), "Atis position", to_string(a_Area.left).c_str());
+	SaveDataToAsr(string("AtisTopLeftY").c_str(), "Atis position", to_string(a_Area.top).c_str());
 }
 
 void AtisDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display) {
 	if (Phase != REFRESH_PHASE_AFTER_LISTS)
+		return;
+
+	if (!visible)
 		return;
 
 	// Basics
@@ -67,7 +80,7 @@ void AtisDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display) {
 
 	dc.FillSolidRect(windowAreaCRect, qBackgroundColor);
 	dc.FrameRect(windowAreaCRect, &borderBrush);
-	Display->AddScreenObject(DRAWING_APPWINDOW, "window", windowAreaCRect, true, "");
+	Display->AddScreenObject(DRAWING_APPWINDOW, "atis_window", windowAreaCRect, true, "");
 
 
 	// Rects
@@ -119,7 +132,7 @@ void AtisDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display) {
 
 void AtisDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released)
 {
-	if (strcmp(sObjectId, "window") == 0) {
+	if (strcmp(sObjectId, "atis_window") == 0) {
 
 		CRect appWindowRect(a_Area);
 		appWindowRect.NormalizeRect();
@@ -135,5 +148,14 @@ void AtisDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POIN
 
 bool AtisDisplay::OnCompileCommand(const char* sCommandLine)
 {
+	if (strcmp(sCommandLine, ".atishide") == 0) {
+		visible = false;
+		return true;
+	}
+	if (strcmp(sCommandLine, ".atisshow") == 0) {
+		visible = true;
+		return true;
+	}
+
 	return false;
 }

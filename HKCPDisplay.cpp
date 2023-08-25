@@ -20,11 +20,13 @@ HKCPDisplay::~HKCPDisplay()
 void HKCPDisplay::OnAsrContentLoaded(bool Loaded)
 {
 	MissAlarm->OnAsrContentLoaded(Loaded);
+	AtisDisp->OnAsrContentLoaded(Loaded);
 }
 
 void HKCPDisplay::OnAsrContentToBeSaved()
 {
 	MissAlarm->OnAsrContentToBeSaved();
+	AtisDisp->OnAsrContentToBeSaved();
 }
 
 void HKCPDisplay::OnRefresh(HDC hDC, int Phase)

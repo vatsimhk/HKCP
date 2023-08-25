@@ -20,6 +20,7 @@ protected:
     static RECT a_Area;
     static RECT b_Area;
     static POINT a_Offset;
+    static bool visible;
 
 public:
     AtisDisplay();
