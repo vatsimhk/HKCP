@@ -1,5 +1,10 @@
 # HKCP Plugin
-The HKCP (Hong Kong Controller Plugin) contains improvements and added functionality to Euroscope for Hong Kong vACC Controllers. It currently has two main functions - a flight plan checker and a missed approach alarm.
+The HKCP (Hong Kong Controller Plugin) contains improvements and added functionality to Euroscope for Hong Kong vACC Controllers.
+
+| Branch  | Latest Release | Status |
+|---|---|---|
+| Stable | ![Latest Release](https://img.shields.io/github/v/release/vatsimhk/HKCP) | ![Master Status](https://github.com/vatsimhk/HKCP/actions/workflows/build.yml/badge.svg?branch=master) |
+| Development | ![Latest Release](https://img.shields.io/github/v/release/vatsimhk/HKCP?include_prereleases) | ![Dev Status](https://github.com/vatsimhk/HKCP/actions/workflows/build.yml/badge.svg?branch=dev) |
 
 ## VFPC
 VFPC (Virtual Flight Plan Checker) checks flight plans against relevant route and altitude restrictions. 
@@ -7,6 +12,9 @@ Originally developed by hpeter2 and DrFreas, it has been expanded on with modifi
 
 ## Missed Approach Alarm
 The missed approach alarm allows tower controllers to send a visual and audio alert to TMA controllers for missed approaches. When the alert is sent (via the tag or window), the relevant TMA controllers receive a popup containing the details about the missed approach aircraft (callsign, airport, runway). The TMA controller can then acknowledge the request, saving the need for extra coordination over voice or chat.
+
+## Always On ATIS Display
+The Always On ATIS Display polls the vatsim datafeed for the latest ATIS at all 4 airports within the Hong Kong FIR, so they can be visually referenced at all times by controllers. The datafeed is slightly delayed, however this is the best option as there is no way to access the ATIS letter through the EuroScope SDK.
 
 ## How to use:
 - Load up the plugin
