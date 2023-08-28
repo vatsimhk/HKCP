@@ -13,6 +13,7 @@ HKCPDisplay::HKCPDisplay()
 
 HKCPDisplay::~HKCPDisplay()
 {
+	this->OnAsrContentToBeSaved();
 	delete AtisDisp;
 	delete MissAlarm;
 }
@@ -38,6 +39,7 @@ void HKCPDisplay::OnRefresh(HDC hDC, int Phase)
 void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
 {
 	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
+	AtisDisp->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
 }
 
 void HKCPDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released)
@@ -49,6 +51,7 @@ void HKCPDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POIN
 void HKCPDisplay::OnButtonDownScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
 {
 	MissAlarm->OnButtonDownScreenObject(ObjectType, sObjectId, Pt, Area, Button);
+	RequestRefresh();
 }
 
 void HKCPDisplay::OnButtonUpScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
@@ -59,6 +62,11 @@ void HKCPDisplay::OnButtonUpScreenObject(int ObjectType, const char* sObjectId, 
 void HKCPDisplay::OnDoubleClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
 {
 	MissAlarm->OnDoubleClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
+}
+
+void HKCPDisplay::OnOverScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area) {
+	AtisDisp->OnOverScreenObject(ObjectType, sObjectId, Pt, Area);
+	RequestRefresh();
 }
 
 void HKCPDisplay::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType)

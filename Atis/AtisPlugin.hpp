@@ -15,7 +15,7 @@ class AtisPlugin :
 
 {
 public:
-	static vector<string> atisLetters;
+	static vector<string> atisLettersDatafeed;
 
 	AtisPlugin();
 
@@ -24,5 +24,8 @@ public:
 	virtual void OnTimer(int Count);
 
 	virtual CRadarScreen* OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated);
+	
+	virtual void OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage);
 
+	void GetDataFeedATIS();
 };

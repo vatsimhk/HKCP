@@ -60,6 +60,10 @@ bool HKCPPlugin::OnCompileCommand(const char* sCommandLine) {
 	return VFPC->OnCompileCommand(sCommandLine);
 }
 
+void HKCPPlugin::OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage) {
+	Atis->OnCompilePrivateChat(sSenderCallsign, sReceiverCallsign, sChatMessage);
+}
+
 //---EuroScopePlugInExit-----------------------------------------------
 
 void    __declspec (dllexport)    EuroScopePlugInExit(void)

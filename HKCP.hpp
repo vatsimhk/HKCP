@@ -34,4 +34,6 @@ public:
 	virtual bool OnCompileCommand(const char* sCommandLine);
 
 	virtual void OnTimer(int Count);
+
+	virtual void OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage);
 };

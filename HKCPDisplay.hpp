@@ -54,6 +54,8 @@ public:
 
 	virtual void OnDoubleClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button);
 
+	virtual void OnOverScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area);
+
 	virtual void OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType);
 
 	virtual bool OnCompileCommand(const char* sCommandLine);
