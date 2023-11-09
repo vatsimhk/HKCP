@@ -13,6 +13,8 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
+class HKCPDisplay;
+
 class AtisDisplay :
     public EuroScopePlugIn::CRadarScreen
 {

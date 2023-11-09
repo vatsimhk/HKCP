@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 #include "EuroScopePlugIn.h"
+#include "Atis/AtisDisplay.hpp"
+#include "MissedApproach/MissedApproachAlarm.hpp"
 #include "Constant.hpp"
 #include <sstream>
 #include <vector>
@@ -14,10 +16,15 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
+class AtisDisplay;
+class MissedApproachAlarm;
+
 class HKCPDisplay :
 	public EuroScopePlugIn::CRadarScreen
 {
-protected:
+private:
+	AtisDisplay* AtisDisp;
+	MissedApproachAlarm* MissAlarm;
 public:
 
 	HKCPDisplay();
@@ -60,8 +67,5 @@ public:
 
 	virtual bool OnCompileCommand(const char* sCommandLine);
 
-	inline virtual void OnAsrContentToBeClosed(void)
-	{
-		delete this;
-	};
+	virtual void OnAsrContentToBeClosed(void);
 };

@@ -237,7 +237,7 @@ void AtisDisplay::OnOverScreenObject(int ObjectType, const char* sObjectId, POIN
 
 string AtisDisplay::IncrementLetter(string letter, int button) {
 	if (letter == "-") {
-		return "-";
+		return "A";
 	}
 	if (letter == "Z" && button == BUTTON_LEFT) {
 		return "A";

@@ -1,9 +1,5 @@
 #include "HKCPDisplay.hpp"
-#include "Atis/AtisDisplay.hpp"
-#include "MissedApproach/MissedApproachAlarm.hpp"
 
-AtisDisplay* AtisDisp = NULL;
-MissedApproachAlarm* MissAlarm = NULL;
 
 HKCPDisplay::HKCPDisplay()
 {
@@ -13,9 +9,6 @@ HKCPDisplay::HKCPDisplay()
 
 HKCPDisplay::~HKCPDisplay()
 {
-	this->OnAsrContentToBeSaved();
-	delete AtisDisp;
-	delete MissAlarm;
 }
 
 void HKCPDisplay::OnAsrContentLoaded(bool Loaded)
@@ -80,3 +73,10 @@ bool HKCPDisplay::OnCompileCommand(const char* sCommandLine)
 	bool b = AtisDisp->OnCompileCommand(sCommandLine);
 	return a || b;
 }
+
+void HKCPDisplay::OnAsrContentToBeClosed(void)
+{
+	MissAlarm->OnAsrContentToBeClosed();
+	AtisDisp->OnAsrContentToBeClosed();
+	delete this;
+};

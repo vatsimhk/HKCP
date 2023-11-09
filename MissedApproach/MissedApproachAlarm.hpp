@@ -14,6 +14,8 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
+class HKCPDisplay;
+
 class MissedApproachAlarm :
     public EuroScopePlugIn::CRadarScreen
 {
