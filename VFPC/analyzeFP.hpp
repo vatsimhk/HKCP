@@ -12,14 +12,6 @@
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
 
-#define MY_PLUGIN_NAME      "HKvACC VFPC"
-#define MY_PLUGIN_VERSION   "1.2"
-#define MY_PLUGIN_DEVELOPER "HKvACC, Jan Fries, Hendrik Peter, Sven Czarnian"
-#define MY_PLUGIN_COPYRIGHT "GPL v3"
-#define MY_PLUGIN_VIEW_AVISO  "HKvACC FlightPlan Checker"
-
-#define PLUGIN_WELCOME_MESSAGE	"Welcome to the HKvACC Flight Plan Checker"
-
 using namespace std;
 using namespace boost;
 using namespace rapidjson;

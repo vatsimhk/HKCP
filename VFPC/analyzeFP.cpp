@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "analyzeFP.hpp"
 #include "EuroScopePlugIn.h"
+#include "Atis/AtisPlugin.hpp"
 #include <time.h> 
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
@@ -41,7 +42,7 @@ CVFPCPlugin::CVFPCPlugin(void) :CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_
 	// Get Path of the Sid.txt
 	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
 	pfad = DllPathFile;
-	pfad.resize(pfad.size() - strlen("VFPC.dll"));
+	pfad.resize(pfad.size() - strlen("HKCP.dll"));
 	pfad += "Sid.json";
 
 	debugMode = false;
@@ -1181,6 +1182,9 @@ pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 }
 
 void CVFPCPlugin::OnTimer(int Counter) {
+	AtisPlugin atis;
+	atis.OnTimer(Counter);
+	
 	blink = !blink;
 
 	if (blink) {
