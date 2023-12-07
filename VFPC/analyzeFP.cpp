@@ -288,7 +288,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 			string direction = conditions[i]["direction"].GetString();
 			boost::to_upper(direction);
 			if (direction == "EVEN") {
-				if (fmod(RFL, 2000) == 0) {
+				if (fmod(RFL, 2000) == 0 && RFL != 42000) {
 					returnValid["DIRECTION"] = "Even FLs (Passed) / ";
 					passed[3] = true;
 				}
@@ -297,7 +297,7 @@ map<string, string> CVFPCPlugin::validizeSid(CFlightPlan flightPlan) {
 				}
 			}
 			else if (direction == "ODD") {
-				if (fmod(RFL, 2000) == 1000) {
+				if (fmod(RFL, 2000) == 1000 && RFL != 43000) {
 					returnValid["DIRECTION"] = "Odd FLs (Passed) / ";
 					passed[3] = true;
 				}
