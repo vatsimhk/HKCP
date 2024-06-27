@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AT3Tags\AT3Tags.hpp" />
     <ClInclude Include="Atis\AtisDisplay.hpp" />
     <ClInclude Include="Atis\AtisPlugin.hpp" />
     <ClInclude Include="Constant.hpp" />
@@ -31,6 +32,7 @@
     <ClInclude Include="VFPC\analyzeFP.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AT3Tags\AT3Tags.cpp" />
     <ClCompile Include="Atis\AtisDisplay.cpp" />
     <ClCompile Include="Atis\AtisPlugin.cpp" />
     <ClCompile Include="HKCP.cpp" />

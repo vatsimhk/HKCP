@@ -7,11 +7,21 @@
 #define MY_PLUGIN_COPYRIGHT "GPL v3"
 #define MY_PLUGIN_VIEW_AVISO  "Hong Kong Controller Plugin"
 
-#define PLUGIN_WELCOME_MESSAGE	"Welcome to the HKvACC Controlelr Plugin"
+#define PLUGIN_WELCOME_MESSAGE	"Welcome to the HKvACC Controller Plugin"
 
 const int TAG_ITEM_FPCHECK = 1;
 const int TAG_ITEM_FPCHECK_IF_FAILED = 2;
 const int TAG_ITEM_FPCHECK_IF_FAILED_STATIC = 3;
+
+const int TAG_ITEM_AT3_ALTITUDE = 10;
+const int TAG_ITEM_AT3_ALTITUDE_ASSIGNED = 11;
+const int TAG_ITEM_AT3_TRACK = 12;
+const int TAG_ITEM_AT3_HEADING_ASSIGNED = 13;
+const int TAG_ITEM_AT3_SPEED = 14;
+const int TAG_ITEM_AT3_SPEED_ASSIGNED = 15;
+const int TAG_ITEM_AT3_TMA_ENTRY = 16;
+const int TAG_ITEM_AT3_APP_TYPE = 17;
+const int TAG_ITEM_AT3_SLOT = 18;
 
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;
