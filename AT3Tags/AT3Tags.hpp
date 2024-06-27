@@ -26,4 +26,21 @@ public:
 		COLORREF* pRGB,
 		double* pFontSize);
 
+	string GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedTrack(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedHeadingAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedGroundspeed(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedEntryPoint(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedApproachType(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 };
