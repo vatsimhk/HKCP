@@ -10,7 +10,7 @@
 #include "MissedApproach/MissedApproachPlugin.hpp"
 #include "Atis/AtisPlugin.hpp"
 #include "Atis/AtisDisplay.hpp"
-#include "AT3Tags/AT3Tags.hpp"
+#include "AT3/AT3Tags.hpp"
 
 HKCPPlugin* gpMyPlugin = NULL;
 CVFPCPlugin* VFPC = NULL;

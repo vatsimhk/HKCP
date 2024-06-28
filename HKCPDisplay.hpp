@@ -3,6 +3,7 @@
 #include "EuroScopePlugIn.h"
 #include "Atis/AtisDisplay.hpp"
 #include "MissedApproach/MissedApproachAlarm.hpp"
+#include "AT3/AT3RadarTargetDisplay.hpp"
 #include "Constant.hpp"
 #include <sstream>
 #include <vector>
@@ -25,6 +26,7 @@ class HKCPDisplay :
 private:
 	AtisDisplay* AtisDisp;
 	MissedApproachAlarm* MissAlarm;
+	AT3RadarTargetDisplay* RadarTargets;
 public:
 
 	HKCPDisplay();

@@ -5,6 +5,7 @@ HKCPDisplay::HKCPDisplay()
 {
 	AtisDisp = new AtisDisplay();
 	MissAlarm = new MissedApproachAlarm();
+	RadarTargets = new AT3RadarTargetDisplay();
 }
 
 HKCPDisplay::~HKCPDisplay()
