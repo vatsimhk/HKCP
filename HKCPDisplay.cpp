@@ -28,6 +28,7 @@ void HKCPDisplay::OnRefresh(HDC hDC, int Phase)
 {
 	MissAlarm->OnRefresh(hDC, Phase, this);
 	AtisDisp->OnRefresh(hDC, Phase, this);
+	RadarTargets->OnRefresh(hDC, Phase, this);
 }
 
 void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
