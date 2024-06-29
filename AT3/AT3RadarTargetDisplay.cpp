@@ -41,7 +41,6 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 
 		// Get and set location
 		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
-		g.ScaleTransform(1.2, 1.2, MatrixOrderAppend);
 		g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
 		g.RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
 
