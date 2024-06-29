@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <curl/curl.h>
 #include <rapidjson/document.h>
 #include "AtisPlugin.hpp"
