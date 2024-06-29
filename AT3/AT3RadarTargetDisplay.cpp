@@ -50,25 +50,25 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 
 		// Define aircraft icon
 		Point aircraftIcon[19] = {
-			Point(0,-8),
-			Point(-1,-7),
+			Point(0,-7),
+			Point(-1,-6),
 			Point(-1,-2),
-			Point(-8,3),
-			Point(-8,4),
-			Point(-1,2),
-			Point(-1,7),
+			Point(-7,3),
+			Point(-7,4),
+			Point(-1,2),	
+			Point(-1,6),
+			Point(-4,8),
 			Point(-4,9),
-			Point(-4,10),
-			Point(0,9),
-			Point(4,10),
+			Point(0,8),
 			Point(4,9),
-			Point(1,7),
+			Point(4,8),
+			Point(1,6),
 			Point(1,2),
-			Point(8,4),
-			Point(8,3),
+			Point(7,4),
+			Point(7,3),
 			Point(1,-2),
-			Point(1,-7),
-			Point(0,-8)
+			Point(1,-6),
+			Point(0,-7)
 		};
 
 		if (fp.GetTrackingControllerIsMe()) {
