@@ -38,9 +38,12 @@ public:
 
 	string GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
-	string GetFormattedEntryPoint(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+	string GetRouteCode(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
-	string GetFormattedApproachType(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+	string GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetAMCLine4 (CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
 	string GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
 };
