@@ -12,12 +12,16 @@ AT3Tags::AT3Tags() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME
 	RegisterTagItemType("AT3 Assigned Altitude", TAG_ITEM_AT3_ALTITUDE_ASSIGNED);
 	RegisterTagItemType("AT3 Track", TAG_ITEM_AT3_TRACK);
 	RegisterTagItemType("AT3 Assigned Heading", TAG_ITEM_AT3_HEADING_ASSIGNED);
-	RegisterTagItemType("AT3 Groundspeed", TAG_ITEM_AT3_SPEED);
+	RegisterTagItemType("AT3 Ground Speed", TAG_ITEM_AT3_SPEED);
 	RegisterTagItemType("AT3 Assigned Speed (IAS)", TAG_ITEM_AT3_SPEED_ASSIGNED);
 	RegisterTagItemType("AT3 Route Code", TAG_ITEM_AT3_ROUTE_CODE);
 	RegisterTagItemType("AT3 APP/DEP Line 4", TAG_ITEM_AT3_APPDEP_LINE4);
 	RegisterTagItemType("AT3 AMC Line 4", TAG_ITEM_AT3_AMC_LINE4);
 	RegisterTagItemType("AT3 Slot", TAG_ITEM_AT3_SLOT);
+	RegisterTagItemType("AT3 Callsign", TAG_ITEM_AT3_CALLSIGN);
+	RegisterTagItemType("AT3 ATYP + WTC", TAG_ITEM_AT3_ATYPWTC);
+	RegisterTagItemType("AT3 VS Indicator", TAG_ITEM_AT3_VS_INDICATOR);
+	RegisterTagItemType("AT3 Arrival Runway", TAG_ITEM_AT3_ARRIVAL_RWY);
 }
 
 
@@ -85,12 +89,44 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 		case TAG_ITEM_AT3_SLOT:
 			tagOutput = GetFormattedSlot(FlightPlan, RadarTarget);
 			break;
+		case TAG_ITEM_AT3_CALLSIGN:
+			tagOutput = GetCallsign(FlightPlan, RadarTarget);
+			break;
+		case TAG_ITEM_AT3_ATYPWTC:
+			tagOutput = GetATYPWTC(FlightPlan, RadarTarget);
+			break;
+		case TAG_ITEM_AT3_VS_INDICATOR:
+			tagOutput = GetVSIndicator(FlightPlan, RadarTarget);
+			break;
+		case TAG_ITEM_AT3_ARRIVAL_RWY:
+			tagOutput = GetArrivalRwy(FlightPlan, RadarTarget);
+			break;
 		default:
 			tagOutput = "";
 	}
 
 	// Convert string output to character array
 	strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
+}
+
+void OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area) {
+	CFlightPlan FlightPlan = AT3Tags().FlightPlanSelectASEL();
+	if (!FlightPlan.IsValid()) {
+		return;
+	}
+
+	string origin = FlightPlan.GetFlightPlanData().GetOrigin();
+	string SID = FlightPlan.GetFlightPlanData().GetSidName();
+	string dest = FlightPlan.GetFlightPlanData().GetDestination();
+	string destRunway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
+	string STAR = FlightPlan.GetFlightPlanData().GetStarName();
+
+	string APPMenuName = dest + destRunway + "APPs";
+
+	switch (FunctionId) {
+		case TAG_FUNC_APP_SEL_MENU:
+			AT3Tags().OpenPopupList(Area, APPMenuName.c_str(), 1);
+		}
 }
 
 string AT3Tags::GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
@@ -123,13 +159,14 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 {
 	int altAssigned = FlightPlan.GetControllerAssignedData().GetClearedAltitude();
 	int transAlt = AT3Tags().GetTransitionAltitude();
+	int finalAltAssigned = FlightPlan.GetFinalAltitude();
 	string formattedAltAssigned;
 
 	if (altAssigned > 2) {
 		if (altAssigned > transAlt) {
 			formattedAltAssigned = to_string((altAssigned + 50) / 100);
 			if (to_string((RadarTarget.GetPosition().GetFlightLevel() + 50) / 100) == formattedAltAssigned) {
-				formattedAltAssigned = "   ";
+				formattedAltAssigned = "    ";
 			}
 			else if (formattedAltAssigned.length() <= 3 && formattedAltAssigned != "") {
 				formattedAltAssigned.insert(0, 3 - formattedAltAssigned.length(), '0');
@@ -139,7 +176,7 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 		else {
 			formattedAltAssigned = to_string((altAssigned + 50) / 100);
 			if (to_string((RadarTarget.GetPosition().GetPressureAltitude() + 50) / 100) == formattedAltAssigned) {
-				formattedAltAssigned = "   ";
+				formattedAltAssigned = "    ";
 			}
 			else if (formattedAltAssigned.length() <= 3 && formattedAltAssigned != "") {
 				formattedAltAssigned.insert(0, 3 - formattedAltAssigned.length(), '0');
@@ -150,7 +187,21 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 	else if (altAssigned >= 0 && altAssigned <= 2) {
 		switch (altAssigned) {
 			case 0:
-				formattedAltAssigned = "   ";
+				if (finalAltAssigned != 0) {
+					formattedAltAssigned = to_string((finalAltAssigned + 50) / 100);
+					if (formattedAltAssigned.length() <= 3 && formattedAltAssigned != "") {
+						formattedAltAssigned.insert(0, 3 - formattedAltAssigned.length(), '0');
+					}
+					if (finalAltAssigned > transAlt) {
+						formattedAltAssigned.insert(0, "F");
+					}
+					else {
+						formattedAltAssigned.insert(0, "A");
+					}
+				}
+				else {
+					formattedAltAssigned = "    ";
+				}
 				break;
 			case 1:
 				formattedAltAssigned = "A";
@@ -181,7 +232,7 @@ string AT3Tags::GetFormattedHeadingAssigned(CFlightPlan& FlightPlan, CRadarTarge
 {
 	string headingAssigned = to_string(FlightPlan.GetControllerAssignedData().GetAssignedHeading());
 	if (headingAssigned == "0") {
-		headingAssigned = "   ";
+		headingAssigned = "    ";
 	} else if (headingAssigned.length() <= 3) {
 		headingAssigned.insert(0, 3 - headingAssigned.length(), '0');
 		headingAssigned.insert(0, "H");
@@ -246,4 +297,33 @@ string AT3Tags::GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTar
 	return "D00";
 }
 
+string AT3Tags::GetCallsign(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+{
+	return FlightPlan.GetCallsign();
+}
 
+string AT3Tags::GetATYPWTC(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+{
+	string ATYPWTC = "";
+	ATYPWTC += FlightPlan.GetFlightPlanData().GetAircraftFPType();
+	ATYPWTC += FlightPlan.GetFlightPlanData().GetAircraftWtc();
+	return ATYPWTC;
+}
+
+string AT3Tags::GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+{
+	string vsIndicator;
+	if (RadarTarget.GetVerticalSpeed() > 200) {
+		vsIndicator = "^";
+	} else if (RadarTarget.GetVerticalSpeed() > -200) {
+		vsIndicator = "|";
+	} else {
+		vsIndicator = " ";
+	}
+	return vsIndicator;
+}
+
+string AT3Tags::GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+{
+	return FlightPlan.GetFlightPlanData().GetArrivalRwy();
+}

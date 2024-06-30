@@ -46,4 +46,11 @@ public:
 
 	string GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
+	string GetCallsign(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetATYPWTC(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 };
