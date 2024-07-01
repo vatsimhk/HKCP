@@ -31,13 +31,32 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 
 	// Loop through all aircrafts
 	while (acft.IsValid()) {
-		// Setup containers and brushess
-		GraphicsContainer gContainer = g.BeginContainer();
-		SolidBrush assumedBrush(Color(241, 246, 255));
-		SolidBrush notAssumedBrush(Color(117, 132, 142));
-
-		// Get Flight plan
+		// Get Flight plan and position data
 		CFlightPlan fp = Display->GetPlugIn()->FlightPlanSelect(acft.GetCallsign());
+		CRadarTargetPositionData pd = acft.GetPosition();
+
+		if (!fp.IsValid() || !pd.IsValid()) {
+			acft = GetPlugIn()->RadarTargetSelectNext(acft);
+			continue;
+		}
+
+		// Skip drawing if not mode C
+		if (!pd.GetTransponderC()) {
+			acft = GetPlugIn()->RadarTargetSelectNext(acft);
+			continue;
+		}
+
+		// Setup container
+		GraphicsContainer gContainer = g.BeginContainer();
+
+		// Set brush color based on state
+		SolidBrush aircraftBrush(DEFAULT_UNCONCERNED);
+		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
+			aircraftBrush.SetColor(DEFAULT_ASSUMED);
+		}
+		else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+			aircraftBrush.SetColor(DEFAULT_REDUNDANT);
+		}
 
 		// Get and set location
 		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
@@ -54,7 +73,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 			Point(-1,-2),
 			Point(-7,3),
 			Point(-7,4),
-			Point(-1,2),	
+			Point(-1,2),
 			Point(-1,6),
 			Point(-4,8),
 			Point(-4,9),
@@ -70,12 +89,8 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 			Point(0,-7)
 		};
 
-		if (fp.GetTrackingControllerIsMe()) {
-			g.FillPolygon(&assumedBrush, aircraftIcon, 19);
-		}
-		else {
-			g.FillPolygon(&notAssumedBrush, aircraftIcon, 19);
-		}
+		// Draw the aircraft icon
+		g.FillPolygon(&aircraftBrush, aircraftIcon, 19);
 
 		g.EndContainer(gContainer);
 		DeleteObject(&aircraftIcon);

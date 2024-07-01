@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include <gdiplus.h>
 
 #define MY_PLUGIN_NAME      "HKCP"
 #define MY_PLUGIN_VERSION   "2.0"
@@ -58,6 +59,10 @@ const COLORREF BUTTON_GREEN = RGB(91, 194, 54);
 const COLORREF BUTTON_RED_OFF = RGB(120, 10, 10);
 const COLORREF BUTTON_RED_ON = RGB(240, 50, 50);
 const COLORREF BUTTON_GREY = RGB(140, 140, 140);
+
+const Gdiplus::Color DEFAULT_ASSUMED = Gdiplus::Color(241, 246, 255);
+const Gdiplus::Color DEFAULT_UNCONCERNED = Gdiplus::Color(117, 132, 142);
+const Gdiplus::Color DEFAULT_REDUNDANT = Gdiplus::Color(229, 214, 130);
 
 inline static bool startsWith(const char *pre, const char *str)
 {
