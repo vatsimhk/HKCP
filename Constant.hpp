@@ -63,6 +63,8 @@ const COLORREF BUTTON_GREY = RGB(140, 140, 140);
 const Gdiplus::Color DEFAULT_ASSUMED = Gdiplus::Color(241, 246, 255);
 const Gdiplus::Color DEFAULT_UNCONCERNED = Gdiplus::Color(117, 132, 142);
 const Gdiplus::Color DEFAULT_REDUNDANT = Gdiplus::Color(229, 214, 130);
+const Gdiplus::Color OVERRIDE_AIW = Gdiplus::Color(255, 158, 112);
+const Gdiplus::Color OVERRIDE_EMER = Gdiplus::Color(255, 0, 0);
 
 inline static bool startsWith(const char *pre, const char *str)
 {

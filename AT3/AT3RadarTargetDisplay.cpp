@@ -88,6 +88,14 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 			dc.SetTextColor(DEFAULT_REDUNDANT.ToCOLORREF());
 		}
 
+		// Override aircraft color conditions
+		if (fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0 && strlen(fp.GetTrackingControllerId()) == 0) {
+			aircraftBrush.SetColor(OVERRIDE_AIW);
+		}
+		if (strcmp(pd.GetSquawk(), "7700") == 0) {
+			aircraftBrush.SetColor(OVERRIDE_EMER);
+		}
+
 		// Get and set location
 		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
 		PointF acftLabelLocation = PointF(acftLocation.x, acftLocation.y + 15);
