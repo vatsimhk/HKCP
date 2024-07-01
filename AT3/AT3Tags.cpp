@@ -213,7 +213,7 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 		}
 	}
 	else {
-		formattedAltAssigned = 999;
+		formattedAltAssigned = "999";
 	}
 
 	return formattedAltAssigned;
