@@ -279,22 +279,22 @@ string AT3Tags::GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget&
 
 string AT3Tags::GetRouteCode(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	return "ABC";
+	return "ABC"; //Placeholder
 }
 
 string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	return "APP RTE >";
+	return "APP RTE >"; //Placeholder
 }
 
 string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	return "APP RTE >";
+	return "APP RTE >"; //Placeholder
 }
 
 string AT3Tags::GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	return "D00";
+	return "D00"; //Placeholder
 }
 
 string AT3Tags::GetCallsign(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
