@@ -187,8 +187,8 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 	else if (altAssigned >= 0 && altAssigned <= 2) {
 		switch (altAssigned) {
 			case 0:
-				if (finalAltAssigned != 0) {
-					formattedAltAssigned = to_string((finalAltAssigned + 50) / 100);
+				formattedAltAssigned = to_string((finalAltAssigned + 50) / 100);
+				if (finalAltAssigned != 0 && !(to_string((RadarTarget.GetPosition().GetPressureAltitude() + 50) / 100) == formattedAltAssigned || to_string((RadarTarget.GetPosition().GetFlightLevel() + 50) / 100) == formattedAltAssigned)) {
 					if (formattedAltAssigned.length() <= 3 && formattedAltAssigned != "") {
 						formattedAltAssigned.insert(0, 3 - formattedAltAssigned.length(), '0');
 					}
@@ -204,10 +204,10 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 				}
 				break;
 			case 1:
-				formattedAltAssigned = "A";
+				formattedAltAssigned = "A   ";
 				break;
 			case 2:
-				formattedAltAssigned = "V";
+				formattedAltAssigned = "V   ";
 				break;
 
 		}
@@ -315,7 +315,7 @@ string AT3Tags::GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 	string vsIndicator;
 	if (RadarTarget.GetVerticalSpeed() > 200) {
 		vsIndicator = "^";
-	} else if (RadarTarget.GetVerticalSpeed() > -200) {
+	} else if (RadarTarget.GetVerticalSpeed() < -200) {
 		vsIndicator = "|";
 	} else {
 		vsIndicator = " ";
