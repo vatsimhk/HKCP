@@ -2,11 +2,11 @@
 #include "HKCPDisplay.hpp"
 
 
-HKCPDisplay::HKCPDisplay()
+HKCPDisplay::HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, double PlaneIconScale)
 {
 	AtisDisp = new AtisDisplay();
 	MissAlarm = new MissedApproachAlarm();
-	RadarTargets = new AT3RadarTargetDisplay();
+	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, PlaneIconScale);
 }
 
 HKCPDisplay::~HKCPDisplay()
@@ -81,5 +81,6 @@ void HKCPDisplay::OnAsrContentToBeClosed(void)
 {
 	MissAlarm->OnAsrContentToBeClosed();
 	AtisDisp->OnAsrContentToBeClosed();
+	RadarTargets->OnAsrContentToBeClosed();
 	delete this;
 };

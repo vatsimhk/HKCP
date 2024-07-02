@@ -17,7 +17,7 @@ class AT3RadarTargetDisplay :
     public EuroScopePlugIn::CRadarScreen
 {
 public:
-    AT3RadarTargetDisplay();
+    AT3RadarTargetDisplay(int _CJSLabelSize, int _CJSLabelOffset, double _PlaneIconScale);
     
     void OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display);
 
@@ -26,5 +26,9 @@ public:
 	{
 		delete this;
 	};
+private:
+	int CJSLabelSize;
+	int CJSLabelOffset;
+	double PlaneIconScale;
 };
 
