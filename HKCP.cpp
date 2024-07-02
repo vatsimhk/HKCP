@@ -40,7 +40,35 @@ HKCPPlugin::~HKCPPlugin() {
 
 CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated)
 {
-	return new HKCPDisplay();
+	const char* buffer;
+	int CJSLabelSize = 12, CJSLabelOffset = 25;
+	double PlaneIconScale = 1.0;
+
+	buffer = GetDataFromSettings("CJSLabelSize");
+	if (buffer != NULL) {
+		CJSLabelSize = atoi(buffer);
+	}
+	else {
+		SaveDataToSettings("CJSLabelSize", "CJSLabelSize", to_string(CJSLabelSize).c_str());
+	}
+
+	buffer = GetDataFromSettings("CJSLabelOffset");
+	if (buffer != NULL) {
+		CJSLabelOffset = atoi(buffer);
+	}
+	else {
+		SaveDataToSettings("CJSLabelOffset", "CJSLabelOffset", to_string(CJSLabelOffset).c_str());
+	}
+
+	buffer = GetDataFromSettings("PlaneIconScale");
+	if (buffer != NULL) {
+		PlaneIconScale = atof(buffer);
+	}
+	else {
+		SaveDataToSettings("PlaneIconScale", "PlaneIconScale", to_string(PlaneIconScale).c_str());
+	}
+
+	return new HKCPDisplay(CJSLabelSize, CJSLabelOffset, PlaneIconScale);
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {

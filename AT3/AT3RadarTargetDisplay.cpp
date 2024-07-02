@@ -8,7 +8,9 @@
 using namespace Gdiplus;
 using namespace EuroScopePlugIn;
 
-AT3RadarTargetDisplay::AT3RadarTargetDisplay() {
+AT3RadarTargetDisplay::AT3RadarTargetDisplay(int _CJSLabelSize, int _CJSLabelOffset, double _PlaneIconScale) :
+	CJSLabelSize(_CJSLabelSize), CJSLabelOffset(_CJSLabelOffset), PlaneIconScale(_PlaneIconScale)
+{
 
 }
 
@@ -31,7 +33,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 	// Create font
 	CFont EuroScopeFont;
 	EuroScopeFont.CreateFont(
-		16,                       // nHeight
+		CJSLabelSize,              // nHeight
 		0,                        // nWidth
 		0,                        // nEscapement
 		0,                        // nOrientation
@@ -98,7 +100,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 
 		// Get and set location
 		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
-		PointF acftLabelLocation = PointF(acftLocation.x, acftLocation.y + 15);
+		g.ScaleTransform(PlaneIconScale, PlaneIconScale, MatrixOrderAppend);
 		g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
 		g.RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
 
@@ -144,10 +146,10 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		dc.SelectObject(EuroScopeFont);
 		dc.SetTextAlign(TA_CENTER);
 		if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-			dc.TextOutA(acftLocation.x, acftLocation.y - 30, fp.GetHandoffTargetControllerId());
+			dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, fp.GetHandoffTargetControllerId());
 		}
 		else {
-			dc.TextOutA(acftLocation.x, acftLocation.y - 30, fp.GetTrackingControllerId());
+			dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, fp.GetTrackingControllerId());
 		}
 
 		// Increment to next aircraft
