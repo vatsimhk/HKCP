@@ -10,7 +10,9 @@ using namespace std;
 using namespace EuroScopePlugIn;
 
 class AT3Tags :
-	public EuroScopePlugIn::CPlugIn{
+	public EuroScopePlugIn::CPlugIn
+
+{
 public:
 	AT3Tags();
 

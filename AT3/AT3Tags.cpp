@@ -254,7 +254,6 @@ string AT3Tags::GetFormattedGroundspeed(CFlightPlan& FlightPlan, CRadarTarget& R
 string AT3Tags::GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	string speedAssigned;
-	string spad = FlightPlan.GetControllerAssignedData().GetScratchPadString();
 
 	if (FlightPlan.GetControllerAssignedData().GetAssignedSpeed() == 999) {
 		speedAssigned = "SHS ";
