@@ -109,8 +109,8 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 	strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
 }
 
-void OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area) {
-	CFlightPlan FlightPlan = AT3Tags().FlightPlanSelectASEL();
+void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area) {
+	CFlightPlan FlightPlan = FlightPlanSelectASEL();
 	if (!FlightPlan.IsValid()) {
 		return;
 	}
@@ -125,14 +125,14 @@ void OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area
 
 	switch (FunctionId) {
 		case TAG_FUNC_APP_SEL_MENU:
-			AT3Tags().OpenPopupList(Area, APPMenuName.c_str(), 1);
+			OpenPopupList(Area, APPMenuName.c_str(), 1);
 		}
 }
 
 string AT3Tags::GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	int altitude = RadarTarget.GetPosition().GetPressureAltitude();
-	int transAlt = AT3Tags().GetTransitionAltitude();
+	int transAlt = GetTransitionAltitude();
 	string formattedAlt;
 
 	if (altitude > transAlt) {
@@ -158,7 +158,7 @@ string AT3Tags::GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& Rada
 string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	int altAssigned = FlightPlan.GetControllerAssignedData().GetClearedAltitude();
-	int transAlt = AT3Tags().GetTransitionAltitude();
+	int transAlt = GetTransitionAltitude();
 	int finalAltAssigned = FlightPlan.GetFinalAltitude();
 	string formattedAltAssigned;
 
@@ -186,7 +186,7 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 	}
 	else if (altAssigned >= 0 && altAssigned <= 2) {
 		switch (altAssigned) {
-			case 0:
+			case 0: //ES defaults to CFL 0 when CFL = RFL
 				formattedAltAssigned = to_string((finalAltAssigned + 50) / 100);
 				if (finalAltAssigned != 0 && !(to_string((RadarTarget.GetPosition().GetPressureAltitude() + 50) / 100) == formattedAltAssigned || to_string((RadarTarget.GetPosition().GetFlightLevel() + 50) / 100) == formattedAltAssigned)) {
 					if (formattedAltAssigned.length() <= 3 && formattedAltAssigned != "") {
@@ -254,8 +254,12 @@ string AT3Tags::GetFormattedGroundspeed(CFlightPlan& FlightPlan, CRadarTarget& R
 string AT3Tags::GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	string speedAssigned;
+	string spad = FlightPlan.GetControllerAssignedData().GetScratchPadString();
 
-	if (FlightPlan.GetControllerAssignedData().GetAssignedMach() != 0) {
+	if (FlightPlan.GetControllerAssignedData().GetAssignedSpeed() == 999) {
+		speedAssigned = "SHS ";
+		return speedAssigned;
+	} else if (FlightPlan.GetControllerAssignedData().GetAssignedMach() != 0) {
 		speedAssigned = to_string(FlightPlan.GetControllerAssignedData().GetAssignedMach());
 		if (speedAssigned.length() <= 2) {
 			speedAssigned.insert(0, 2 - speedAssigned.length(), '0');
@@ -267,13 +271,22 @@ string AT3Tags::GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget&
 			speedAssigned.insert(0, 2 - speedAssigned.length(), '0');
 			speedAssigned.insert(0, "S");
 		}
+	} else if (FlightPlan.GetControllerAssignedData().GetAssignedSpeed() == 0) {
+		speedAssigned = "    ";
+	} else {
+		speedAssigned = "999 ";
 	}
-	else if (FlightPlan.GetControllerAssignedData().GetAssignedSpeed() == 0) {
-		speedAssigned = "   ";
+
+	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(7); //find TopSky "+" or "-" speed conditions
+
+	if (flightStrip.find("/s+/") != string::npos) {
+		speedAssigned.append("+");
+	} else if (flightStrip.find("/s-/") != string::npos) {
+		speedAssigned.append("-");
+	} else {
+		speedAssigned.append(" ");
 	}
-	else {
-		speedAssigned = "999";
-	}
+
 	return speedAssigned;
 }
 

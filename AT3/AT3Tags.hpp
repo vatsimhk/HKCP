@@ -10,11 +10,8 @@ using namespace std;
 using namespace EuroScopePlugIn;
 
 class AT3Tags :
-	public EuroScopePlugIn::CPlugIn
-
-{
+	public EuroScopePlugIn::CPlugIn{
 public:
-
 	AT3Tags();
 
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
@@ -25,6 +22,11 @@ public:
 		int* pColorCode,
 		COLORREF* pRGB,
 		double* pFontSize);
+
+	virtual void    OnFunctionCall(int FunctionId,
+		const char* sItemString,
+		POINT Pt,
+		RECT Area);
 
 	string GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
