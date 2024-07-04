@@ -5,8 +5,12 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include "rapidjson/document.h"
+#include "rapidjson/stringbuffer.h"
 
 using namespace std;
+using namespace rapidjson;
 using namespace EuroScopePlugIn;
 
 class AT3Tags :
@@ -15,6 +19,9 @@ class AT3Tags :
 {
 public:
 	AT3Tags();
+
+	string pfad;
+	char DllPathFile[_MAX_PATH];
 
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
 		CRadarTarget RadarTarget,
@@ -29,6 +36,10 @@ public:
 		const char* sItemString,
 		POINT Pt,
 		RECT Area);
+
+	void InitialiseApps();
+
+	vector<string> GetAvailableApps(string airport, string runway);
 
 	string GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
@@ -57,4 +68,7 @@ public:
 	string GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
 	string GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+protected:
+	Document appsDoc;
 };

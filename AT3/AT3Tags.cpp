@@ -3,6 +3,7 @@
 #include "Constant.hpp"
 #include "EuroScopePlugIn.h"
 #include <string>
+#include <array>
 
 using namespace EuroScopePlugIn;
 
@@ -22,8 +23,31 @@ AT3Tags::AT3Tags() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME
 	RegisterTagItemType("AT3 ATYP + WTC", TAG_ITEM_AT3_ATYPWTC);
 	RegisterTagItemType("AT3 VS Indicator", TAG_ITEM_AT3_VS_INDICATOR);
 	RegisterTagItemType("AT3 Arrival Runway", TAG_ITEM_AT3_ARRIVAL_RWY);
+
+	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
+	pfad = DllPathFile;
+	pfad.resize(pfad.size() - strlen("HKCP.dll"));
+	pfad += "Sid.json";
+
+	Document appsDoc;
+	InitialiseApps();
 }
 
+void AT3Tags::InitialiseApps() {
+	ifstream appsFile(pfad);
+	string appsJson = { std::istreambuf_iterator<char>(appsFile), std::istreambuf_iterator<char>{} };
+	appsDoc.Parse(appsJson.c_str());
+}
+
+vector<string> AT3Tags::GetAvailableApps(string airport, string runway) {
+	vector<string> availApps;
+
+	if (appsDoc.HasMember(airport.c_str())) {
+		Value& aprt = appsDoc[airport.c_str()];
+		for (auto& rwy : aprt[runway.c_str()].GetArray())
+			availApps.push_back(rwy.GetString());
+	}
+}
 
 void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
@@ -213,7 +237,7 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 		}
 	}
 	else {
-		formattedAltAssigned = "999";
+		formattedAltAssigned = "9999";
 	}
 
 	return formattedAltAssigned;
