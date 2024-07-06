@@ -11,9 +11,9 @@ using namespace EuroScopePlugIn;
 //Initialize static variables
 RECT MissedApproachAlarm::m_Area = { 190, 500, 490, 740 };
 RECT MissedApproachAlarm::c_Area = { 600, 900, 750, 1150 };
-RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 750, 960 };
+RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 650, 950 };
 RECT MissedApproachAlarm::i_Area = { 200, 500, 480, 650 };
-RECT MissedApproachAlarm::i_Area_Min = { 200, 500, 480, 570 };
+RECT MissedApproachAlarm::i_Area_Min = { 200, 500, 250, 550 };
 POINT MissedApproachAlarm::m_Offset = { 300, 240 };
 POINT MissedApproachAlarm::c_Offset = { 150, 250 };
 POINT MissedApproachAlarm::i_Offset = { 280, 150 };
@@ -210,9 +210,9 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC, HKCPDisplay* Display) {
 		dc.FillSolidRect(configWindowRect, qBackgroundColor);
 		Display->AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
 
-		CRect titleRect(configWindowRect.left, configWindowRect.top + 20, configWindowRect.right, configWindowRect.top + 50);
-		dc.SelectObject(&fontTitle);
-		dc.DrawText("MAPP Config", strlen("MAPP Config"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+		CRect titleRect(configWindowRect.left, configWindowRect.top, configWindowRect.right, configWindowRect.bottom);
+		dc.SelectObject(&fontLabel);
+		dc.DrawText("MAPP", strlen("MAPP"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 		Display->AddScreenObject(WINDOW_TITLE_BAR, "config_minimised", titleRect, true, "");
 
 		dc.Detach();
@@ -282,9 +282,9 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC, HKCPDisplay* Display) {
 		dc.FillSolidRect(indicatorWindowRect, qBackgroundColor);
 		Display->AddScreenObject(DRAWING_APPWINDOW, "indicator_window", indicatorWindowRect, true, "");
 
-		CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top + 15, indicatorWindowRect.right, indicatorWindowRect.top + 40);
-		dc.SelectObject(&fontTitle);
-		dc.DrawText("Missed Approach Indicator", strlen("Missed Approach Indicator"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+		CRect titleRect(indicatorWindowRect.left, indicatorWindowRect.top, indicatorWindowRect.right, indicatorWindowRect.bottom);
+		dc.SelectObject(&fontLabel);
+		dc.DrawText("MAPP", strlen("MAPP"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 		Display->AddScreenObject(WINDOW_TITLE_BAR, "indicator_minimised", titleRect, true, "");
 		dc.Detach();
 		return;
