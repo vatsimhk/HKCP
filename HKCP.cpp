@@ -73,6 +73,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
 	VFPC->OnFunctionCall(FunctionId, ItemString, Pt, Area);
+	tags->OnFunctionCall(FunctionId, ItemString, Pt, Area);
 }
 
 void HKCPPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize) {

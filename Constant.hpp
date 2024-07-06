@@ -38,6 +38,7 @@ const int TAG_FUNC_APP_SEL_ITEM_5 = 205;
 const int TAG_FUNC_APP_SEL_ITEM_6 = 206;
 const int TAG_FUNC_APP_SEL_ITEM_7 = 207;
 const int TAG_FUNC_APP_SEL_ITEM_8 = 208;
+const int TAG_FUNC_APP_SEL_DUMMY = 209;
 
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;

@@ -4,14 +4,14 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <set>
 #include <iostream>
 #include <fstream>
-#include "rapidjson/document.h"
-#include "rapidjson/stringbuffer.h"
+#include <nlohmann/json.hpp>
 
 using namespace std;
-using namespace rapidjson;
 using namespace EuroScopePlugIn;
+using json = nlohmann::json;
 
 class AT3Tags :
 	public EuroScopePlugIn::CPlugIn
@@ -20,7 +20,7 @@ class AT3Tags :
 public:
 	AT3Tags();
 
-	string pfad;
+	string path;
 	char DllPathFile[_MAX_PATH];
 
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
@@ -36,8 +36,6 @@ public:
 		const char* sItemString,
 		POINT Pt,
 		RECT Area);
-
-	void InitialiseApps();
 
 	vector<string> GetAvailableApps(string airport, string runway);
 
@@ -70,5 +68,6 @@ public:
 	string GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
 protected:
-	Document appsDoc;
+	json appsJson;
+	set<string> arptSet;
 };
