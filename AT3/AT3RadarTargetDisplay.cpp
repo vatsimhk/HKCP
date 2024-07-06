@@ -54,6 +54,9 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 	CRadarTarget acft;
 	acft = GetPlugIn()->RadarTargetSelectFirst();
 
+	vector<CFlightPlanPositionPredictions> fppp_vec;
+	vector<string> callsigns_vec;
+
 	// Loop through all aircrafts
 	while (acft.IsValid()) {
 		// Get Flight plan and position data
@@ -70,6 +73,11 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 			acft = GetPlugIn()->RadarTargetSelectNext(acft);
 			continue;
 		}
+
+		// Add callsigns and position predictions to vector
+		callsigns_vec.push_back(acft.GetCallsign());
+		CFlightPlanPositionPredictions fppp = fp.GetPositionPredictions();
+		fppp_vec.push_back(fppp);
 
 		// Setup container
 		GraphicsContainer gContainer = g.BeginContainer();
@@ -132,6 +140,57 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 
 		// Draw the aircraft icon
 		g.FillPolygon(&aircraftBrush, aircraftIcon, 19);
+		g.ResetTransform();
+
+
+		Pen CAPen(STCA_RED, 1.5f);
+		Point chevronLeft[3] = {
+			Point(-10, 10),
+			Point(-16, 1),
+			Point(-10, -8)
+		};
+		Point chevronRight[3] = {
+			Point(10, 10),
+			Point(16, 1),
+			Point(10, -8)
+		};
+		// Loop through all other aircraft to detect conflicts
+		for (size_t i = 0; i < fppp_vec.size() - 1; i++) {
+			// Skip if on ground
+			if (fppp.GetAltitude(0) < 50) {
+				break;
+			}
+			if (fppp_vec[i].GetAltitude(0) < 50) {
+				continue;
+			}
+
+			// STCA: look up to two minutes in the future
+			for (int j = 0; j <= 2; j++) {
+				int altDifference = abs(fppp.GetAltitude(j) - fppp_vec[i].GetAltitude(j));
+				double latSep = fppp.GetPosition(j).DistanceTo(fppp_vec[i].GetPosition(j));
+
+				if (fppp.GetAltitude(j) < 24500 && latSep < 3 && altDifference < 1000 || 
+					fppp.GetAltitude(j) > 24500 && latSep < 5 && altDifference < 1000) {
+					string message = "conflict alert between " + callsigns_vec.back() + callsigns_vec[i];
+					GetPlugIn()->DisplayUserMessage("STCA", "STCA", message.c_str(), true, true, false, false, false);
+
+					g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
+					g.DrawLines(&CAPen, chevronLeft, 3);
+					g.DrawLines(&CAPen, chevronRight, 3);
+					g.ResetTransform();
+
+					POINT otherAcftLocation = Display->ConvertCoordFromPositionToPixel(fppp_vec[i].GetPosition(0));
+					g.TranslateTransform(otherAcftLocation.x, otherAcftLocation.y, MatrixOrderAppend);
+					g.DrawLines(&CAPen, chevronLeft, 3);
+					g.DrawLines(&CAPen, chevronRight, 3);
+					g.ResetTransform();
+				}
+			}
+
+		}
+
+		DeleteObject(&chevronLeft);
+		DeleteObject(&chevronRight);
 
 		// Cleanup
 		g.EndContainer(gContainer);
@@ -163,4 +222,8 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 	dc.Detach();
 	g.ReleaseHDC(hDC);
 	dc.DeleteDC();
+}
+
+void AT3RadarTargetDisplay::OnRadarTargetPositionUpdate(CRadarTarget RadarTarget)
+{
 }
