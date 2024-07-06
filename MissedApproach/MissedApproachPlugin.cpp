@@ -18,6 +18,9 @@ vector<string> MissedApproachPlugin::getArrivalRunways() {
 	CSectorElement runway;
 	vector<string> activeRunways;
 	for (runway = SectorFileElementSelectFirst(SECTOR_ELEMENT_RUNWAY); runway.IsValid(); runway = SectorFileElementSelectNext(runway, SECTOR_ELEMENT_RUNWAY)) {
+		if (strcmp(runway.GetRunwayName(0), "NAP") == 0) {
+			continue;
+		}
 		if (runway.IsElementActive(false, 0)) {
 			activeRunways.push_back(runway.GetRunwayName(0));
 		}
