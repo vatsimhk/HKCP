@@ -2,11 +2,11 @@
 #include "HKCPDisplay.hpp"
 
 
-HKCPDisplay::HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, double PlaneIconScale)
+HKCPDisplay::HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale)
 {
 	AtisDisp = new AtisDisplay();
 	MissAlarm = new MissedApproachAlarm();
-	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, PlaneIconScale);
+	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale);
 }
 
 HKCPDisplay::~HKCPDisplay()
@@ -36,7 +36,7 @@ void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POI
 {
 	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
 	AtisDisp->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
-	RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
+	RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button, this);
 }
 
 void HKCPDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released)
