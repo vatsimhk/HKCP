@@ -59,6 +59,7 @@ vector<string> AT3Tags::GetAvailableApps(string airport, string runway) {
 	return appsVec;
 }
 
+
 void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
 	if (!FlightPlan.IsValid() || !RadarTarget.IsValid()) {

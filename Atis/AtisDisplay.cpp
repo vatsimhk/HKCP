@@ -13,7 +13,7 @@ using namespace EuroScopePlugIn;
 RECT AtisDisplay::a_Area = { 50, 100, 175, 196 };
 RECT AtisDisplay::b_Area = { 9, 7, 30, 30 };
 POINT AtisDisplay::a_Offset = { 125, 96 };
-bool AtisDisplay::visible = true;
+bool AtisDisplay::visible = false;
 bool AtisDisplay::highlightSync = false;
 vector<string> AtisDisplay::atisLetters = { "-", "-", "-", "-" };
 
