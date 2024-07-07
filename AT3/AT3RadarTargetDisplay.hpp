@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <unordered_map>
 
 
 using namespace std;
@@ -21,6 +22,14 @@ public:
     
     void OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display);
 
+	virtual void OnClickScreenObject(int ObjectType,
+		const char* sObjectId,
+		POINT Pt,
+		RECT Area,
+		int Button);
+
+	string GetControllerFreqFromId(string ID);
+
 	//  This gets called before OnAsrContentToBeSaved()
 	inline virtual void OnAsrContentToBeClosed(void)
 	{
@@ -30,5 +39,6 @@ private:
 	int CJSLabelSize;
 	int CJSLabelOffset;
 	double PlaneIconScale;
+	unordered_map<string, bool> CJSLabelShowFreq;
 };
 

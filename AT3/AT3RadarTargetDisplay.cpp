@@ -145,12 +145,31 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		// Draw CJS
 		dc.SelectObject(EuroScopeFont);
 		dc.SetTextAlign(TA_CENTER);
+		CSize CJSLabelSize;
+
+		// Set CJS label text to CJS or frequency based on saved state
+		string CJSLabelText;
+		CJSLabelShowFreq.emplace(fp.GetCallsign(), false);
 		if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-			dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, fp.GetHandoffTargetControllerId());
+			if (CJSLabelShowFreq[fp.GetCallsign()]) {
+				CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
+			} else {
+				CJSLabelText = fp.GetHandoffTargetControllerId();
+			}
+		} else {
+			if (CJSLabelShowFreq[fp.GetCallsign()]) {
+				CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
+			} else {
+				CJSLabelText = fp.GetTrackingControllerId();
+			}
 		}
-		else {
-			dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, fp.GetTrackingControllerId());
-		}
+		dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, CJSLabelText.c_str());
+
+		// Create rectangle around CJS label for click spot
+		CJSLabelSize = dc.GetTextExtent(CJSLabelText.c_str());
+		POINT CJSLabelPoint = { acftLocation.x - CJSLabelSize.cx / 2, acftLocation.y - CJSLabelOffset};
+		CRect CJSLabelRect(CJSLabelPoint, CJSLabelSize);
+		Display->AddScreenObject(CJS_INDICATOR, fp.GetCallsign(), CJSLabelRect, true, "");
 
 		// Increment to next aircraft
 		acft = GetPlugIn()->RadarTargetSelectNext(acft);
@@ -163,4 +182,26 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 	dc.Detach();
 	g.ReleaseHDC(hDC);
 	dc.DeleteDC();
+}
+
+void AT3RadarTargetDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
+{
+	if (ObjectType != CJS_INDICATOR) {
+		return;
+	}
+
+	string callsign = sObjectId;
+	CJSLabelShowFreq[callsign] = !CJSLabelShowFreq[callsign];
+}
+
+string AT3RadarTargetDisplay::GetControllerFreqFromId(string ID)
+{
+	double freq = GetPlugIn()->ControllerSelectByPositionId(ID.c_str()).GetPrimaryFrequency();
+	if (freq < 100.0) {
+		return "";
+	}
+
+	string freqString = to_string(freq);
+	freqString.resize(7);
+	return freqString;
 }

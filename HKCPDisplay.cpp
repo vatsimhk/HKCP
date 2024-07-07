@@ -36,6 +36,7 @@ void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POI
 {
 	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
 	AtisDisp->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
+	RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
 }
 
 void HKCPDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released)
