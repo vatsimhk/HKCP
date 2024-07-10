@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "MAESTROapi.h"
 
 using namespace std;
 using namespace EuroScopePlugIn;
@@ -66,7 +67,9 @@ public:
 
 	string GetAMCLine4 (CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
-	string GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+	string GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	string GetAMANDelay(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
 	string GetCallsign(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 

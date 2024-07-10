@@ -2,6 +2,7 @@
 #include "AT3Tags.hpp"
 #include "Constant.hpp"
 #include "EuroScopePlugIn.h"
+#include "MAESTROapi.h"
 #include <string>
 #include <array>
 
@@ -18,12 +19,12 @@ AT3Tags::AT3Tags() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME
 	RegisterTagItemType("AT3 Route Code", TAG_ITEM_AT3_ROUTE_CODE);
 	RegisterTagItemType("AT3 APP/DEP Line 4", TAG_ITEM_AT3_APPDEP_LINE4);
 	RegisterTagItemType("AT3 AMC Line 4", TAG_ITEM_AT3_AMC_LINE4);
-	RegisterTagItemType("AT3 Slot", TAG_ITEM_AT3_SLOT);
+	RegisterTagItemType("AT3 ETA", TAG_ITEM_AT3_ETA);
 	RegisterTagItemType("AT3 Callsign", TAG_ITEM_AT3_CALLSIGN);
 	RegisterTagItemType("AT3 ATYP + WTC", TAG_ITEM_AT3_ATYPWTC);
 	RegisterTagItemType("AT3 VS Indicator", TAG_ITEM_AT3_VS_INDICATOR);
 	RegisterTagItemType("AT3 Arrival Runway", TAG_ITEM_AT3_ARRIVAL_RWY);
-
+	RegisterTagItemType("AT3 AMAN Delay", TAG_ITEM_AT3_DELAY);
 
 	RegisterTagItemFunction("AT3 Approach Selection Menu", TAG_FUNC_APP_SEL_MENU);
 	RegisterTagItemFunction("AT3 Route Selection Menu", TAG_FUNC_RTE_SEL_MENU);
@@ -172,8 +173,11 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 		case TAG_ITEM_AT3_AMC_LINE4:
 			tagOutput = GetAMCLine4(FlightPlan, RadarTarget);
 			break;
-		case TAG_ITEM_AT3_SLOT:
-			tagOutput = GetFormattedSlot(FlightPlan, RadarTarget);
+		case TAG_ITEM_AT3_ETA:
+			tagOutput = GetFormattedETA(FlightPlan, RadarTarget);
+			break;
+		case TAG_ITEM_AT3_DELAY:
+			tagOutput = GetAMANDelay(FlightPlan, RadarTarget);
 			break;
 		case TAG_ITEM_AT3_CALLSIGN:
 			tagOutput = GetCallsign(FlightPlan, RadarTarget);
@@ -825,14 +829,35 @@ string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 	return lineStr;
 }
 
-string AT3Tags::GetFormattedSlot(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	return "D00"; //Placeholder
 }
 
+string AT3Tags::GetAMANDelay(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget) 
+{
+	int delay = trunc(GetCurrentDelay(FlightPlan.GetCallsign()));
+	if (delay != 0) {
+		if (delay > 0) {
+			return "+" + to_string(delay);
+		} else {
+			return "-" + to_string(delay);
+		}
+	} else {
+		return "";
+	}
+}
+
 string AT3Tags::GetCallsign(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	return FlightPlan.GetCallsign();
+	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(5); //find TopSky "/cpdlc/" annotations
+
+	if (flightStrip.find("/cpdlc/") != string::npos || flightStrip.find("/cpdlc-/") != string::npos) {
+		string callsignStr = FlightPlan.GetCallsign();
+		return "[" + callsignStr + "]";
+	} else {
+		return FlightPlan.GetCallsign();
+	}
 }
 
 string AT3Tags::GetATYPWTC(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)

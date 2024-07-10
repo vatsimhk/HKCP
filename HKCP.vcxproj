@@ -177,7 +177,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)Libs\EuroScopePlugInDll.lib; winmm.lib; $(ProjectDir)Libs\libcurl_a.lib; Ws2_32.lib;Crypt32.lib;  Wldap32.lib; Normaliz.lib </AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)Libs\EuroScopePlugInDll.lib;$(ProjectDir)Libs\MAESTRO.lib;winmm.lib;$(ProjectDir)Libs\libcurl_a.lib;Ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
