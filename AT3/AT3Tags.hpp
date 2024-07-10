@@ -9,6 +9,8 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "MAESTROapi.h"
+#include <chrono>
+#include <ctime>
 
 using namespace std;
 using namespace EuroScopePlugIn;
@@ -22,6 +24,7 @@ public:
 	AT3Tags();
 
 	string path;
+
 	char DllPathFile[_MAX_PATH];
 
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
@@ -67,7 +70,7 @@ public:
 
 	string GetAMCLine4 (CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
-	string GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+	string GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget, int minutes);
 
 	string GetAMANDelay(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 

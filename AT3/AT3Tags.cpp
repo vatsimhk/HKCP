@@ -5,6 +5,8 @@
 #include "MAESTROapi.h"
 #include <string>
 #include <array>
+#include <chrono>
+#include <ctime>
 
 using namespace EuroScopePlugIn;
 
@@ -114,6 +116,12 @@ void AT3Tags::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, i
 
 void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
+	auto now = chrono::system_clock::now();
+	time_t nowt = chrono::system_clock::to_time_t(now);
+	struct tm* tmp = gmtime(&nowt);
+
+	int minu = tmp->tm_min;
+
 	if (!FlightPlan.IsValid() || !RadarTarget.IsValid()) {
 		return;
 	}
@@ -174,7 +182,7 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 			tagOutput = GetAMCLine4(FlightPlan, RadarTarget);
 			break;
 		case TAG_ITEM_AT3_ETA:
-			tagOutput = GetFormattedETA(FlightPlan, RadarTarget);
+			tagOutput = GetFormattedETA(FlightPlan, RadarTarget, minu);
 			break;
 		case TAG_ITEM_AT3_DELAY:
 			tagOutput = GetAMANDelay(FlightPlan, RadarTarget);
@@ -829,9 +837,50 @@ string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 	return lineStr;
 }
 
-string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget, int minutes)
 {
-	return "D00"; //Placeholder
+	try {
+		string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
+
+		string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(3);
+		size_t startContainer = flightStrip.find("/R/");
+		size_t endContainer = flightStrip.find("/R//");
+		string rteCode = flightStrip.substr(startContainer + 3, endContainer - 3).substr(0, 3);
+		int timeToGate = 0;
+		string gate = rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"][rteCode]["gate"];
+		string prefix = gate.substr(0, 1);
+
+		for (int i = FlightPlan.GetExtractedRoute().GetPointsNumber() - 1; i >= 0; i--) {
+			if (FlightPlan.GetExtractedRoute().GetPointName(i -  1) == gate) {
+				timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(i -  1); 
+				break;
+			}
+		}
+
+		if (timeToGate <= 0) {
+			timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(FlightPlan.GetExtractedRoute().GetPointsNumber() - 1); // gate is now destination airport
+			prefix = "R";
+		}
+		timeToGate = minutes + timeToGate;
+
+		if (timeToGate > 59) {
+			timeToGate = timeToGate - 60;
+		}
+
+		string timeStr = to_string(timeToGate);
+
+		if (timeStr.length() < 2) {
+			timeStr.insert(0, 2 - timeStr.length(), '0');
+			timeStr.insert(0, "S");
+		}
+
+		timeStr.insert(0, prefix);
+
+		return timeStr;
+	}
+	catch (...) {
+		return "   ";
+	}
 }
 
 string AT3Tags::GetAMANDelay(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget) 
