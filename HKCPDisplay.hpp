@@ -29,7 +29,7 @@ private:
 	AT3RadarTargetDisplay* RadarTargets;
 public:
 
-	HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, double PlaneIconScale);
+	HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale);
 	virtual ~HKCPDisplay();
 
 	//---OnAsrContentLoaded--------------------------------------------

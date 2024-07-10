@@ -67,6 +67,7 @@ const int ACT_BUTTON = 1215;
 const int RESET_BUTTON = 1216;
 const int ATIS_LETTER = 1217;
 const int SYNC_BUTTON = 1218;
+const int CJS_INDICATOR = 1219;
 
 const COLORREF TAG_GREEN = RGB(0, 190, 0);
 const COLORREF TAG_GREY = RGB(128, 128, 128);

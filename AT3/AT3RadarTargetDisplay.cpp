@@ -8,8 +8,8 @@
 using namespace Gdiplus;
 using namespace EuroScopePlugIn;
 
-AT3RadarTargetDisplay::AT3RadarTargetDisplay(int _CJSLabelSize, int _CJSLabelOffset, double _PlaneIconScale) :
-	CJSLabelSize(_CJSLabelSize), CJSLabelOffset(_CJSLabelOffset), PlaneIconScale(_PlaneIconScale)
+AT3RadarTargetDisplay::AT3RadarTargetDisplay(int _CJSLabelSize, int _CJSLabelOffset, bool _CJSLabelShowWhenTracked, double _PlaneIconScale) :
+	CJSLabelSize(_CJSLabelSize), CJSLabelOffset(_CJSLabelOffset), CJSLabelShowWhenTracked(_CJSLabelShowWhenTracked), PlaneIconScale(_PlaneIconScale)
 {
 
 }
@@ -137,7 +137,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		g.EndContainer(gContainer);
 		DeleteObject(&aircraftIcon);
 
-		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
+		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED && !CJSLabelShowWhenTracked) {
 			acft = GetPlugIn()->RadarTargetSelectNext(acft);
 			continue;
 		}
@@ -145,12 +145,39 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		// Draw CJS
 		dc.SelectObject(EuroScopeFont);
 		dc.SetTextAlign(TA_CENTER);
+		CSize CJSLabelSize;
+
+		// Set CJS label text to CJS or frequency based on saved state
+		string CJSLabelText;
+		CJSLabelShowFreq.emplace(fp.GetCallsign(), false);
 		if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-			dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, fp.GetHandoffTargetControllerId());
+			if (CJSLabelShowFreq[fp.GetCallsign()]) {
+				CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
+			}
+			else {
+				CJSLabelText = fp.GetHandoffTargetControllerId();
+			}
+		} else if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
+			if (CJSLabelShowFreq[fp.GetCallsign()]) {
+				CJSLabelText = GetControllerFreqFromId(GetControllerIdFromCallsign(fp.GetCoordinatedNextController()));
+			}
+			else {
+				CJSLabelText = GetControllerIdFromCallsign(fp.GetCoordinatedNextController());
+			}
+		} else {
+			if (CJSLabelShowFreq[fp.GetCallsign()]) {
+				CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
+			} else {
+				CJSLabelText = fp.GetTrackingControllerId();
+			}
 		}
-		else {
-			dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, fp.GetTrackingControllerId());
-		}
+		dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, CJSLabelText.c_str());
+
+		// Create rectangle around CJS label for click spot
+		CJSLabelSize = dc.GetTextExtent(CJSLabelText.c_str());
+		POINT CJSLabelPoint = { acftLocation.x - CJSLabelSize.cx / 2, acftLocation.y - CJSLabelOffset};
+		CRect CJSLabelRect(CJSLabelPoint, CJSLabelSize);
+		Display->AddScreenObject(CJS_INDICATOR, fp.GetCallsign(), CJSLabelRect, true, "");
 
 		// Increment to next aircraft
 		acft = GetPlugIn()->RadarTargetSelectNext(acft);
@@ -163,4 +190,37 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 	dc.Detach();
 	g.ReleaseHDC(hDC);
 	dc.DeleteDC();
+}
+
+void AT3RadarTargetDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button, HKCPDisplay* Display)
+{
+	if (ObjectType != CJS_INDICATOR) {
+		return;
+	}
+
+	if (Button == BUTTON_LEFT) {
+		// Toggle between freq and CJS label
+		string callsign = sObjectId;
+		CJSLabelShowFreq[callsign] = !CJSLabelShowFreq[callsign];
+	} else if (Button == BUTTON_RIGHT) {
+		// Open next controller menu
+		Display->StartTagFunction(sObjectId, NULL, TAG_ITEM_TYPE_SECTOR_INDICATOR, "", NULL, TAG_ITEM_FUNCTION_ASSIGNED_NEXT_CONTROLLER, Pt, Area);
+	}
+}
+
+string AT3RadarTargetDisplay::GetControllerFreqFromId(string ID)
+{
+	double freq = GetPlugIn()->ControllerSelectByPositionId(ID.c_str()).GetPrimaryFrequency();
+	if (freq < 100.0) {
+		return "";
+	}
+
+	string freqString = to_string(freq);
+	freqString.resize(7);
+	return freqString;
+}
+
+string AT3RadarTargetDisplay::GetControllerIdFromCallsign(string callsign)
+{
+	return GetPlugIn()->ControllerSelect(callsign.c_str()).GetPositionId();
 }

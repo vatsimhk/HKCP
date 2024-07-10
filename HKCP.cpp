@@ -42,6 +42,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 {
 	const char* buffer;
 	int CJSLabelSize = 12, CJSLabelOffset = 25;
+	bool CJSLabelShowWhenTracked = 0;
 	double PlaneIconScale = 1.0;
 
 	buffer = GetDataFromSettings("CJSLabelSize");
@@ -60,6 +61,14 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 		SaveDataToSettings("CJSLabelOffset", "CJSLabelOffset", to_string(CJSLabelOffset).c_str());
 	}
 
+	buffer = GetDataFromSettings("CJSLabelShowWhenTracked");
+	if (buffer != NULL) {
+		CJSLabelShowWhenTracked = atoi(buffer);
+	}
+	else {
+		SaveDataToSettings("CJSLabelShowWhenTracked", "CJSLabelShowWhenTracked", to_string(CJSLabelShowWhenTracked).c_str());
+	}
+
 	buffer = GetDataFromSettings("PlaneIconScale");
 	if (buffer != NULL) {
 		PlaneIconScale = atof(buffer);
@@ -68,7 +77,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 		SaveDataToSettings("PlaneIconScale", "PlaneIconScale", to_string(PlaneIconScale).c_str());
 	}
 
-	return new HKCPDisplay(CJSLabelSize, CJSLabelOffset, PlaneIconScale);
+	return new HKCPDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale);
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
