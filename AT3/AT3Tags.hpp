@@ -37,7 +37,12 @@ public:
 		POINT Pt,
 		RECT Area);
 
+	virtual void    OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan,
+		int DataType);
+
 	vector<string> GetAvailableApps(string airport, string runway);
+
+	vector<string> GetAvailableRtes(string airport, string runway);
 
 	string GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
@@ -51,7 +56,11 @@ public:
 
 	string GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
-	string GetRouteCode(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+	void GetRouteCode(CFlightPlan& FlightPlan);
+
+	string GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
+	void GetAssignedAPP(CFlightPlan& FlightPlan);
 
 	string GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
@@ -69,5 +78,6 @@ public:
 
 protected:
 	json appsJson;
+	json rteJson;
 	set<string> arptSet;
 };

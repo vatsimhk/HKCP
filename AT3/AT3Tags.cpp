@@ -26,18 +26,27 @@ AT3Tags::AT3Tags() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME
 
 
 	RegisterTagItemFunction("AT3 Approach Selection Menu", TAG_FUNC_APP_SEL_MENU);
+	RegisterTagItemFunction("AT3 Route Selection Menu", TAG_FUNC_RTE_SEL_MENU);
 
 	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
 	path = DllPathFile;
 	path.resize(path.size() - strlen("HKCP.dll"));
-	path += "HKCPApproaches.json";
+	string appPath = path + "HKCPApproaches.json";
+	string rtePath = path + "HKCPRoutes.json";
 
-	fstream appsFile(path);
+	fstream appsFile(appPath);
 	appsJson = json::parse(appsFile);
+	appsFile.close();
+	appsFile.clear();
+
+	fstream rteFile(rtePath);
+	rteJson = json::parse(rteFile);
+	rteFile.close();
+	rteFile.clear();
 
 	for (auto& arpt : appsJson.items()) {
 		arptSet.insert(arpt.key());
-	} 
+	}
 }
 
 vector<string> AT3Tags::GetAvailableApps(string airport, string runway) {
@@ -59,6 +68,48 @@ vector<string> AT3Tags::GetAvailableApps(string airport, string runway) {
 	return appsVec;
 }
 
+vector<string> AT3Tags::GetAvailableRtes(string airport, string runway) {
+	vector<string> rteVec;
+
+	CFlightPlan FlightPlan = FlightPlanSelectASEL();
+
+	string fpRteStr = FlightPlan.GetFlightPlanData().GetRoute();
+	string rwyConfig = runway.substr(0, 2);
+	try {
+		for (string code : rteJson[airport][rwyConfig]["defaults"]) {
+			rteVec.push_back(rteJson[airport][rwyConfig]["routes"][code]["string"]); //all acft for the airport will have these routes regardless of flight plan
+		}
+
+		for (auto& config : rteJson[airport][rwyConfig]["points"].items()) { 
+			if (fpRteStr.find(config.key()) != string::npos) { 
+				for (string code : config.value()) { 
+					rteVec.push_back(rteJson[airport][rwyConfig]["routes"][code]["string"]);
+				}	
+			}
+		}
+	}
+	catch (...) {
+		rteVec.push_back("BAD DATA     ");
+	}
+
+	if (rteVec.size() < 1) {
+		rteVec.push_back("BAD DATA     ");
+	}
+
+	return rteVec;
+}
+
+void AT3Tags::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
+	if (!FlightPlan.IsValid()) {
+		return;
+	}
+
+	switch (DataType) {
+		case 5:
+			GetAssignedAPP(FlightPlan);
+			GetRouteCode(FlightPlan);
+	}
+}
 
 void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
@@ -113,7 +164,7 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 			tagOutput = GetFormattedSpeedAssigned(FlightPlan, RadarTarget);
 			break;
 		case TAG_ITEM_AT3_ROUTE_CODE:
-			tagOutput = GetRouteCode(FlightPlan, RadarTarget);
+			tagOutput = GetRouteCodeLine4(FlightPlan, RadarTarget);
 			break;
 		case TAG_ITEM_AT3_APPDEP_LINE4:
 			tagOutput = GetAPPDEPLine4(FlightPlan, RadarTarget);
@@ -150,17 +201,18 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 		return;
 	}
 
-	string origin = FlightPlan.GetFlightPlanData().GetOrigin();
-	string SID = FlightPlan.GetFlightPlanData().GetSidName();
 	string dest = FlightPlan.GetFlightPlanData().GetDestination();
 	string destRunway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
 	string STAR = FlightPlan.GetFlightPlanData().GetStarName();
 
 	string APPMenuName = dest + destRunway + " APP RTES";
+	string RteMenuName = dest + " RTES";
 	vector<string> appsVec;
+	vector<string> rteVec;
 
 	if (!dest.empty() && !destRunway.empty()) {
 		appsVec = GetAvailableApps(dest, destRunway);
+		rteVec = GetAvailableRtes(dest, destRunway);
 	}
 
 	switch (FunctionId) {
@@ -278,8 +330,217 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 			break;
 		}
-	}
+		case TAG_FUNC_RTE_SEL_MENU:
+			OpenPopupList(Area, RteMenuName.c_str(), 1);
+			if (rteVec.size() > 0) {
+				AddPopupListElement(rteVec[0].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_1, false, 2, false);
+			}
+			else {
+				AddPopupListElement("BAD DATA     ", "", TAG_FUNC_RTE_SEL_DUMMY, false, 2, false);
+				break;
+			}
 
+			if (rteVec.size() > 1) {
+				AddPopupListElement(rteVec[1].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_2, false, 2, false);
+			}
+			else {
+				break;
+			}
+
+			if (rteVec.size() > 2) {
+				AddPopupListElement(rteVec[2].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_3, false, 2, false);
+			}
+			else {
+				break;
+			}
+
+			if (rteVec.size() > 3) {
+				AddPopupListElement(rteVec[3].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_4, false, 2, false);
+			}
+			else {
+				break;
+			}
+
+			if (rteVec.size() > 4) {
+				AddPopupListElement(rteVec[4].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_5, false, 2, false);
+			}
+			else {
+				break;
+			}
+
+			if (rteVec.size() > 5) {
+				AddPopupListElement(rteVec[5].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_6, false, 2, false);
+			}
+			else {
+				break;
+			}
+
+			if (rteVec.size() > 6) {
+				AddPopupListElement(rteVec[6].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_7, false, 2, false);
+			}
+			else {
+				break;
+			}
+
+			if (rteVec.size() > 7) {
+				AddPopupListElement(rteVec[7].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_8, false, 2, false);
+			}
+			else {
+				break;
+			}
+		case TAG_FUNC_RTE_SEL_ITEM_1: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[0] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[0].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_2: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[1] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[1].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_3: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[2] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[2].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_4: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[3] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[3].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_5: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[4] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[4].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_6: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[5] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[5].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_7: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[6] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[6].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+		case TAG_FUNC_RTE_SEL_ITEM_8: {
+			string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+			string spadItem = "/R/" + rteVec[7] + "/R//";
+
+			spadCurrent.append(spadItem);
+			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+
+			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[7].substr(0, 3)]["star"];
+			starStr = " " + starStr + "/" + destRunway;
+
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
+
+			break;
+		}
+	}
 }
 
 string AT3Tags::GetFormattedAltitude(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
@@ -442,16 +703,53 @@ string AT3Tags::GetFormattedSpeedAssigned(CFlightPlan& FlightPlan, CRadarTarget&
 	return speedAssigned;
 }
 
-string AT3Tags::GetRouteCode(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
-{
-	return "ABC"; //Placeholder
+void AT3Tags::GetRouteCode(CFlightPlan& FlightPlan) {
+	string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
+
+	if (spadCurrent.find("/R/") != string::npos && spadCurrent.find("/R//") != string::npos) {
+		FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(3, "");
+		size_t startContainer = spadCurrent.find("/R/");
+		size_t endContainer = spadCurrent.find("/R//");
+		string rteCode = spadCurrent.substr(startContainer, endContainer + 4);
+		spadCurrent.erase(startContainer, (endContainer + 4) - startContainer);
+		FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
+		FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(3, rteCode.c_str());
+	}
 }
 
-string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+string AT3Tags::GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
-	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(2);
+	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(3);
+	string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
+	string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
 	string lineStr;
+ 
+
+	if (flightStrip.find("/R/") != string::npos && flightStrip.find("/R//") != string::npos) {
+		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) { //matches dest with json in case of dest changes after rte assignment
+			size_t startContainer = flightStrip.find("/R/");
+			size_t endContainer = flightStrip.find("/R//");
+			lineStr = flightStrip.substr(startContainer + 3, endContainer - 3).substr(0, 3);
+		}
+	}
+	else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+		for (auto& rte : rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"].items()) { //matches exact route only for auto assigning route code
+			if (fpRoute.find(rte.value()["route"]) != string::npos) {
+				lineStr = rte.key();
+			}
+		}
+	}
+
+	if (lineStr.length() < 1) {
+		lineStr = "   ";
+	}
+
+	return lineStr;
+}
+
+void AT3Tags::GetAssignedAPP(CFlightPlan& FlightPlan) {
+	string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
 
 	if (spadCurrent.find("/A/") != string::npos && spadCurrent.find("/A//") != string::npos) {
 		FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, "");
@@ -462,6 +760,12 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 		FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 		FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, app.c_str());
 	}
+}
+
+string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+{
+	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(2);
+	string lineStr;
 
 	if (flightStrip.find("/A/") != string::npos && flightStrip.find("/A//") != string::npos && flightStrip.find("_") != string::npos) {
 		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) { //matches dest with json in case of dest changes after app assignment
@@ -470,9 +774,10 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 			lineStr = flightStrip.substr(startContainer + 3, endContainer - 1);
 			lineStr = lineStr.substr(0, lineStr.find("_"));
 		}
-	} else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+	}
+	else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
 		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
-		if (app .find("_") != string::npos) {
+		if (app.find("_") != string::npos) {
 			lineStr = app.substr(0, app.find("_"));
 			string spadItem = "/A/" + app + "/A//";
 			FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
@@ -493,19 +798,8 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 
 string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
 	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(2);
 	string lineStr;
-
-	if (spadCurrent.find("/A/") != string::npos && spadCurrent.find("/A//") != string::npos) {
-		FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, "");
-		size_t startContainer = spadCurrent.find("/A/");
-		size_t endContainer = spadCurrent.find("/A//");
-		string app = spadCurrent.substr(startContainer, endContainer + 4);
-		spadCurrent.erase(startContainer, (endContainer + 4) - startContainer);
-		FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
-		FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, app.c_str());
-	}
 
 	if (flightStrip.find("/A/") != string::npos && flightStrip.find("/A//") != string::npos && flightStrip.find("_") != string::npos) {
 		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) { //matches dest with json in case of dest changes after app assignment

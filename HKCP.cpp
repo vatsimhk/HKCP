@@ -81,6 +81,10 @@ void HKCPPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, 
 	tags->OnGetTagItem(FlightPlan, RadarTarget, ItemCode, TagData, sItemString, pColorCode, pRGB, pFontSize);
 }
 
+void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
+	tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
+}
+
 void HKCPPlugin::OnTimer(int Count) {
 	VFPC->OnTimer(Count);
 	Atis->OnTimer(Count);
