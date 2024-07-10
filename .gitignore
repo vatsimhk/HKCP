@@ -24,6 +24,7 @@
 *.lai
 *.la
 *.a
+*.lib
 !libcurl_a.lib
 
 # Executables
