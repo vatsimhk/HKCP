@@ -439,14 +439,17 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[0].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
-			}
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
+			} 
 
 			break;
 		}
@@ -458,13 +461,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[1].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -477,13 +483,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[2].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -496,13 +505,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[3].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -515,13 +527,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[4].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -534,13 +549,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[5].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -553,13 +571,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[6].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -572,13 +593,16 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
 			string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[7].substr(0, 3)]["star"];
-			starStr = " " + starStr + "/" + destRunway;
 
-			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			if (starStr.length() > 0) {
+				starStr = " " + starStr + "/" + destRunway;
 
-			if (fpRoute.find(starStr) == string::npos) {
-				fpRoute = fpRoute + starStr;
-				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+
+				if (fpRoute.find(starStr) == string::npos) {
+					fpRoute = fpRoute + starStr;
+					FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+				}
 			}
 
 			break;
@@ -880,34 +904,40 @@ string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarg
 
 		int timeToGate = 0;
 		string gate = rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"][rteCode]["gate"];
-		string prefix = gate.substr(0, 1);
+		
+		if (gate.length() > 0) { 
+			string prefix = gate.substr(0, 1);
 
-		for (int i = FlightPlan.GetExtractedRoute().GetPointsNumber() - 1; i >= 0; i--) { //iterate from end to start for STAR waypoints
-			if (FlightPlan.GetExtractedRoute().GetPointName(i -  1) == gate) {
-				timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(i -  1); 
-				break;
+			for (int i = FlightPlan.GetExtractedRoute().GetPointsNumber() - 1; i >= 0; i--) { //iterate from end to start for STAR waypoints
+				if (FlightPlan.GetExtractedRoute().GetPointName(i - 1) == gate) {
+					timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(i - 1);
+					break;
+				}
 			}
+
+			if (timeToGate <= 0) {
+				timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(FlightPlan.GetExtractedRoute().GetPointsNumber() - 1); //time to dest
+				prefix = "R";
+			}
+			timeToGate = minutes + timeToGate;
+
+			if (timeToGate > 59) {
+				timeToGate = timeToGate - 60;
+			}
+
+			string timeStr = to_string(timeToGate);
+
+			if (timeStr.length() < 2) {
+				timeStr.insert(0, 2 - timeStr.length(), '0');
+			}
+
+			timeStr.insert(0, prefix);
+
+			return timeStr;
 		}
-
-		if (timeToGate <= 0) {
-			timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(FlightPlan.GetExtractedRoute().GetPointsNumber() - 1); //time to dest
-			prefix = "R";
+		else { //gates may be left empty, e.g. VMMC PRC STARs
+			return "   ";
 		}
-		timeToGate = minutes + timeToGate;
-
-		if (timeToGate > 59) {
-			timeToGate = timeToGate - 60;
-		}
-
-		string timeStr = to_string(timeToGate);
-
-		if (timeStr.length() < 2) {
-			timeStr.insert(0, 2 - timeStr.length(), '0');
-		}
-
-		timeStr.insert(0, prefix);
-
-		return timeStr;
 	}
 	catch (...) {
 		return "   ";
