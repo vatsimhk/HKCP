@@ -24,6 +24,7 @@ public:
 	AT3Tags();
 
 	string path;
+	int minu;
 
 	char DllPathFile[_MAX_PATH];
 
@@ -43,6 +44,10 @@ public:
 
 	virtual void    OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan,
 		int DataType);
+
+	virtual void    OnTimer(int Counter);
+
+	string GetArrivalRunway(string airport);
 
 	vector<string> GetAvailableApps(string airport, string runway);
 

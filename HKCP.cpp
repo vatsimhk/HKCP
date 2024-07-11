@@ -97,6 +97,7 @@ void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan
 void HKCPPlugin::OnTimer(int Count) {
 	VFPC->OnTimer(Count);
 	Atis->OnTimer(Count);
+	tags->OnTimer(Count);
 }
 
 void HKCPPlugin::OnFlightPlanDisconnect(CFlightPlan FlightPlan) {
