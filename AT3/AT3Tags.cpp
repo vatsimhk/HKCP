@@ -116,8 +116,7 @@ void AT3Tags::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, i
 
 void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int ItemCode, int TagData, char sItemString[16], int* pColorCode, COLORREF* pRGB, double* pFontSize)
 {
-	auto now = chrono::system_clock::now();
-	time_t nowt = chrono::system_clock::to_time_t(now);
+	time_t nowt = time(0);
 	struct tm* tmp = gmtime(&nowt);
 
 	int minu = tmp->tm_min;
@@ -846,6 +845,7 @@ string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarg
 		size_t startContainer = flightStrip.find("/R/");
 		size_t endContainer = flightStrip.find("/R//");
 		string rteCode = flightStrip.substr(startContainer + 3, endContainer - 3).substr(0, 3);
+
 		int timeToGate = 0;
 		string gate = rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"][rteCode]["gate"];
 		string prefix = gate.substr(0, 1);
