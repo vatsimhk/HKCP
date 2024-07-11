@@ -995,7 +995,7 @@ string AT3Tags::GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget
 {
 	string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
 	if (runway.length() < 3) {
-		runway.insert(runway.length() - 1, 3 - runway.length(), ' ');
+		runway.insert(runway.length(), 3 - runway.length(), ' ');
 	}
 	return runway;
 }
