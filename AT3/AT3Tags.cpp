@@ -915,7 +915,7 @@ string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarg
 				}
 			}
 
-			if (timeToGate <= 0) {
+			if (timeToGate < 0) {
 				timeToGate = FlightPlan.GetExtractedRoute().GetPointDistanceInMinutes(FlightPlan.GetExtractedRoute().GetPointsNumber() - 1); //time to dest
 				prefix = "R";
 			}
