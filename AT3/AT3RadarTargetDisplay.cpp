@@ -91,7 +91,8 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		}
 
 		// Override aircraft color conditions
-		if (fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0 && strlen(fp.GetTrackingControllerId()) == 0) {
+		if (pd.GetPressureAltitude() <= 100 && strlen(fp.GetTrackingControllerId()) == 0 &&
+			fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0 ) {
 			aircraftBrush.SetColor(OVERRIDE_AIW);
 		}
 		if (strcmp(pd.GetSquawk(), "7700") == 0) {
