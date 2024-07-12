@@ -29,6 +29,8 @@ public:
 		COLORREF* pRGB,
 		double* pFontSize);
 
+	virtual void OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType);
+
 	virtual void OnFlightPlanDisconnect(CFlightPlan FlightPlan);
 
 	virtual bool OnCompileCommand(const char* sCommandLine);

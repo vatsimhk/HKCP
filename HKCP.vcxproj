@@ -164,7 +164,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;EDFFCHECKFP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); CURL_STATICLIB</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;EDFFCHECKFP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)Libs;$(ProjectDir)Libs\include;$(ProjectDir)</AdditionalIncludeDirectories>
@@ -177,7 +177,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)Libs\EuroScopePlugInDll.lib; winmm.lib; $(ProjectDir)Libs\libcurl_a.lib; Ws2_32.lib;Crypt32.lib;  Wldap32.lib; Normaliz.lib </AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)Libs\EuroScopePlugInDll.lib;$(ProjectDir)Libs\MAESTRO.lib;winmm.lib;$(ProjectDir)Libs\libcurl_a.lib;Ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

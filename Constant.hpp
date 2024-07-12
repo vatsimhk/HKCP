@@ -23,11 +23,12 @@ const int TAG_ITEM_AT3_SPEED_ASSIGNED = 15;
 const int TAG_ITEM_AT3_ROUTE_CODE = 16;
 const int TAG_ITEM_AT3_APPDEP_LINE4 = 17;
 const int TAG_ITEM_AT3_AMC_LINE4 = 18;
-const int TAG_ITEM_AT3_SLOT = 19;
+const int TAG_ITEM_AT3_ETA = 19;
 const int TAG_ITEM_AT3_CALLSIGN = 20;
-const int TAG_ITEM_AT3_ATYPWTC = 21;
+const int TAG_ITEM_AT3_ATYPWTC = 21; 
 const int TAG_ITEM_AT3_VS_INDICATOR = 22;
 const int TAG_ITEM_AT3_ARRIVAL_RWY = 23;
+const int TAG_ITEM_AT3_DELAY = 24;
 
 const int TAG_FUNC_APP_SEL_MENU = 200;
 const int TAG_FUNC_APP_SEL_ITEM_1 = 201;
@@ -38,6 +39,18 @@ const int TAG_FUNC_APP_SEL_ITEM_5 = 205;
 const int TAG_FUNC_APP_SEL_ITEM_6 = 206;
 const int TAG_FUNC_APP_SEL_ITEM_7 = 207;
 const int TAG_FUNC_APP_SEL_ITEM_8 = 208;
+const int TAG_FUNC_APP_SEL_DUMMY = 209;
+
+const int TAG_FUNC_RTE_SEL_MENU = 300;
+const int TAG_FUNC_RTE_SEL_ITEM_1 = 301;
+const int TAG_FUNC_RTE_SEL_ITEM_2 = 302;
+const int TAG_FUNC_RTE_SEL_ITEM_3 = 303;
+const int TAG_FUNC_RTE_SEL_ITEM_4 = 304;
+const int TAG_FUNC_RTE_SEL_ITEM_5 = 305;
+const int TAG_FUNC_RTE_SEL_ITEM_6 = 306;
+const int TAG_FUNC_RTE_SEL_ITEM_7 = 307;
+const int TAG_FUNC_RTE_SEL_ITEM_8 = 308;
+const int TAG_FUNC_RTE_SEL_DUMMY = 309;
 
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;
