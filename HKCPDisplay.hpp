@@ -27,9 +27,10 @@ private:
 	AtisDisplay* AtisDisp;
 	MissedApproachAlarm* MissAlarm;
 	AT3RadarTargetDisplay* RadarTargets;
+	bool isESRadarDisplay;
 public:
 
-	HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale);
+	HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale, string RadarDisplayType);
 	virtual ~HKCPDisplay();
 
 	//---OnAsrContentLoaded--------------------------------------------

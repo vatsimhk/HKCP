@@ -2,11 +2,18 @@
 #include "HKCPDisplay.hpp"
 
 
-HKCPDisplay::HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale)
+HKCPDisplay::HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale, string RadarDisplayType)
 {
 	AtisDisp = new AtisDisplay();
 	MissAlarm = new MissedApproachAlarm();
 	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale);
+
+	if (RadarDisplayType == "Standard ES radar screen") {
+		isESRadarDisplay = true;
+	}
+	else {
+		isESRadarDisplay = false;
+	}
 }
 
 HKCPDisplay::~HKCPDisplay()
@@ -29,14 +36,20 @@ void HKCPDisplay::OnRefresh(HDC hDC, int Phase)
 {
 	MissAlarm->OnRefresh(hDC, Phase, this);
 	AtisDisp->OnRefresh(hDC, Phase, this);
-	RadarTargets->OnRefresh(hDC, Phase, this);
+
+	if (isESRadarDisplay) {
+		RadarTargets->OnRefresh(hDC, Phase, this);
+	}
 }
 
 void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
 {
 	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
 	AtisDisp->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
-	RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button, this);
+
+	if (isESRadarDisplay) {
+		RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button, this);
+	}
 }
 
 void HKCPDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released)
