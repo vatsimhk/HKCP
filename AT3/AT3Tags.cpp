@@ -862,7 +862,7 @@ string AT3Tags::GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 	return vsIndicator;
 }
 
-string AT3Tags::GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+string AT3Tags::GetFormattedArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
 	if (runway.length() < 3) {

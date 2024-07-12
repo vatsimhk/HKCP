@@ -84,7 +84,7 @@ public:
 
 	string GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
-	string GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+	string GetFormattedArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
 protected:
 	int minu;
