@@ -825,7 +825,7 @@ string AT3Tags::GetAMANDelay(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 		return "+" + to_string(delay);
 	}
 	else if (delay < 0) {
-		return "-" + to_string(delay);
+		return to_string(delay);
 	}
 }
 
