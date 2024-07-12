@@ -23,11 +23,6 @@ class AT3Tags :
 public:
 	AT3Tags();
 
-	string path;
-	int minu;
-
-	char DllPathFile[_MAX_PATH];
-
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
 		CRadarTarget RadarTarget,
 		int ItemCode,
@@ -47,7 +42,11 @@ public:
 
 	virtual void    OnTimer(int Counter);
 
-	string GetArrivalRunway(string airport);
+	void SetApp(int index, CFlightPlan FlightPlan, vector<string> appsVec);
+
+	void SetRte(int index, CFlightPlan FlightPlan, vector<string> rteVec, string dest, string destRunway);
+
+	string GetActiveArrRwy(string airport);
 
 	vector<string> GetAvailableApps(string airport, string runway);
 
@@ -88,6 +87,7 @@ public:
 	string GetArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
 protected:
+	int minu;
 	json appsJson;
 	json rteJson;
 	set<string> arptSet;
