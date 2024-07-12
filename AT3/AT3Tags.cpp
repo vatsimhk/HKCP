@@ -131,18 +131,21 @@ void AT3Tags::SetRte(int index, CFlightPlan FlightPlan, vector<string> rteVec, s
 	spadCurrent.append(spadItem);
 	FlightPlan.GetControllerAssignedData().SetScratchPadString(spadCurrent.c_str());
 
-	string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[index].substr(0, rteVec[index].find("_"))]["star"];
+	try {
+		string starStr = rteJson[dest][destRunway.substr(0, 2)]["routes"][rteVec[index].substr(0, rteVec[index].find("_"))]["star"];
 
-	if (starStr.length() > 0) {
-		starStr = " " + starStr + "/" + destRunway;
+		if (starStr.length() > 0) {
+			starStr = " " + starStr + "/" + destRunway;
 
-		string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
+			string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
 
-		if (fpRoute.find(starStr) == string::npos) {
-			fpRoute = fpRoute + starStr;
-			FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			if (fpRoute.find(starStr) == string::npos) {
+				fpRoute = fpRoute + starStr;
+				FlightPlan.GetFlightPlanData().SetRoute(fpRoute.c_str()); //assign STAR if not already assigned
+			}
 		}
 	}
+	catch (...) {}
 }
 
 void AT3Tags::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
@@ -649,17 +652,23 @@ string AT3Tags::GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTa
 	size_t startContainer = flightStrip.find("/R/");
 	size_t endContainer = flightStrip.find("/R//");
 
-	if (startContainer != string::npos && endContainer != string::npos && flightStrip.find("_") != string::npos) {
-		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) { //matches dest with json in case of dest changes after rte assignment
-			lineStr = flightStrip.substr(startContainer + 3, endContainer - 3).substr(0, flightStrip.find("_") - 3); //always get route from spad/flight strip in case of version mismatch
-		}
-	}
-	else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
-		for (auto& rte : rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"].items()) { //matches exact route only for auto assigning route code
-			if (fpRoute.find(rte.value()["route"]) != string::npos) {
-				lineStr = rte.key();
+	try {
+		if (startContainer != string::npos && endContainer != string::npos && flightStrip.find("_") != string::npos) {
+			if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) { //matches dest with json in case of dest changes after rte assignment
+				lineStr = flightStrip.substr(startContainer + 3, endContainer - 3); //always get route from spad/flight strip in case of version mismatch
+				lineStr = lineStr.substr(0, lineStr.find("_"));
 			}
 		}
+		else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+			for (auto& rte : rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"].items()) { //matches exact route only for auto assigning route code
+				if (fpRoute.find(rte.value()["route"]) != string::npos) {
+					lineStr = rte.key();
+				}
+			}
+		}
+	}
+	catch (...) {
+		lineStr = "   ";
 	}
 
 	if (lineStr.length() < 3) {
@@ -759,9 +768,11 @@ string AT3Tags::GetFormattedETA(CFlightPlan& FlightPlan, CRadarTarget& RadarTarg
 
 		size_t startContainer = flightStrip.find("/R/");
 		size_t endContainer = flightStrip.find("/R//");
-		string rteCode = flightStrip.substr(startContainer + 3, endContainer - 3).substr(0, 3);
+		string rteCode = flightStrip.substr(startContainer + 3, endContainer - 3);
+		rteCode = rteCode.substr(0, rteCode.find("_"));
 
 		int timeToGate = -1;
+
 		string gate = rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"][rteCode]["gate"];
 		
 		if (gate.length() > 0) { 
