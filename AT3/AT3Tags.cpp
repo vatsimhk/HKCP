@@ -237,7 +237,7 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 			tagOutput = GetVSIndicator(FlightPlan, RadarTarget);
 			break;
 		case TAG_ITEM_AT3_ARRIVAL_RWY:
-			tagOutput = GetArrivalRwy(FlightPlan, RadarTarget);
+			tagOutput = GetFormattedArrivalRwy(FlightPlan, RadarTarget);
 			break;
 		default:
 			tagOutput = "";
