@@ -154,6 +154,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
 			if (CJSLabelShowFreq[fp.GetCallsign()]) {
 				CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
+				dc.SetTextColor(DEFAULT_ASSUMED.ToCOLORREF());
 			}
 			else {
 				CJSLabelText = fp.GetHandoffTargetControllerId();
@@ -161,6 +162,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		} else if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
 			if (CJSLabelShowFreq[fp.GetCallsign()]) {
 				CJSLabelText = GetControllerFreqFromId(GetControllerIdFromCallsign(fp.GetCoordinatedNextController()));
+				dc.SetTextColor(DEFAULT_ASSUMED.ToCOLORREF());
 			}
 			else {
 				CJSLabelText = GetControllerIdFromCallsign(fp.GetCoordinatedNextController());
@@ -168,6 +170,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		} else {
 			if (CJSLabelShowFreq[fp.GetCallsign()]) {
 				CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
+				dc.SetTextColor(DEFAULT_ASSUMED.ToCOLORREF());
 			} else {
 				CJSLabelText = fp.GetTrackingControllerId();
 			}
