@@ -2,11 +2,18 @@
 #include "HKCPDisplay.hpp"
 
 
-HKCPDisplay::HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale, string RadarDisplayType)
+HKCPDisplay::HKCPDisplay(int CJSLabelSize, 
+						 int CJSLabelOffset, 
+						 bool CJSLabelShowWhenTracked, 
+						 double PlaneIconScale, 
+						 string RadarDisplayType, 
+						 COLORREF colorA, 
+						 COLORREF colorNA, 
+						 COLORREF colorR)
 {
 	AtisDisp = new AtisDisplay();
 	MissAlarm = new MissedApproachAlarm();
-	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale);
+	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale, colorA, colorNA, colorR);
 
 	if (RadarDisplayType == "Standard ES radar screen") {
 		isESRadarDisplay = true;

@@ -16,6 +16,8 @@ public:
 
 	~HKCPPlugin();
 
+	COLORREF GetTopSkyColorSettings(string settingName, COLORREF defaultColor);
+
 	virtual void OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area);
 
 	virtual CRadarScreen* OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated);
@@ -38,4 +40,8 @@ public:
 	virtual void OnTimer(int Count);
 
 	virtual void OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage);
+
+	COLORREF colorAssumed;
+	COLORREF colorNotAssumed;
+	COLORREF colorRedundant;
 };

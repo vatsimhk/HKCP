@@ -10,7 +10,7 @@
 
 using namespace EuroScopePlugIn;
 
-AT3Tags::AT3Tags() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT)
+AT3Tags::AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR) : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT)
 {
 	RegisterTagItemType("AT3 Altitude", TAG_ITEM_AT3_ALTITUDE);
 	RegisterTagItemType("AT3 Assigned Altitude", TAG_ITEM_AT3_ALTITUDE_ASSIGNED);
@@ -30,6 +30,10 @@ AT3Tags::AT3Tags() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME
 
 	RegisterTagItemFunction("AT3 Approach Selection Menu", TAG_FUNC_APP_SEL_MENU);
 	RegisterTagItemFunction("AT3 Route Selection Menu", TAG_FUNC_RTE_SEL_MENU);
+
+	colorAssumed = colorA;
+	colorNotAssumed = colorNA;
+	colorRedundant = colorR;
 
 	char DllPathFile[_MAX_PATH];
 
@@ -169,25 +173,25 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 	*pColorCode = TAG_COLOR_RGB_DEFINED;
 	switch (FlightPlan.GetState()) {
 		case FLIGHT_PLAN_STATE_NON_CONCERNED:
-			*pRGB = RGB(117, 132, 142);
+			*pRGB = colorNotAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_NOTIFIED:
-			*pRGB = RGB(117, 132, 142);
+			*pRGB = colorNotAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_COORDINATED:
-			*pRGB = RGB(117, 132, 142);
+			*pRGB = colorNotAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED:
-			*pRGB = RGB(229, 214, 130);
+			*pRGB = colorRedundant;
 			break;
 		case FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED:
-			*pRGB = RGB(241, 246, 255);
+			*pRGB = colorAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_ASSUMED:
-			*pRGB = RGB(241, 246, 255);
+			*pRGB = colorAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_REDUNDANT:
-			*pRGB = RGB(229, 214, 130);
+			*pRGB = colorRedundant;
 			break;
 	}
 	

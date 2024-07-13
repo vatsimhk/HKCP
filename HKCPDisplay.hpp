@@ -30,7 +30,15 @@ private:
 	bool isESRadarDisplay;
 public:
 
-	HKCPDisplay(int CJSLabelSize, int CJSLabelOffset, bool CJSLabelShowWhenTracked, double PlaneIconScale, string RadarDisplayType);
+	HKCPDisplay(int CJSLabelSize, 
+				int CJSLabelOffset, 
+				bool CJSLabelShowWhenTracked, 
+				double PlaneIconScale, 
+				string RadarDisplayType, 
+				COLORREF colorA, 
+				COLORREF colorNA, 
+				COLORREF colorR);
+
 	virtual ~HKCPDisplay();
 
 	//---OnAsrContentLoaded--------------------------------------------

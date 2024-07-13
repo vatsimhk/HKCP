@@ -25,10 +25,14 @@ void    __declspec (dllexport)    EuroScopePlugInInit(EuroScopePlugIn::CPlugIn**
 }
 
 HKCPPlugin::HKCPPlugin() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT) {
+	colorAssumed = GetTopSkyColorSettings("Color_Assumed", RGB(241, 246, 255));
+	colorNotAssumed = GetTopSkyColorSettings("Color_Unconcerned", RGB(117, 132, 142));
+	colorRedundant = GetTopSkyColorSettings("Color_Redundant", RGB(229, 214, 130));
+	
 	VFPC = new CVFPCPlugin();
 	Atis = new AtisPlugin();
 	Mapp = new MissedApproachPlugin();
-	tags = new AT3Tags();
+	tags = new AT3Tags(colorAssumed, colorNotAssumed, colorRedundant);
 }
 
 HKCPPlugin::~HKCPPlugin() {
@@ -36,6 +40,37 @@ HKCPPlugin::~HKCPPlugin() {
 	delete Atis;
 	delete Mapp;
 	delete tags;
+}
+
+COLORREF HKCPPlugin::GetTopSkyColorSettings(string settingName, COLORREF defaultColor)
+{
+	char DllPathFile[_MAX_PATH];
+
+	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
+	string path = DllPathFile;
+	path.resize(path.size() - strlen("HKCP/HKCP.dll"));
+	string settingsPath = path + "TopSky/TopSkySettings.txt";
+
+	ifstream TopSkySettingsFile(settingsPath);
+	if (!TopSkySettingsFile) {
+		DisplayUserMessage("HKCP", "HKCP", "Unable to find TopSkySettings.txt for colors", true, true, false, false, false);
+		return defaultColor;
+	}
+
+	string line;
+	while (getline(TopSkySettingsFile, line)) {
+		if (line.find(settingName) != string::npos) {
+			break;
+		}
+	}
+
+	line.erase(0, settingName.length() + 1);
+	int r, g, b;
+	istringstream(line.substr(0, 3)) >> r;
+	istringstream(line.substr(4, 7)) >> g;
+	istringstream(line.substr(8, 11)) >> b;
+
+	return RGB(r, g, b);
 }
 
 CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool NeedRadarContent, bool GeoReferenced, bool CanBeSaved, bool CanBeCreated)
@@ -77,7 +112,14 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 		SaveDataToSettings("PlaneIconScale", "PlaneIconScale", to_string(PlaneIconScale).c_str());
 	}
 
-	return new HKCPDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale, sDisplayName);
+	return new HKCPDisplay(CJSLabelSize, 
+						   CJSLabelOffset, 
+						   CJSLabelShowWhenTracked, 
+						   PlaneIconScale, 
+						   sDisplayName, 
+						   colorAssumed, 
+						   colorNotAssumed, 
+						   colorRedundant);
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
