@@ -172,6 +172,13 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 				CJSLabelText = fp.GetTrackingControllerId();
 			}
 		}
+
+		// Remove trailing up to two trailing zeroes
+		for (int i = 0; i < 2; i++) {
+			if (CJSLabelText.back() == '0') {
+				CJSLabelText.pop_back();
+			}
+		}
 		dc.TextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, CJSLabelText.c_str());
 
 		// Create rectangle around CJS label for click spot
