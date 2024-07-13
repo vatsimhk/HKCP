@@ -283,11 +283,13 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 	}
 
 	switch (FunctionId) {
-		case TAG_FUNC_APP_SEL_MENU:
+	case TAG_FUNC_APP_SEL_MENU:
+		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) {
 			OpenPopupList(Area, APPMenuName.c_str(), 1);
 			if (appsVec.size() > 0) {
 				AddPopupListElement(appsVec[0].c_str(), "", TAG_FUNC_APP_SEL_ITEM_1, false, 2, false);
-			} else {
+			}
+			else {
 				AddPopupListElement("BAD DATA     ", "", TAG_FUNC_APP_SEL_DUMMY, false, 2, false);
 				break;
 			}
@@ -340,40 +342,45 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			else {
 				break;
 			}
+		}
+		else {
+			break;
+		}
 
-		case TAG_FUNC_APP_SEL_ITEM_1: {
-			SetApp(0, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_2: {
-			SetApp(1, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_3: {
-			SetApp(2, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_4: {
-			SetApp(3, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_5: {
-			SetApp(4, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_6: {
-			SetApp(5, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_7: {
-			SetApp(6, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_APP_SEL_ITEM_8: {
-			SetApp(7, FlightPlan, appsVec);
-			break;
-		}
-		case TAG_FUNC_RTE_SEL_MENU:
+	case TAG_FUNC_APP_SEL_ITEM_1: {
+		SetApp(0, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_2: {
+		SetApp(1, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_3: {
+		SetApp(2, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_4: {
+		SetApp(3, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_5: {
+		SetApp(4, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_6: {
+		SetApp(5, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_7: {
+		SetApp(6, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_APP_SEL_ITEM_8: {
+		SetApp(7, FlightPlan, appsVec);
+		break;
+	}
+	case TAG_FUNC_RTE_SEL_MENU:
+		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) {
 			OpenPopupList(Area, RteMenuName.c_str(), 1);
 			if (rteVec.size() > 0) {
 				AddPopupListElement(rteVec[0].c_str(), "", TAG_FUNC_RTE_SEL_ITEM_1, false, 2, false);
@@ -431,6 +438,10 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			else {
 				break;
 			}
+		}
+		else {
+			break;
+		}
 		case TAG_FUNC_RTE_SEL_ITEM_1: {
 			SetRte(0, FlightPlan, rteVec, dest, destRunway);
 			break;
