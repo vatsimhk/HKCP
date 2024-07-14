@@ -76,7 +76,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		GraphicsContainer gContainer = g.BeginContainer();
 
 		// Set brush color based on state
-		SolidBrush aircraftBrush(colorRedundant);
+		SolidBrush aircraftBrush(colorNotAssumed);
 		dc.SetTextColor(colorRedundant.ToCOLORREF());
 		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
 			aircraftBrush.SetColor(colorAssumed);
