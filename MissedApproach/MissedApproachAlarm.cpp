@@ -321,7 +321,7 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC, HKCPDisplay* Display) {
 				if (actButtonHold <= 0) actButtonHold = 0;
 				CRect buttonActPartial(indicatorWindowRect.left + 170, indicatorWindowRect.top + 60 + actButtonHold, indicatorWindowRect.left + 245, indicatorWindowRect.top + 110);
 				dc.FillSolidRect(buttonActPartial, BUTTON_ORANGE_ON);
-				RequestRefresh();
+				Display->RequestRefresh();
 			}
 			actButtonState = 0;
 		}
