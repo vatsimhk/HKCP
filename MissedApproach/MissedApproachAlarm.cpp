@@ -362,10 +362,11 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC, HKCPDisplay* Display) {
 	else {
 		dc.FillSolidRect(buttonReset, BUTTON_RED_ON);
 		//Check for acknowledgement
-		if (!selectedAcftData.empty() && ma.checkForAck(selectedAcftData[0].c_str()) != NULL) {
+		const char* ackStationBuf = ma.checkForAck(selectedAcftData[0].c_str());
+		if (!selectedAcftData.empty() && ackStationBuf != NULL) {
 			actButtonState = 2;
 			resetButtonState = 1;
-			ackStation = ma.checkForAck(selectedAcftData[0].c_str());
+			ackStation = ackStationBuf;
 		}
 	}
 	dc.SelectObject(&fontLabelSmall);

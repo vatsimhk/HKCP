@@ -125,7 +125,7 @@ const char* MissedApproachPlugin::checkForAck(const char* callsign) {
 		ptr = ptr + strlen("MISAP-ACK_");
 		scratchPadString.erase(0, strlen("MISAP-ACK_AP"));
 		controllerData.SetScratchPadString(scratchPadString.c_str());
-		return (ptr != NULL && strlen(ptr) == 3) ? ptr : "??";
+		return (ptr != NULL && strlen(ptr) == 2) ? ptr : "??";
 	}
 	return NULL;
 }
