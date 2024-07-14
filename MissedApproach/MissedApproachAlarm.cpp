@@ -461,9 +461,10 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 	MissedApproachPlugin ma;
 	CFlightPlanData data = FlightPlan.GetFlightPlanData();
 	CFlightPlanControllerAssignedData controllerData = FlightPlan.GetControllerAssignedData();
+	string scratchPadString = controllerData.GetScratchPadString();
 
 	//Filter from scratchpad message
-	if (strstr(controllerData.GetScratchPadString(), "\\MISS") == NULL) return;
+	if (scratchPadString.find("MISAP_") == string::npos) return;
 
 	//Handle tower case first
 	if (!selectedAcftData.empty()) {
@@ -476,7 +477,9 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 	//Don't add to vector unless runway is selected and active
 	if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), data.GetArrivalRwy()) == activeMAPPRunways.end()) return;
 
-	missedAcftData.push_back(FlightPlan.GetCallsign());
+	scratchPadString.erase(0, strlen("MISAP_"));
+	controllerData.SetScratchPadString(scratchPadString.c_str());
+;	missedAcftData.push_back(FlightPlan.GetCallsign());
 	missedAcftData.push_back(data.GetDestination());
 	missedAcftData.push_back(data.GetArrivalRwy());
 }
