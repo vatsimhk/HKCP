@@ -8,6 +8,8 @@
 #include <chrono>
 #include <ctime>
 
+//#define PROFILING_PATH 
+
 using namespace EuroScopePlugIn;
 
 AT3Tags::AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR) : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT)
@@ -59,6 +61,17 @@ AT3Tags::AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR) : CPlugIn(E
 		}
 	}
 	catch (...) {} //do nothing, other functions will catch it and return BAD DATA
+
+#ifdef PROFILING_PATH
+	profilingCSV.open(PROFILING_PATH);
+#endif
+}
+
+AT3Tags::~AT3Tags()
+{
+#ifdef PROFILING_PATH
+	profilingCSV.close();
+#endif
 }
 
 string AT3Tags::GetActiveArrRwy(string airport) {
@@ -172,6 +185,10 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 
 	bool isAT3Item = true;
 
+#ifdef PROFILING_PATH
+	auto start = std::chrono::system_clock::now();
+#endif
+
 	*pColorCode = TAG_COLOR_RGB_DEFINED;
 	switch (FlightPlan.GetState()) {
 		case FLIGHT_PLAN_STATE_NON_CONCERNED:
@@ -253,6 +270,13 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 	// Convert string output to character array
 	if (isAT3Item) {
 		strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
+
+#ifdef PROFILING_PATH
+		auto end = std::chrono::system_clock::now();
+		auto elapsed =
+			std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+		profilingCSV << ItemCode << "," << elapsed.count() << endl;
+#endif
 	}
 }
 

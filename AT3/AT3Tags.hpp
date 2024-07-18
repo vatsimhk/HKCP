@@ -11,6 +11,7 @@
 #include "MAESTROapi.h"
 #include <chrono>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 using namespace EuroScopePlugIn;
@@ -22,6 +23,8 @@ class AT3Tags :
 {
 public:
 	AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR);
+
+	~AT3Tags();
 
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
 		CRadarTarget RadarTarget,
@@ -95,4 +98,5 @@ protected:
 	COLORREF colorAssumed;
 	COLORREF colorNotAssumed;
 	COLORREF colorRedundant;
+	ofstream profilingCSV;
 };
