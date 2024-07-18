@@ -170,6 +170,8 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 		return;
 	}
 
+	bool isAT3Item = true;
+
 	*pColorCode = TAG_COLOR_RGB_DEFINED;
 	switch (FlightPlan.GetState()) {
 		case FLIGHT_PLAN_STATE_NON_CONCERNED:
@@ -245,10 +247,13 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 			break;
 		default:
 			tagOutput = "";
+			isAT3Item = false;
 	}
 
 	// Convert string output to character array
-	strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
+	if (isAT3Item) {
+		strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
+	}
 }
 
 void AT3Tags::OnTimer(int Counter) {
