@@ -762,7 +762,7 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 	}
 
 	if (lineStr.length() < 1) {
-		if (arptSet.find(FlightPlan.GetFlightPlanData().GetOrigin()) != arptSet.end && strlen(FlightPlan.GetFlightPlanData().GetSidName()) != 0) {
+		if (arptSet.find(FlightPlan.GetFlightPlanData().GetOrigin()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetSidName()) != 0) {
 			lineStr = FlightPlan.GetFlightPlanData().GetSidName();
 		}
 		else {
