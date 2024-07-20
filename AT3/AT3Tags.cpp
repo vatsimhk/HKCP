@@ -908,9 +908,13 @@ string AT3Tags::GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 
 string AT3Tags::GetFormattedArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
-	if (runway.length() < 3) {
-		runway.insert(runway.length(), 3 - runway.length(), ' ');
+	if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) {
+		string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
+		if (runway.length() < 3) {
+			runway.insert(runway.length(), 3 - runway.length(), ' ');
+		}
+		return runway;
+	} else {
+		return "   ";
 	}
-	return runway;
 }
