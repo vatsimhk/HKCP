@@ -703,7 +703,7 @@ string AT3Tags::GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTa
 				lineStr = lineStr.substr(0, lineStr.find("_"));
 			}
 		}
-		else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+		else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
 			for (auto& rte : rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"].items()) { //matches exact route only for auto assigning route code
 				if (fpRoute.find(rte.value()["route"]) != string::npos) {
 					lineStr = rte.key();
