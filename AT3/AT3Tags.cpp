@@ -703,7 +703,7 @@ string AT3Tags::GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTa
 				lineStr = lineStr.substr(0, lineStr.find("_"));
 			}
 		}
-		else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+		else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
 			for (auto& rte : rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"].items()) { //matches exact route only for auto assigning route code
 				if (fpRoute.find(rte.value()["route"]) != string::npos) {
 					lineStr = rte.key();
@@ -752,7 +752,7 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 			lineStr = lineStr.substr(0, lineStr.find("_"));  //always get route from spad/flight strip in case of version mismatch
 		}
 	}
-	else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+	else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
 		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
 		if (app.find("_") != string::npos) {
 			lineStr = app.substr(0, app.find("_"));
@@ -762,7 +762,7 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 	}
 
 	if (lineStr.length() < 1) {
-		if (strlen(FlightPlan.GetFlightPlanData().GetSidName()) != 0) {
+		if (arptSet.find(FlightPlan.GetFlightPlanData().GetOrigin()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetSidName()) != 0) {
 			lineStr = FlightPlan.GetFlightPlanData().GetSidName();
 		}
 		else {
@@ -787,7 +787,7 @@ string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 			lineStr = lineStr.substr(0, lineStr.find("_"));
 		}
 	}
-	else if (strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+	else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
 		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
 		if (app.find("_") != string::npos) {
 			lineStr = app.substr(0, app.find("_"));
@@ -908,9 +908,13 @@ string AT3Tags::GetVSIndicator(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 
 string AT3Tags::GetFormattedArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
-	string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
-	if (runway.length() < 3) {
-		runway.insert(runway.length(), 3 - runway.length(), ' ');
+	if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) {
+		string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
+		if (runway.length() < 3) {
+			runway.insert(runway.length(), 3 - runway.length(), ' ');
+		}
+		return runway;
+	} else {
+		return "   ";
 	}
-	return runway;
 }
