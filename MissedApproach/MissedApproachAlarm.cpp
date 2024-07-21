@@ -361,13 +361,6 @@ void MissedApproachAlarm::drawIndicatorUnit(HDC hDC, HKCPDisplay* Display) {
 	}
 	else {
 		dc.FillSolidRect(buttonReset, BUTTON_RED_ON);
-		//Check for acknowledgement
-		const char* ackStationBuf = ma.checkForAck(selectedAcftData[0].c_str());
-		if (!selectedAcftData.empty() && ackStationBuf != NULL) {
-			actButtonState = 2;
-			resetButtonState = 1;
-			ackStation = ackStationBuf;
-		}
 	}
 	dc.SelectObject(&fontLabelSmall);
 	dc.SetTextColor(BLACK);
@@ -464,25 +457,31 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 	CFlightPlanControllerAssignedData controllerData = FlightPlan.GetControllerAssignedData();
 	string scratchPadString = controllerData.GetScratchPadString();
 
-	//Filter from scratchpad message
-	if (scratchPadString.find("MISAP_") == string::npos) return;
-
-	//Handle tower case first
-	if (!selectedAcftData.empty()) {
-		if (ma.matchArrivalAirport(selectedAcftData[1].c_str())) {
-			actButtonState = 1;
-			resetButtonState = -1;
+	if (scratchPadString.find("MISAP-ACK_") != string::npos) {
+		//Check for acknowledgement (Tower)
+		if (!selectedAcftData.empty()) {
+			actButtonState = 2;
+			resetButtonState = 1;
+			ackStation = ma.checkForAck(scratchPadString);
 		}
-		return;
+		scratchPadString.erase(0, strlen("MISAP-ACK_AP"));
+		controllerData.SetScratchPadString(scratchPadString.c_str());
 	}
-	//Don't add to vector unless runway is selected and active
-	if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), data.GetArrivalRwy()) == activeMAPPRunways.end()) return;
+	else if (scratchPadString.find("MISAP_") != string::npos) {
+		// Trigger Alarm (TWR)
+		actButtonState = 1;
+		resetButtonState = -1;
 
-	scratchPadString.erase(0, strlen("MISAP_"));
-	controllerData.SetScratchPadString(scratchPadString.c_str());
-;	missedAcftData.push_back(FlightPlan.GetCallsign());
-	missedAcftData.push_back(data.GetDestination());
-	missedAcftData.push_back(data.GetArrivalRwy());
+		// Trigger alarm (APP)
+		scratchPadString.erase(0, strlen("MISAP_"));
+		controllerData.SetScratchPadString(scratchPadString.c_str());
+
+		// Don't add to vector unless runway is selected and active
+		if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), data.GetArrivalRwy()) == activeMAPPRunways.end()) return;
+		missedAcftData.push_back(FlightPlan.GetCallsign());
+		missedAcftData.push_back(data.GetDestination());
+		missedAcftData.push_back(data.GetArrivalRwy());
+	}
 }
 
 //---OnMoveScreenObject---------------------------------------------

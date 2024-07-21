@@ -36,6 +36,6 @@ public:
 
 	bool matchArrivalAirport(const char* arrivalArpt);
 
-	const char* checkForAck(const char* callsign);
+	string checkForAck(string scratchPadString);
 
 };
