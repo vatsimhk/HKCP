@@ -469,9 +469,11 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 	}
 	else if (scratchPadString.find("MISAP_") != string::npos) {
 		// Trigger Alarm (TWR) if selected from tag
-		if (strcmp(selectedAcftData[0].c_str(), FlightPlan.GetCallsign()) == 0) {
-			actButtonState = 1;
-			resetButtonState = -1;
+		if (!selectedAcftData.empty()) {
+			if (strcmp(selectedAcftData[0].c_str(), FlightPlan.GetCallsign()) == 0) {
+				actButtonState = 1;
+				resetButtonState = -1;
+			}
 		}
 
 		// Trigger alarm (APP)
