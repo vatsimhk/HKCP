@@ -33,12 +33,6 @@
     <ClInclude Include="VFPC\analyzeFP.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Atis\AtisPlugin.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Atis\AtisDisplay.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HKCPDisplay.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,12 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VFPC\analyzeFP.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Atis\AtisPlugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Atis\AtisDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HKCPDisplay.cpp">
