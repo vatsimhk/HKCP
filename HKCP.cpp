@@ -8,13 +8,10 @@
 #include "VFPC/analyzeFP.hpp"
 #include "MissedApproach/MissedApproachAlarm.hpp"
 #include "MissedApproach/MissedApproachPlugin.hpp"
-#include "Atis/AtisPlugin.hpp"
-#include "Atis/AtisDisplay.hpp"
 #include "AT3/AT3Tags.hpp"
 
 HKCPPlugin* gpMyPlugin = NULL;
 CVFPCPlugin* VFPC = NULL;
-AtisPlugin* Atis = NULL;
 MissedApproachPlugin* Mapp = NULL;
 AT3Tags* tags = NULL;
 
@@ -30,14 +27,12 @@ HKCPPlugin::HKCPPlugin() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGI
 	colorRedundant = GetTopSkyColorSettings("Color_Redundant", RGB(229, 214, 130));
 	
 	VFPC = new CVFPCPlugin();
-	Atis = new AtisPlugin();
 	Mapp = new MissedApproachPlugin();
 	tags = new AT3Tags(colorAssumed, colorNotAssumed, colorRedundant);
 }
 
 HKCPPlugin::~HKCPPlugin() {
 	delete VFPC;
-	delete Atis;
 	delete Mapp;
 	delete tags;
 }
@@ -138,7 +133,6 @@ void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan
 
 void HKCPPlugin::OnTimer(int Count) {
 	VFPC->OnTimer(Count);
-	Atis->OnTimer(Count);
 	tags->OnTimer(Count);
 }
 
@@ -151,7 +145,7 @@ bool HKCPPlugin::OnCompileCommand(const char* sCommandLine) {
 }
 
 void HKCPPlugin::OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage) {
-	Atis->OnCompilePrivateChat(sSenderCallsign, sReceiverCallsign, sChatMessage);
+
 }
 
 //---EuroScopePlugInExit-----------------------------------------------

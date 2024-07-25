@@ -11,7 +11,6 @@ HKCPDisplay::HKCPDisplay(int CJSLabelSize,
 						 COLORREF colorNA, 
 						 COLORREF colorR)
 {
-	AtisDisp = new AtisDisplay();
 	MissAlarm = new MissedApproachAlarm();
 	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale, colorA, colorNA, colorR);
 
@@ -30,19 +29,16 @@ HKCPDisplay::~HKCPDisplay()
 void HKCPDisplay::OnAsrContentLoaded(bool Loaded)
 {
 	MissAlarm->OnAsrContentLoaded(Loaded);
-	AtisDisp->OnAsrContentLoaded(Loaded);
 }
 
 void HKCPDisplay::OnAsrContentToBeSaved()
 {
 	MissAlarm->OnAsrContentToBeSaved();
-	AtisDisp->OnAsrContentToBeSaved();
 }
 
 void HKCPDisplay::OnRefresh(HDC hDC, int Phase)
 {
 	MissAlarm->OnRefresh(hDC, Phase, this);
-	AtisDisp->OnRefresh(hDC, Phase, this);
 
 	if (isESRadarDisplay) {
 		RadarTargets->OnRefresh(hDC, Phase, this);
@@ -52,7 +48,6 @@ void HKCPDisplay::OnRefresh(HDC hDC, int Phase)
 void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
 {
 	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
-	AtisDisp->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
 
 	if (isESRadarDisplay) {
 		RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button, this);
@@ -62,7 +57,6 @@ void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POI
 void HKCPDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, bool Released)
 {
 	MissAlarm->OnMoveScreenObject(ObjectType, sObjectId, Pt, Area, Released);
-	AtisDisp->OnMoveScreenObject(ObjectType, sObjectId, Pt, Area, Released);
 }
 
 void HKCPDisplay::OnButtonDownScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
@@ -82,8 +76,7 @@ void HKCPDisplay::OnDoubleClickScreenObject(int ObjectType, const char* sObjectI
 }
 
 void HKCPDisplay::OnOverScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area) {
-	AtisDisp->OnOverScreenObject(ObjectType, sObjectId, Pt, Area);
-	RequestRefresh();
+
 }
 
 void HKCPDisplay::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType)
@@ -94,14 +87,12 @@ void HKCPDisplay::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPla
 bool HKCPDisplay::OnCompileCommand(const char* sCommandLine)
 {
 	bool a = MissAlarm->OnCompileCommand(sCommandLine);
-	bool b = AtisDisp->OnCompileCommand(sCommandLine);
-	return a || b;
+	return a;
 }
 
 void HKCPDisplay::OnAsrContentToBeClosed(void)
 {
 	MissAlarm->OnAsrContentToBeClosed();
-	AtisDisp->OnAsrContentToBeClosed();
 	RadarTargets->OnAsrContentToBeClosed();
 	delete this;
 };

@@ -21,8 +21,6 @@
   <ItemGroup>
     <ClInclude Include="AT3\AT3RadarTargetDisplay.hpp" />
     <ClInclude Include="AT3\AT3Tags.hpp" />
-    <ClInclude Include="Atis\AtisDisplay.hpp" />
-    <ClInclude Include="Atis\AtisPlugin.hpp" />
     <ClInclude Include="Constant.hpp" />
     <ClInclude Include="HKCP.hpp" />
     <ClInclude Include="HKCPDisplay.hpp" />
@@ -35,8 +33,6 @@
   <ItemGroup>
     <ClCompile Include="AT3\AT3RadarTargetDisplay.cpp" />
     <ClCompile Include="AT3\AT3Tags.cpp" />
-    <ClCompile Include="Atis\AtisDisplay.cpp" />
-    <ClCompile Include="Atis\AtisPlugin.cpp" />
     <ClCompile Include="HKCP.cpp" />
     <ClCompile Include="HKCPDisplay.cpp" />
     <ClCompile Include="MissedApproach\MissedApproachAlarm.cpp" />

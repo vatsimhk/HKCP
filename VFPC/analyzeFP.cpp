@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "analyzeFP.hpp"
 #include "EuroScopePlugIn.h"
-#include "Atis/AtisPlugin.hpp"
 #include <time.h> 
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
@@ -1182,9 +1181,6 @@ pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 }
 
 void CVFPCPlugin::OnTimer(int Counter) {
-	AtisPlugin atis;
-	atis.OnTimer(Counter);
-	
 	blink = !blink;
 
 	if (blink) {

@@ -1,7 +1,6 @@
 #pragma once
 #include "stdafx.h"
 #include "EuroScopePlugIn.h"
-#include "Atis/AtisDisplay.hpp"
 #include "MissedApproach/MissedApproachAlarm.hpp"
 #include "AT3/AT3RadarTargetDisplay.hpp"
 #include "Constant.hpp"
@@ -17,14 +16,12 @@
 using namespace std;
 using namespace EuroScopePlugIn;
 
-class AtisDisplay;
 class MissedApproachAlarm;
 
 class HKCPDisplay :
 	public EuroScopePlugIn::CRadarScreen
 {
 private:
-	AtisDisplay* AtisDisp;
 	MissedApproachAlarm* MissAlarm;
 	AT3RadarTargetDisplay* RadarTargets;
 	bool isESRadarDisplay;
