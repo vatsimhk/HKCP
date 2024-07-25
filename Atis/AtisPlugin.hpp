@@ -5,6 +5,10 @@
 #include "AtisDisplay.hpp"
 #include <vector>
 #include <string>	
+#include <thread>
+#include <mutex>
+#include <shared_mutex>
+#include <atomic>
 
 
 using namespace std;
@@ -28,4 +32,17 @@ public:
 	virtual void OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage);
 
 	void GetDataFeedATIS();
+
+	static AtisPlugin& GetInstance() {
+		static AtisPlugin instance;
+		return instance;
+	}
+
+private:
+	// threading by task
+	std::thread sync_thread;
+	std::thread update_check_thread;
+	std::atomic<bool> stop_requested;
+
+	void GetDataFeedATISAsync();
 };

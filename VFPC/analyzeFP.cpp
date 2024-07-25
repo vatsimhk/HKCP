@@ -1182,8 +1182,7 @@ pair<string, int> CVFPCPlugin::getFails(map<string, string> messageBuffer) {
 }
 
 void CVFPCPlugin::OnTimer(int Counter) {
-	AtisPlugin atis;
-	atis.OnTimer(Counter);
+	AtisPlugin::GetInstance().OnTimer(Counter);
 	
 	blink = !blink;
 

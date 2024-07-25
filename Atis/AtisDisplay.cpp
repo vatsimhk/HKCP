@@ -203,8 +203,7 @@ void AtisDisplay::OnMoveScreenObject(int ObjectType, const char* sObjectId, POIN
 
 void AtisDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button) {
 	if (ObjectType == SYNC_BUTTON && Button == BUTTON_LEFT) {
-		AtisPlugin atis;
-		atis.GetDataFeedATIS();
+		AtisPlugin::GetInstance().GetDataFeedATIS();
 		atisLetters = AtisPlugin::atisLettersDatafeed;
 		return;
 	}

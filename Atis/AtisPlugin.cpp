@@ -11,6 +11,7 @@ using namespace rapidjson;
 using namespace EuroScopePlugIn;
 
 vector<string> AtisPlugin::atisLettersDatafeed = { "-", "-", "-", "-" };
+std::atomic<bool> stop_requested(false);
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response)
 {
@@ -20,18 +21,20 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* res
 }
 
 AtisPlugin::AtisPlugin() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT) {
-
+    sync_thread = std::thread(&AtisPlugin::GetDataFeedATISAsync,this);
+    sync_thread.detach();
 }
 
 AtisPlugin::~AtisPlugin() {
-
+    stop_requested.store(true);
+    if (sync_thread.joinable()) {
+        sync_thread.join();
+    }
 }
 
 void AtisPlugin::OnTimer(int Count) {
     if (Count % 15 != 0)
         return;
-
-    GetDataFeedATIS();
 
     for (int i = 0; i <= 3; i++) {
         if (atisLettersDatafeed[i] == "Z" && AtisDisplay::atisLetters[i] == "A") {
@@ -99,6 +102,13 @@ void AtisPlugin::GetDataFeedATIS() {
         if (strcmp(callsign.c_str(), "VHHX_ATIS") == 0) {
             atisLettersDatafeed[3] = letter;
         }
+    }
+}
+
+void AtisPlugin::GetDataFeedATISAsync() {
+    while (!stop_requested.load()) {
+        GetDataFeedATIS();
+        std::this_thread::sleep_for(std::chrono::seconds(15));
     }
 }
 
