@@ -734,11 +734,14 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 		}
 	}
 	else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
-		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
-		if (app.find("_") != string::npos) {
-			lineStr = app.substr(0, app.find("_"));
-			string spadItem = "/A/" + app + "/A//";
-			FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+		vector<string> appsVec = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy());
+		if (appsVec.size() > 0) {
+			string app = appsVec[0]; //selects default app if no assignment, which is [0]
+			if (app.find("_") != string::npos) {
+				lineStr = app.substr(0, app.find("_"));
+				string spadItem = "/A/" + app + "/A//";
+				FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+			}
 		}
 	}
 
@@ -769,11 +772,14 @@ string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 		}
 	}
 	else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
-		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
-		if (app.find("_") != string::npos) {
-			lineStr = app.substr(0, app.find("_"));
-			string spadItem = "/A/" + app + "/A//";
-			FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+		vector<string> appsVec = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy());
+		if (appsVec.size() > 0) {
+			string app = appsVec[0]; //selects default app if no assignment, which is [0]
+			if (app.find("_") != string::npos) {
+				lineStr = app.substr(0, app.find("_"));
+				string spadItem = "/A/" + app + "/A//";
+				FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+			}
 		}
 	}
 
