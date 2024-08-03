@@ -24,6 +24,7 @@ bool CSTCA::IsSTCA(string cs)
 void CSTCA::OnTimer(CPlugIn * pl)
 {
 	Alerts.clear();
+	mediumAlerts.clear();
 
 	CRadarTarget rt;
 	for (rt = pl->RadarTargetSelectFirst();
@@ -88,7 +89,7 @@ void CSTCA::OnTimer(CPlugIn * pl)
 				continue;
 			}
 				
-			for (int i = 30; i <= time_to_extrapolate; i += 30)
+			for (int i = 30; i <= medium_time_to_extrapolate; i += 30)
 			{
 				CPosition ex1 = Extrapolate(rt.GetPosition().GetPosition(), rt.GetTrackHeading(), double(rt.GetPosition().GetReportedGS()*0.514444)*(i));
 				CPosition ex2 = Extrapolate(conflicting.GetPosition().GetPosition(), conflicting.GetTrackHeading(), double(conflicting.GetPosition().GetReportedGS()*0.514444)*(i));
@@ -121,10 +122,22 @@ void CSTCA::OnTimer(CPlugIn * pl)
 				if (ex1.DistanceTo(ex2) < separation_distance &&
 					abs(alt1 - alt2) < altitude_sep)
 				{
-					if (std::find(Alerts.begin(), Alerts.end(), rt.GetCallsign()) == Alerts.end())
-						Alerts.push_back(rt.GetCallsign());
-					if (std::find(Alerts.begin(), Alerts.end(), conflicting.GetCallsign()) == Alerts.end())
-						Alerts.push_back(conflicting.GetCallsign());
+					if (std::find(Alerts.begin(), Alerts.end(), rt.GetCallsign()) == Alerts.end()) {
+						if (i <= time_to_extrapolate) {
+							Alerts.push_back(rt.GetCallsign());
+						}
+						else {
+							mediumAlerts.push_back(rt.GetCallsign());
+						}
+					}
+					if (std::find(Alerts.begin(), Alerts.end(), conflicting.GetCallsign()) == Alerts.end()) {
+						if (i <= time_to_extrapolate) {
+							Alerts.push_back(conflicting.GetCallsign());
+						}
+						else {
+							mediumAlerts.push_back(conflicting.GetCallsign());
+						}
+					}
 					break;
 				}
 			}

@@ -36,6 +36,8 @@ public:
 
 	string GetControllerIdFromCallsign(string callsign);
 
+	void drawConflictChevrons(vector<string> acftCallsigns, Color alertColor, Graphics& g, HKCPDisplay* Display);
+
 	//  This gets called before OnAsrContentToBeSaved()
 	inline virtual void OnAsrContentToBeClosed(void)
 	{
