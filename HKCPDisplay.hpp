@@ -3,6 +3,7 @@
 #include "EuroScopePlugIn.h"
 #include "MissedApproach/MissedApproachAlarm.hpp"
 #include "AT3/AT3RadarTargetDisplay.hpp"
+#include "STCA/STCA.h"
 #include "Constant.hpp"
 #include <sstream>
 #include <vector>
@@ -26,15 +27,17 @@ private:
 	AT3RadarTargetDisplay* RadarTargets;
 	bool isESRadarDisplay;
 public:
+	CSTCA* STCA;
 
-	HKCPDisplay(int CJSLabelSize, 
-				int CJSLabelOffset, 
-				bool CJSLabelShowWhenTracked, 
-				double PlaneIconScale, 
-				string RadarDisplayType, 
-				COLORREF colorA, 
-				COLORREF colorNA, 
-				COLORREF colorR);
+	HKCPDisplay(int CJSLabelSize,
+		int CJSLabelOffset,
+		bool CJSLabelShowWhenTracked,
+		double PlaneIconScale,
+		string RadarDisplayType,
+		COLORREF colorA,
+		COLORREF colorNA,
+		COLORREF colorR,
+		CSTCA* _STCA);
 
 	virtual ~HKCPDisplay();
 

@@ -9,7 +9,8 @@ HKCPDisplay::HKCPDisplay(int CJSLabelSize,
 						 string RadarDisplayType, 
 						 COLORREF colorA, 
 						 COLORREF colorNA, 
-						 COLORREF colorR)
+						 COLORREF colorR,
+						 CSTCA* _STCA)
 {
 	MissAlarm = new MissedApproachAlarm();
 	RadarTargets = new AT3RadarTargetDisplay(CJSLabelSize, CJSLabelOffset, CJSLabelShowWhenTracked, PlaneIconScale, colorA, colorNA, colorR);
@@ -20,6 +21,8 @@ HKCPDisplay::HKCPDisplay(int CJSLabelSize,
 	else {
 		isESRadarDisplay = false;
 	}
+
+	STCA = _STCA;
 }
 
 HKCPDisplay::~HKCPDisplay()

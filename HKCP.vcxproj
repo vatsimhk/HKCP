@@ -26,6 +26,7 @@
     <ClInclude Include="HKCPDisplay.hpp" />
     <ClInclude Include="MissedApproach\MissedApproachAlarm.hpp" />
     <ClInclude Include="MissedApproach\MissedApproachPlugin.hpp" />
+    <ClInclude Include="STCA\STCA.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="VFPC\analyzeFP.hpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="HKCPDisplay.cpp" />
     <ClCompile Include="MissedApproach\MissedApproachAlarm.cpp" />
     <ClCompile Include="MissedApproach\MissedApproachPlugin.cpp" />
+    <ClCompile Include="STCA\STCA.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>

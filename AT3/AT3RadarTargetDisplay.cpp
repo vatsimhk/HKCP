@@ -195,6 +195,37 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		acft = GetPlugIn()->RadarTargetSelectNext(acft);
 	}
 
+	vector<string> conflictAircrafts = Display->STCA->Alerts;
+	for (auto& callsign : conflictAircrafts) {
+		// Setup container
+		GraphicsContainer gContainer = g.BeginContainer();
+
+		// Define STCA Chevron Graphics
+		Pen CAPen(STCA_RED, 1.5f);
+		Point chevronLeft[3] = {
+			Point(-10, 10),
+			Point(-16, 1),
+			Point(-10, -8)
+		};
+		Point chevronRight[3] = {
+			Point(10, 10),
+			Point(16, 1),
+			Point(10, -8)
+		};
+
+		// Select radar target
+		acft = GetPlugIn()->RadarTargetSelect(callsign.c_str());
+		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
+
+		// Draw STCA chevrons
+		g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
+		g.DrawLines(&CAPen, chevronLeft, 3);
+		g.DrawLines(&CAPen, chevronRight, 3);
+		g.ResetTransform();
+
+		g.EndContainer(gContainer);
+	}
+
 	// Restore context
 	dc.RestoreDC(sDC);
 

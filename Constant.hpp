@@ -94,6 +94,7 @@ const COLORREF DEFAULT_UNCONCERNED = RGB(117, 132, 142);
 const COLORREF DEFAULT_REDUNDANT = RGB(229, 214, 130);
 const Gdiplus::Color OVERRIDE_AIW = Gdiplus::Color(255, 158, 112);
 const Gdiplus::Color OVERRIDE_EMER = Gdiplus::Color(255, 0, 0);
+const Gdiplus::Color STCA_RED = Gdiplus::Color(255, 0, 0);
 
 inline static bool startsWith(const char *pre, const char *str)
 {

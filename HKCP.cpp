@@ -9,11 +9,13 @@
 #include "MissedApproach/MissedApproachAlarm.hpp"
 #include "MissedApproach/MissedApproachPlugin.hpp"
 #include "AT3/AT3Tags.hpp"
+#include "STCA/STCA.h"
 
 HKCPPlugin* gpMyPlugin = NULL;
-CVFPCPlugin* VFPC = NULL;
-MissedApproachPlugin* Mapp = NULL;
-AT3Tags* tags = NULL;
+CVFPCPlugin* VFPC;
+MissedApproachPlugin* Mapp;
+AT3Tags* tags;
+CSTCA* STCA;
 
 void    __declspec (dllexport)    EuroScopePlugInInit(EuroScopePlugIn::CPlugIn** ppPlugInInstance)
 {
@@ -29,12 +31,14 @@ HKCPPlugin::HKCPPlugin() : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGI
 	VFPC = new CVFPCPlugin();
 	Mapp = new MissedApproachPlugin();
 	tags = new AT3Tags(colorAssumed, colorNotAssumed, colorRedundant);
+	STCA = new CSTCA();
 }
 
 HKCPPlugin::~HKCPPlugin() {
 	delete VFPC;
 	delete Mapp;
 	delete tags;
+	delete STCA;
 }
 
 COLORREF HKCPPlugin::GetTopSkyColorSettings(string settingName, COLORREF defaultColor)
@@ -107,14 +111,15 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 		SaveDataToSettings("PlaneIconScale", "PlaneIconScale", to_string(PlaneIconScale).c_str());
 	}
 
-	return new HKCPDisplay(CJSLabelSize, 
-						   CJSLabelOffset, 
-						   CJSLabelShowWhenTracked, 
-						   PlaneIconScale, 
-						   sDisplayName, 
-						   colorAssumed, 
-						   colorNotAssumed, 
-						   colorRedundant);
+	return new HKCPDisplay(CJSLabelSize,
+		CJSLabelOffset,
+		CJSLabelShowWhenTracked,
+		PlaneIconScale,
+		sDisplayName,
+		colorAssumed,
+		colorNotAssumed,
+		colorRedundant,
+		STCA);
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
@@ -134,6 +139,7 @@ void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan
 void HKCPPlugin::OnTimer(int Count) {
 	VFPC->OnTimer(Count);
 	tags->OnTimer(Count);
+	STCA->OnTimer(this);
 }
 
 void HKCPPlugin::OnFlightPlanDisconnect(CFlightPlan FlightPlan) {
