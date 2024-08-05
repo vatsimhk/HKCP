@@ -11,6 +11,8 @@
 #include "MAESTROapi.h"
 #include <chrono>
 #include <ctime>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 using namespace std;
 using namespace EuroScopePlugIn;
@@ -95,4 +97,20 @@ protected:
 	COLORREF colorAssumed;
 	COLORREF colorNotAssumed;
 	COLORREF colorRedundant;
+
+private:
+	template <typename Out>
+	void split(const string& s, char delim, Out result) {
+		istringstream iss(s);
+		string item;
+		while (getline(iss, item, delim)) {
+			*result++ = item;
+		}
+	}
+
+	vector<string> split(const string& s, char delim) {
+		vector<string> elems;
+		split(s, delim, back_inserter(elems));
+		return elems;
+	}
 };
