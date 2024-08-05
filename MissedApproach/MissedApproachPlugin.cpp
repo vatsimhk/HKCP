@@ -52,11 +52,10 @@ void MissedApproachPlugin::ackMissedApproach(const char* callsign) {
 	data = fpl.GetFlightPlanData();
 	controllerData = fpl.GetControllerAssignedData();
 
-	string buf = controllerData.GetScratchPadString();
-	buf.append("MISAP-ACK_");
+	string buf = "MISAP-ACK_";
 	buf.append(myself.GetPositionId());
+	buf.append(controllerData.GetScratchPadString());
 	controllerData.SetScratchPadString(buf.c_str());
-	//couldn't find it, handle error
 }
 
 void MissedApproachPlugin::resetMissedApproach(const char* callsign) {
@@ -118,5 +117,6 @@ bool MissedApproachPlugin::matchArrivalAirport(const char* arrivalArpt) {
 }
 
 string MissedApproachPlugin::checkForAck(string scratchPadString) {
-	return scratchPadString.substr(10, 2);
+	auto it = scratchPadString.find("MISAP-ACK_");
+	return scratchPadString.substr(it + 10, 2);
 }
