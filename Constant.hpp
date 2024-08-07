@@ -3,7 +3,7 @@
 #include <gdiplus.h>
 
 #define MY_PLUGIN_NAME      "HKCP"
-#define MY_PLUGIN_VERSION   "2.0.1"
+#define MY_PLUGIN_VERSION   "2.0.2"
 #define MY_PLUGIN_DEVELOPER "HKvACC, Jan Fries, Hendrik Peter, Sven Czarnian"
 #define MY_PLUGIN_COPYRIGHT "GPL v3"
 #define MY_PLUGIN_VIEW_AVISO  "Hong Kong Controller Plugin"
