@@ -476,11 +476,11 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 			}
 		}
 
-		// Trigger alarm (APP)
+		// Clear Scratchpad
 		scratchPadString.erase(0, strlen("MISAP_"));
 		controllerData.SetScratchPadString(scratchPadString.c_str());
 
-		// Don't add to vector unless runway is selected and active
+		// Don't Trigger alarm (APP) unless runway is selected and active
 		if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), data.GetArrivalRwy()) == activeMAPPRunways.end()) return;
 		missedAcftData.push_back(FlightPlan.GetCallsign());
 		missedAcftData.push_back(data.GetDestination());
