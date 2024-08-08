@@ -249,14 +249,14 @@ void AT3RadarTargetDisplay::drawConflictChevrons(vector<string> acftCallsigns, C
 		// Define STCA Chevron Graphics
 		Pen CAPen(alertColor, 1.5f);
 		Point chevronLeft[3] = {
-			Point(-10, 10),
-			Point(-16, 1),
-			Point(-10, -8)
+			Point(-10, 9),
+			Point(-15, 1),
+			Point(-10, -7)
 		};
 		Point chevronRight[3] = {
-			Point(10, 10),
-			Point(16, 1),
-			Point(10, -8)
+			Point(10, 9),
+			Point(15, 1),
+			Point(10, -7)
 		};
 
 		// Select radar target
