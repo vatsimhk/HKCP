@@ -7,6 +7,8 @@
 #include <array>
 #include <chrono>
 #include <ctime>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 using namespace EuroScopePlugIn;
 
@@ -671,7 +673,6 @@ string AT3Tags::GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTa
 	string spadCurrent = FlightPlan.GetControllerAssignedData().GetScratchPadString();
 	string flightStrip = FlightPlan.GetControllerAssignedData().GetFlightStripAnnotation(3);
 	string runway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
-	string fpRoute = FlightPlan.GetFlightPlanData().GetRoute();
 	string lineStr;
  
 	size_t startContainer = flightStrip.find("/R/");
@@ -685,6 +686,18 @@ string AT3Tags::GetRouteCodeLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTa
 			}
 		}
 		else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
+
+			// resolve flightplan route and remove stepclimb info to avoid the interference
+			vector<string> route = split(FlightPlan.GetFlightPlanData().GetRoute(), ' ');
+			string fpRoute = "";
+			for (std::size_t i = 0; i < route.size(); i++) {
+				if (i != 0 && i != route.size()) {
+					route[i] = route[i].substr(0, route[i].find_first_of('/'));
+				}
+				boost::to_upper(route[i]);
+				fpRoute = fpRoute + route[i] + " ";
+			}
+
 			for (auto& rte : rteJson[FlightPlan.GetFlightPlanData().GetDestination()][runway.substr(0, 2)]["routes"].items()) { //matches exact route only for auto assigning route code
 				if (fpRoute.find(rte.value()["route"]) != string::npos) {
 					lineStr = rte.key();
@@ -734,11 +747,14 @@ string AT3Tags::GetAPPDEPLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarge
 		}
 	}
 	else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
-		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
-		if (app.find("_") != string::npos) {
-			lineStr = app.substr(0, app.find("_"));
-			string spadItem = "/A/" + app + "/A//";
-			FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+		vector<string> appsVec = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy());
+		if (appsVec.size() > 0) {
+			string app = appsVec[0]; //selects default app if no assignment, which is [0]
+			if (app.find("_") != string::npos) {
+				lineStr = app.substr(0, app.find("_"));
+				string spadItem = "/A/" + app + "/A//";
+				FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+			}
 		}
 	}
 
@@ -769,11 +785,14 @@ string AT3Tags::GetAMCLine4(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 		}
 	}
 	else if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end() && strlen(FlightPlan.GetFlightPlanData().GetArrivalRwy()) != 0) {
-		string app = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy())[0]; //selects default app if no assignment, which is [0]
-		if (app.find("_") != string::npos) {
-			lineStr = app.substr(0, app.find("_"));
-			string spadItem = "/A/" + app + "/A//";
-			FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+		vector<string> appsVec = GetAvailableApps(FlightPlan.GetFlightPlanData().GetDestination(), FlightPlan.GetFlightPlanData().GetArrivalRwy());
+		if (appsVec.size() > 0) {
+			string app = appsVec[0]; //selects default app if no assignment, which is [0]
+			if (app.find("_") != string::npos) {
+				lineStr = app.substr(0, app.find("_"));
+				string spadItem = "/A/" + app + "/A//";
+				FlightPlan.GetControllerAssignedData().SetFlightStripAnnotation(2, spadItem.c_str());
+			}
 		}
 	}
 
