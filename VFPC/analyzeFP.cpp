@@ -93,6 +93,28 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 	strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
 }
 
+void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area)
+{
+	CFlightPlan FlightPlan = FlightPlanSelectASEL();
+	if (!FlightPlan.IsValid()) {
+		return;
+	}
+
+	string callsign = FlightPlan.GetCallsign();
+
+	switch(FunctionId) {
+	case TAG_FUNC_CHECKFP_MENU:
+		OpenPopupList(Area, "Check FP Menu", 1);
+		AddPopupListElement("Check FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, 2, false);
+		break;
+	case TAG_FUNC_CHECKFP_FLAS:
+		sendMessage("Valid FLs for " + callsign, VFPCFPData[callsign].FLASMessage);
+		break;
+	default:
+		break;
+	}
+}
+
 
 /*
 	Custom Functions
@@ -202,7 +224,14 @@ string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidD
 	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
 	string destination = flightPlan.GetFlightPlanData().GetDestination();
+	string callsign = flightPlan.GetCallsign();
 	int rfl = flightPlan.GetFlightPlanData().GetFinalAltitude();
+
+	if (VFPCFPData.find(callsign) == VFPCFPData.end()) {
+		ValidationInfo info;
+		VFPCFPData[callsign] = info;
+	}
+
 
 	// Step 1: Match the departure airport
 	for (const auto& airportEntry : sidData) {
@@ -219,6 +248,8 @@ string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidD
 				for (const auto& rule : sidEntry.value()) {
 					string result = ValidateRules(rule, destination, flightRoute, rfl);
 					if (result == "OK" || result == "FLR") {
+						VFPCFPData[callsign].FLASMessage = rule["FLAS"].get<string>();
+						VFPCFPData[callsign].errorCode = result;
 						return result; // Return result immediately if found
 					}
 				}
@@ -226,6 +257,8 @@ string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidD
 		}
 	}
 
+	VFPCFPData[callsign].errorCode = "CHK";
+	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
 	return "CHK"; // No matching route or SID found
 }
 

@@ -7,11 +7,18 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <nlohmann/json.hpp>
 
 using namespace std;
 using namespace EuroScopePlugIn;
 using json = nlohmann::json;
+
+struct ValidationInfo {
+	string errorCode;
+	string FLASMessage;
+	string errorMessage;
+};
 
 class CVFPCPlugin :
 	public EuroScopePlugIn::CPlugIn
@@ -28,6 +35,11 @@ public:
 		int* pColorCode,
 		COLORREF* pRGB,
 		double* pFontSize);
+
+	virtual void    OnFunctionCall(int FunctionId,
+		const char* sItemString,
+		POINT Pt,
+		RECT Area);
 
 	void sendMessage(string type, string message);
 
@@ -47,5 +59,6 @@ public:
 
 protected:
 	json sidData;
+	unordered_map<string, ValidationInfo> VFPCFPData;
 };
 

@@ -118,7 +118,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
-	//VFPC->OnFunctionCall(FunctionId, ItemString, Pt, Area);
+	VFPC->OnFunctionCall(FunctionId, ItemString, Pt, Area);
 	tags->OnFunctionCall(FunctionId, ItemString, Pt, Area);
 }
 
