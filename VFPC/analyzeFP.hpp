@@ -20,6 +20,15 @@ public:
 	CVFPCPlugin();
 	virtual ~CVFPCPlugin();
 
+	virtual void OnGetTagItem(CFlightPlan FlightPlan,
+		CRadarTarget RadarTarget,
+		int ItemCode,
+		int TagData,
+		char sItemString[16],
+		int* pColorCode,
+		COLORREF* pRGB,
+		double* pFontSize);
+
 	void sendMessage(string type, string message);
 
 	void sendMessage(string message);
@@ -32,9 +41,11 @@ public:
 
 	string CheckAltitude(int rfl, const json& rules);
 
+	string ValidateRules(const json& rule, const string& destination, const string& route, int rfl);
+
 	string ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
 protected:
-
+	json sidData;
 };
 

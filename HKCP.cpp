@@ -118,7 +118,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
-	VFPC->OnFunctionCall(FunctionId, ItemString, Pt, Area);
+	//VFPC->OnFunctionCall(FunctionId, ItemString, Pt, Area);
 	tags->OnFunctionCall(FunctionId, ItemString, Pt, Area);
 }
 
@@ -128,20 +128,21 @@ void HKCPPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, 
 }
 
 void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
-	tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
+	//tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
 }
 
 void HKCPPlugin::OnTimer(int Count) {
-	VFPC->OnTimer(Count);
+	//VFPC->OnTimer(Count);
 	tags->OnTimer(Count);
 }
 
 void HKCPPlugin::OnFlightPlanDisconnect(CFlightPlan FlightPlan) {
-	VFPC->OnFlightPlanDisconnect(FlightPlan);
+	//VFPC->OnFlightPlanDisconnect(FlightPlan);
 }
 
 bool HKCPPlugin::OnCompileCommand(const char* sCommandLine) {
-	return VFPC->OnCompileCommand(sCommandLine);
+	//return VFPC->OnCompileCommand(sCommandLine);
+	return false;
 }
 
 void HKCPPlugin::OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage) {
