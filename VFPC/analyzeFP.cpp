@@ -166,7 +166,7 @@ string CVFPCPlugin::CheckAltitude(int rfl, const json& rules)
 
 string CVFPCPlugin::ValidateRules(const json& rule, const string& destination, const string& route, int rfl)
 {
-	sendMessage("Processing Rule " + rule.dump());
+	//sendMessage("Processing Rule " + rule.dump());
 	
 	try {
 		if (!IsDestinationMatch(destination, rule)) {
