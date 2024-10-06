@@ -59,6 +59,7 @@ const int TAG_FUNC_CHECKFP_FLAS = 103;
 const int TAG_FUNC_FL_UP = 104;
 const int TAG_FUNC_FL_DOWN = 105;
 const int TAG_FUNC_MODRFL_MENU = 106;
+const int TAG_FUNC_SET_SID = 107;
 
 const int DRAWING_APPWINDOW = 1211;
 const int ACK_BUTTON = 1212;
