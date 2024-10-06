@@ -75,9 +75,22 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 		IsVFPCItem = false;
 	}
 
-	if (IsVFPCItem) {
-		strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
+
+	if (!IsVFPCItem) {
+		return;
 	}
+
+	*pColorCode = TAG_COLOR_RGB_DEFINED;
+	if (tagOutput == "OK") {
+		*pRGB = TAG_GREEN;
+	}
+	else if (tagOutput == "CHK") {
+		*pRGB = TAG_RED;
+	}
+	else {
+		*pRGB = TAG_YELLOW;
+	}
+	strcpy_s(sItemString, 16, tagOutput.substr(0, 15).c_str());
 }
 
 
