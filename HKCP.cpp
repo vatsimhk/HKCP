@@ -128,7 +128,7 @@ void HKCPPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, 
 }
 
 void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
-	//tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
+	tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
 }
 
 void HKCPPlugin::OnTimer(int Count) {
