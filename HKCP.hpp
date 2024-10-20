@@ -41,6 +41,8 @@ public:
 
 	virtual void OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage);
 
+	virtual void OnAirportRunwayActivityChanged();
+
 	COLORREF colorAssumed;
 	COLORREF colorNotAssumed;
 	COLORREF colorRedundant;

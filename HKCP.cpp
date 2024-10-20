@@ -149,6 +149,12 @@ void HKCPPlugin::OnCompilePrivateChat(const char* sSenderCallsign, const char* s
 
 }
 
+void HKCPPlugin::OnAirportRunwayActivityChanged()
+{
+	VFPC->OnAirportRunwayActivityChanged();
+	Mapp->OnAirportRunwayActivityChanged();
+}
+
 //---EuroScopePlugInExit-----------------------------------------------
 
 void    __declspec (dllexport)    EuroScopePlugInExit(void)

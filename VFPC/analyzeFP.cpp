@@ -117,6 +117,9 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 	case TAG_FUNC_CHECKFP_FLAS:
 		sendMessage("Valid FLs for " + callsign, VFPCFPData[callsign].FLASMessage);
 		break;
+	case TAG_FUNC_SET_SID:
+		AutoAssignSid(FlightPlan, sidData);
+		break;
 	default:
 		break;
 	}
@@ -224,6 +227,10 @@ string CVFPCPlugin::CheckAltitude(int rfl, const json& rules)
 string CVFPCPlugin::ValidateRules(const json& rule, const string& destination, const string& route, int rfl)
 {
 	//sendMessage("Processing Rule " + rule.dump());
+
+	if (rule.contains("sid_07") || rule.contains("sid_25")) {
+		return "CHK";
+	}
 	
 	try {
 		if (!IsDestinationMatch(destination, rule)) {
@@ -300,6 +307,85 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 	// If we get here then no valid check was found
 	VFPCFPData[callsign].errorCode = "CHK";
 	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
+}
+
+void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData)
+{
+	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
+	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
+	string destination = flightPlan.GetFlightPlanData().GetDestination();
+	string callsign = flightPlan.GetCallsign();
+
+	for (const auto& airportEntry : sidData) {
+		if (airportEntry["icao"].get<string>() != departureAirport) {
+			continue; // Skip if the departure airport doesn't match
+		}
+
+
+		for (const auto& sidEntry : airportEntry["sids"].items()) {
+			string sidWaypoint = sidEntry.key();
+			if (flightRoute.find(sidWaypoint) == string::npos) {
+				continue;
+			}
+
+			const auto rule = sidEntry.value()[0];
+			if (!rule.contains("sid_07") || !rule.contains("sid_25")) {
+				continue;
+			}
+
+			time_t curr_time;
+			curr_time = time(NULL);
+			tm* tm_gmt = gmtime(&curr_time);
+
+			vector<string> sidList;
+			if (tm_gmt->tm_hour >= 15 && tm_gmt->tm_hour <= 23) {
+				sidList = rule["sid_noise"].get<vector<string>>();
+			}
+			else {
+				sidList = rule["sid_07"].get<vector<string>>();
+				vector<string> sidList25 = rule["sid_25"].get<vector<string>>();
+				sidList.insert(sidList.begin(), sidList25.begin(), sidList25.end());
+			}
+
+
+			for (const string& sid : sidList) {
+				// Extract runway from SID and check if that runway is active
+				string rwy = sid.substr(8, 3);
+				if (find(activeDepRunways.begin(), activeDepRunways.end(), rwy) != activeDepRunways.end()) {
+					// Insert first SID that matches departure ruinway
+					InsertSidFlightPlan(flightPlan, sid, sidWaypoint);
+					break;
+				}
+			}
+
+			sendMessage(rule.dump());
+			return;
+		}
+	}
+
+	sendMessage("Unable to auto assign SID");
+}
+
+void CVFPCPlugin::InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint)
+{
+	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
+	size_t pos = flightRoute.find(sidWaypoint + " ");
+
+	if (pos != string::npos) {
+		flightRoute.erase(0, pos);
+	}
+
+	if (sidWaypoint.length() >= 5) {
+		// Insert SID/RWY
+		flightRoute.insert(0, sid + " ");
+	}
+	else {
+		// Insert SID/RWY WAYPOINT, e.g. DALOL1X/07R DALOL
+		flightRoute.insert(0, sid + " " + sid.substr(0, 5) + " ");
+	}
+
+	flightPlan.GetFlightPlanData().SetRoute(flightRoute.c_str());
+	flightPlan.GetFlightPlanData().AmendFlightPlan();
 }
 
 void CVFPCPlugin::UpdateActiveDepRunways()

@@ -59,11 +59,16 @@ public:
 
 	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
+	void AutoAssignSid(CFlightPlan& flightPlan, const json& sidData);
+
+	void InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint);
+
 	void UpdateActiveDepRunways();
 
 protected:
 	json sidData;
 	unordered_map<string, ValidationInfo> VFPCFPData;
 	vector<string> activeDepRunways;
+	string hongKongConf;
 };
 
