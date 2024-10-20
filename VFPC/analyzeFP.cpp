@@ -69,7 +69,8 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 
 	switch (ItemCode) {
 	case TAG_ITEM_FPCHECK:
-		tagOutput = ValidateFlightPlan(FlightPlan, sidData);
+		ValidateFlightPlan(FlightPlan, sidData);
+		tagOutput = VFPCFPData[FlightPlan.GetCallsign()].errorCode;
 		break;
 	default:
 		IsVFPCItem = false;
@@ -248,8 +249,13 @@ string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidD
 				for (const auto& rule : sidEntry.value()) {
 					string result = ValidateRules(rule, destination, flightRoute, rfl);
 					if (result == "OK" || result == "FLR") {
-						VFPCFPData[callsign].FLASMessage = rule["FLAS"].get<string>();
 						VFPCFPData[callsign].errorCode = result;
+						if (rule.contains("FLAS")) {
+							VFPCFPData[callsign].FLASMessage = rule["FLAS"].get<string>();
+						}
+						else {
+							VFPCFPData[callsign].FLASMessage = "No valid FLAS message found";
+						}
 						return result; // Return result immediately if found
 					}
 				}
