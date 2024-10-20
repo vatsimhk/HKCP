@@ -55,7 +55,7 @@ public:
 
 	string ValidateRules(const json& rule, const string& destination, const string& route, int rfl);
 
-	string ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
+	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
 protected:
 	json sidData;

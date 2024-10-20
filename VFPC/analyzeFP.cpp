@@ -88,6 +88,9 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 	else if (tagOutput == "CHK") {
 		*pRGB = TAG_RED;
 	}
+	else if (tagOutput == "VFR" || tagOutput == "LIFR") {
+		*pRGB = TAG_CYAN;
+	}
 	else {
 		*pRGB = TAG_YELLOW;
 	}
@@ -220,7 +223,7 @@ string CVFPCPlugin::ValidateRules(const json& rule, const string& destination, c
 	}
 }
 
-string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData)
+void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData)
 {
 	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
@@ -231,8 +234,21 @@ string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidD
 	if (VFPCFPData.find(callsign) == VFPCFPData.end()) {
 		ValidationInfo info;
 		VFPCFPData[callsign] = info;
+		VFPCFPData[callsign].errorCode = "CHK";
+		VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
 	}
 
+	string flightRules = flightPlan.GetFlightPlanData().GetPlanType();
+
+	if (flightRules == "V") {
+		VFPCFPData[callsign].errorCode = "VFR";
+		return;
+	}
+
+	if (destination == departureAirport) {
+		VFPCFPData[callsign].errorCode = "LIFR";
+		return;
+	}
 
 	// Step 1: Match the departure airport
 	for (const auto& airportEntry : sidData) {
@@ -256,16 +272,16 @@ string CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidD
 						else {
 							VFPCFPData[callsign].FLASMessage = "No valid FLAS message found";
 						}
-						return result; // Return result immediately if found
+						return; // Return result immediately if found
 					}
 				}
 			}
 		}
 	}
 
+	// If we get here then no valid check was found
 	VFPCFPData[callsign].errorCode = "CHK";
 	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
-	return "CHK"; // No matching route or SID found
 }
 
 
