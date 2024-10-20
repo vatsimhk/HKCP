@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "analyzeFP.hpp"
 #include "EuroScopePlugIn.h"
-#include <time.h> 
+#include <time.h>
+#include <boost/algorithm/string.hpp>
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -160,6 +161,17 @@ bool CVFPCPlugin::IsAirwayMatch(const string& route, const json& rule)
 	}
 
 	vector<string> airways;
+
+	vector<string> routeVec;
+	boost::split(routeVec, route, boost::is_any_of(" "));
+	string newRoute = "";
+	for (std::size_t i = 0; i < routeVec.size(); i++) {
+		if (i != 0 && i != routeVec.size()) {
+			routeVec[i] = routeVec[i].substr(0, routeVec[i].find_first_of('/'));
+		}
+		boost::to_upper(routeVec[i]);
+		newRoute = newRoute + routeVec[i] + " ";
+	}
 	
 	if (rule["airways"].is_string()) {
 		airways.push_back(rule["airways"].get<string>());
@@ -167,7 +179,7 @@ bool CVFPCPlugin::IsAirwayMatch(const string& route, const json& rule)
 	else {
 		airways = rule["airways"].get<vector<string>>();
 	}
-	return IsStringInList(route, airways);
+	return IsStringInList(newRoute, airways);
 }
 
 string CVFPCPlugin::CheckAltitude(int rfl, const json& rules)
