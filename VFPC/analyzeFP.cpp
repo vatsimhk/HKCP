@@ -190,7 +190,7 @@ string CVFPCPlugin::CheckAltitude(int rfl, const json& rules)
 
 	// Check for directional restrictions (ODD/EVEN)
 	if (rules.contains("direction")) {
-		bool isOdd = rfl % 200 == 100;
+		bool isOdd = rfl % 20;
 		string direction = rules["direction"].get<string>();
 		if ((direction == "ODD" && !isOdd) || (direction == "EVEN" && isOdd)) {
 			return "FLR";
