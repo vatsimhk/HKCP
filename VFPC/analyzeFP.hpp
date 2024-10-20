@@ -41,6 +41,8 @@ public:
 		POINT Pt,
 		RECT Area);
 
+	virtual void OnAirportRunwayActivityChanged();
+
 	void sendMessage(string type, string message);
 
 	void sendMessage(string message);
@@ -57,8 +59,11 @@ public:
 
 	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
+	void UpdateActiveDepRunways();
+
 protected:
 	json sidData;
 	unordered_map<string, ValidationInfo> VFPCFPData;
+	vector<string> activeDepRunways;
 };
 

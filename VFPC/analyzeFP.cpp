@@ -52,6 +52,8 @@ CVFPCPlugin::CVFPCPlugin(void) :CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_
 	catch (...) {
 		sendMessage("Error loading sid.json!");
 	}
+
+	UpdateActiveDepRunways();
 }
 
 // Run on Plugin destruction, Ie. Closing EuroScope or unloading plugin
@@ -120,6 +122,10 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 	}
 }
 
+void CVFPCPlugin::OnAirportRunwayActivityChanged()
+{
+	UpdateActiveDepRunways();
+}
 
 /*
 	Custom Functions
@@ -294,6 +300,25 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 	// If we get here then no valid check was found
 	VFPCFPData[callsign].errorCode = "CHK";
 	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
+}
+
+void CVFPCPlugin::UpdateActiveDepRunways()
+{
+	CSectorElement runway;
+	vector<string> activeRunways;
+	for (runway = SectorFileElementSelectFirst(SECTOR_ELEMENT_RUNWAY); runway.IsValid(); runway = SectorFileElementSelectNext(runway, SECTOR_ELEMENT_RUNWAY)) {
+		if (strcmp(runway.GetRunwayName(0), "NAP") == 0) {
+			continue;
+		}
+		if (runway.IsElementActive(true, 0)) {
+			activeRunways.push_back(runway.GetRunwayName(0));
+		}
+		if (runway.IsElementActive(true, 1)) {
+			activeRunways.push_back(runway.GetRunwayName(1));
+		}
+	}
+
+	activeDepRunways = activeRunways;
 }
 
 
