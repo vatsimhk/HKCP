@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 
@@ -68,7 +69,7 @@ public:
 protected:
 	json sidData;
 	unordered_map<string, ValidationInfo> VFPCFPData;
-	vector<string> activeDepRunways;
+	set<string> activeDepRunways;
 	string hongKongConf;
 };
 

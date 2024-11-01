@@ -338,13 +338,18 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData)
 			tm* tm_gmt = gmtime(&curr_time);
 
 			vector<string> sidList;
-			if (tm_gmt->tm_hour >= 15 && tm_gmt->tm_hour <= 23) {
-				sidList = rule["sid_noise"].get<vector<string>>();
+			if (activeDepRunways.find("07R") != activeDepRunways.end() || 
+			    activeDepRunways.find("07C") != activeDepRunways.end() || 
+			    activeDepRunways.find("07L") != activeDepRunways.end()) {
+				if (tm_gmt->tm_hour >= 15 && tm_gmt->tm_hour <= 23 && rule.contains("sid_noise")) {
+					sidList = rule["sid_noise"].get<vector<string>>();
+				}
+				else {
+					sidList = rule["sid_07"].get<vector<string>>();
+				}
 			}
 			else {
-				sidList = rule["sid_07"].get<vector<string>>();
-				vector<string> sidList25 = rule["sid_25"].get<vector<string>>();
-				sidList.insert(sidList.begin(), sidList25.begin(), sidList25.end());
+				sidList = rule["sid_25"].get<vector<string>>();
 			}
 
 
@@ -358,12 +363,12 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData)
 				}
 			}
 
-			sendMessage(rule.dump());
+			//sendMessage(rule.dump());
 			return;
 		}
 	}
 
-	sendMessage("Unable to auto assign SID");
+	sendMessage(callsign, "Unable to auto assign SID");
 }
 
 void CVFPCPlugin::InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint)
@@ -391,16 +396,16 @@ void CVFPCPlugin::InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, strin
 void CVFPCPlugin::UpdateActiveDepRunways()
 {
 	CSectorElement runway;
-	vector<string> activeRunways;
+	set<string> activeRunways;
 	for (runway = SectorFileElementSelectFirst(SECTOR_ELEMENT_RUNWAY); runway.IsValid(); runway = SectorFileElementSelectNext(runway, SECTOR_ELEMENT_RUNWAY)) {
 		if (strcmp(runway.GetRunwayName(0), "NAP") == 0) {
 			continue;
 		}
 		if (runway.IsElementActive(true, 0)) {
-			activeRunways.push_back(runway.GetRunwayName(0));
+			activeRunways.insert(runway.GetRunwayName(0));
 		}
 		if (runway.IsElementActive(true, 1)) {
-			activeRunways.push_back(runway.GetRunwayName(1));
+			activeRunways.insert(runway.GetRunwayName(1));
 		}
 	}
 
