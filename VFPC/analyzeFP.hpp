@@ -10,6 +10,7 @@
 #include <set>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
+#include <HKCPDisplay.hpp>
 
 using namespace std;
 using namespace EuroScopePlugIn;
@@ -60,12 +61,13 @@ public:
 
 	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
-	void AutoAssignSid(CFlightPlan& flightPlan, const json& sidData);
+	void AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, int config);
 
 	void InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint);
 
 	void UpdateActiveDepRunways();
 
+	HKCPDisplay* DisplayPtr;
 protected:
 	json sidData;
 	unordered_map<string, ValidationInfo> VFPCFPData;

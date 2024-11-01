@@ -106,8 +106,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 	else {
 		SaveDataToSettings("PlaneIconScale", "PlaneIconScale", to_string(PlaneIconScale).c_str());
 	}
-
-	return new HKCPDisplay(CJSLabelSize, 
+	HKCPDisplay* Display = new HKCPDisplay(CJSLabelSize, 
 						   CJSLabelOffset, 
 						   CJSLabelShowWhenTracked, 
 						   PlaneIconScale, 
@@ -115,6 +114,8 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 						   colorAssumed, 
 						   colorNotAssumed, 
 						   colorRedundant);
+	VFPC->DisplayPtr = Display;
+	return Display;
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {

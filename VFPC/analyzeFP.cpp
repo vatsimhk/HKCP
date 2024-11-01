@@ -4,6 +4,10 @@
 #include <time.h>
 #include <boost/algorithm/string.hpp>
 
+#define AUTO 0
+#define FORCE_3RS 1
+#define FORCE_NAP 2
+
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 bool blink;
@@ -34,7 +38,11 @@ CVFPCPlugin::CVFPCPlugin(void) :CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_
 	// RegisterTagItemType("VFPC (if failed, static)", TAG_ITEM_FPCHECK_IF_FAILED_STATIC);
 	RegisterTagItemFunction("Check FP Menu", TAG_FUNC_CHECKFP_MENU);
 	RegisterTagItemFunction("Modify RFL Menu", TAG_FUNC_MODRFL_MENU);
-	RegisterTagItemFunction("Set SID", TAG_FUNC_SET_SID);
+	RegisterTagItemFunction("Assign SID Menu", TAG_FUNC_ASSIGN_SID_MENU);
+	RegisterTagItemFunction("Auto Assign SID", TAG_FUNC_ASSIGN_SID_AUTO);
+	RegisterTagItemFunction("Auto Assign SID (Force 3RS)", TAG_FUNC_ASSIGN_SID_3RS);
+	RegisterTagItemFunction("Auto Assign SID (Force NAP)", TAG_FUNC_ASSIGN_SID_NAP);
+	//RegisterTagItemFunction("Manually Assign SID", TAG_FUNC_ASSIGN_SID_MANUAL);
 
 	// Get Path of the Sid.txt
 	GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
@@ -108,17 +116,38 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 	}
 
 	string callsign = FlightPlan.GetCallsign();
+	string origin = FlightPlan.GetFlightPlanData().GetOrigin();
+	string rect_coords = to_string(Area.left) + " " + to_string(Area.right) + " " + to_string(Area.top) + " " + to_string(Area.bottom);
 
 	switch(FunctionId) {
 	case TAG_FUNC_CHECKFP_MENU:
 		OpenPopupList(Area, "Check FP Menu", 1);
-		AddPopupListElement("Check FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, 2, false);
+		AddPopupListElement("Check FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		break;
 	case TAG_FUNC_CHECKFP_FLAS:
 		sendMessage("Valid FLs for " + callsign, VFPCFPData[callsign].FLASMessage);
 		break;
-	case TAG_FUNC_SET_SID:
-		AutoAssignSid(FlightPlan, sidData);
+	case TAG_FUNC_ASSIGN_SID_MENU:
+		OpenPopupList(Area, "Assign SID", 1);
+		AddPopupListElement("Auto", "", TAG_FUNC_ASSIGN_SID_AUTO, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+		if (origin == "VHHH") {
+			AddPopupListElement("Auto (Force 3RS)", "", TAG_FUNC_ASSIGN_SID_3RS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+			AddPopupListElement("Auto (Force NAP)", "", TAG_FUNC_ASSIGN_SID_NAP, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+		}
+		AddPopupListElement("Manual", "", TAG_FUNC_ASSIGN_SID_MANUAL, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+		break;
+	case TAG_FUNC_ASSIGN_SID_AUTO:
+		AutoAssignSid(FlightPlan, sidData, AUTO);
+		break;
+	case TAG_FUNC_ASSIGN_SID_3RS:
+		AutoAssignSid(FlightPlan, sidData, FORCE_3RS);
+		break;
+	case TAG_FUNC_ASSIGN_SID_NAP:
+		AutoAssignSid(FlightPlan, sidData, FORCE_NAP);
+		break;
+	case TAG_FUNC_ASSIGN_SID_MANUAL:
+		//sendMessage(rect_coords);
+		DisplayPtr->StartTagFunction(callsign.c_str(), NULL, TAG_ITEM_TYPE_ASSIGNED_SID, FlightPlan.GetFlightPlanData().GetSidName(), NULL, TAG_ITEM_FUNCTION_ASSIGNED_SID, Pt, Area);
 		break;
 	default:
 		break;
@@ -309,7 +338,7 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
 }
 
-void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData)
+void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, int config)
 {
 	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
@@ -341,7 +370,7 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData)
 			if (activeDepRunways.find("07R") != activeDepRunways.end() || 
 			    activeDepRunways.find("07C") != activeDepRunways.end() || 
 			    activeDepRunways.find("07L") != activeDepRunways.end()) {
-				if (tm_gmt->tm_hour >= 15 && tm_gmt->tm_hour <= 23 && rule.contains("sid_noise")) {
+				if (rule.contains("sid_noise") && (tm_gmt->tm_hour >= 15 && tm_gmt->tm_hour <= 23 && config != FORCE_3RS) || config == FORCE_NAP) {
 					sidList = rule["sid_noise"].get<vector<string>>();
 				}
 				else {
