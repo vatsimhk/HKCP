@@ -118,6 +118,7 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 	string callsign = FlightPlan.GetCallsign();
 	string origin = FlightPlan.GetFlightPlanData().GetOrigin();
 	string rect_coords = to_string(Area.left) + " " + to_string(Area.right) + " " + to_string(Area.top) + " " + to_string(Area.bottom);
+	string FLASMessage;
 
 	switch(FunctionId) {
 	case TAG_FUNC_CHECKFP_MENU:
@@ -125,7 +126,14 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 		AddPopupListElement("Check FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		break;
 	case TAG_FUNC_CHECKFP_FLAS:
-		sendMessage("Valid FLs for " + callsign, VFPCFPData[callsign].FLASMessage);
+		FLASMessage = VFPCFPData[callsign].FLASMessage;
+		if (VFPCFPData[callsign].errorCode == "FLR") {
+			FLASMessage += " (Failed)";
+		}
+		else {
+			FLASMessage += " (Passed)";
+		}
+		sendMessage("Valid FLs for " + callsign, FLASMessage);
 		break;
 	case TAG_FUNC_ASSIGN_SID_MENU:
 		OpenPopupList(Area, "VFPC Assign SID", 1);
