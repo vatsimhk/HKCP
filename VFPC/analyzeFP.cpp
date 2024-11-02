@@ -128,7 +128,7 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 		sendMessage("Valid FLs for " + callsign, VFPCFPData[callsign].FLASMessage);
 		break;
 	case TAG_FUNC_ASSIGN_SID_MENU:
-		OpenPopupList(Area, "Assign SID", 1);
+		OpenPopupList(Area, "VFPC Assign SID", 1);
 		AddPopupListElement("Auto", "", TAG_FUNC_ASSIGN_SID_AUTO, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		if (origin == "VHHH") {
 			AddPopupListElement("Auto (Force 3RS)", "", TAG_FUNC_ASSIGN_SID_3RS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
