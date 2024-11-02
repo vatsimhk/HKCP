@@ -129,7 +129,7 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 		break;
 	case TAG_FUNC_ASSIGN_SID_MENU:
 		OpenPopupList(Area, "VFPC Assign SID", 1);
-		AddPopupListElement("Auto", "", TAG_FUNC_ASSIGN_SID_AUTO, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+		AddPopupListElement("Auto            ", "", TAG_FUNC_ASSIGN_SID_AUTO, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		if (origin == "VHHH") {
 			AddPopupListElement("Auto (Force 3RS)", "", TAG_FUNC_ASSIGN_SID_3RS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 			AddPopupListElement("Auto (Force NAP)", "", TAG_FUNC_ASSIGN_SID_NAP, false, POPUP_ELEMENT_NO_CHECKBOX, false);
@@ -384,7 +384,13 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, in
 
 			for (const string& sid : sidList) {
 				// Extract runway from SID and check if that runway is active
-				string rwy = sid.substr(8, 3);
+				string rwy;
+				if (sid.length() > 8) {
+					rwy = sid.substr(8, 3);
+				}
+				else {
+					rwy = sid.substr(6, 2);
+				}
 				if (find(activeDepRunways.begin(), activeDepRunways.end(), rwy) != activeDepRunways.end()) {
 					// Insert first SID that matches departure ruinway
 					InsertSidFlightPlan(flightPlan, sid, sidWaypoint);
@@ -409,7 +415,7 @@ void CVFPCPlugin::InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, strin
 		flightRoute.erase(0, pos);
 	}
 
-	if (sidWaypoint.length() >= 5) {
+	if (sidWaypoint.length() >= 5 || sid.length() <= 8) {
 		// Insert SID/RWY
 		flightRoute.insert(0, sid + " ");
 	}

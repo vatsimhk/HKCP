@@ -20,6 +20,8 @@ struct ValidationInfo {
 	string errorCode;
 	string FLASMessage;
 	string errorMessage;
+	string preferredSID;
+	string preferredSIDwp;
 };
 
 class CVFPCPlugin :
