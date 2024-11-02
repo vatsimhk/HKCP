@@ -134,7 +134,7 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 			AddPopupListElement("Auto (Force 3RS)", "", TAG_FUNC_ASSIGN_SID_3RS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 			AddPopupListElement("Auto (Force NAP)", "", TAG_FUNC_ASSIGN_SID_NAP, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		}
-		AddPopupListElement("Manual", "", TAG_FUNC_ASSIGN_SID_MANUAL, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+		//AddPopupListElement("Manual", "", TAG_FUNC_ASSIGN_SID_MANUAL, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		break;
 	case TAG_FUNC_ASSIGN_SID_AUTO:
 		AutoAssignSid(FlightPlan, sidData, AUTO);
