@@ -80,6 +80,11 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 
 	switch (ItemCode) {
 	case TAG_ITEM_FPCHECK:
+		if (VFPCFPData[FlightPlan.GetCallsign()].active) {
+			tagOutput = "-";
+			break;
+		}
+
 		ValidateFlightPlan(FlightPlan, sidData);
 		tagOutput = VFPCFPData[FlightPlan.GetCallsign()].errorCode;
 		break;
@@ -93,7 +98,9 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 	}
 
 	*pColorCode = TAG_COLOR_RGB_DEFINED;
-	if (tagOutput == "OK") {
+	if (tagOutput == "-") {
+		*pRGB = TAG_GREY;
+	} else if (tagOutput == "OK") {
 		*pRGB = TAG_GREEN;
 	}
 	else if (tagOutput == "CHK") {
@@ -123,7 +130,11 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 	switch(FunctionId) {
 	case TAG_FUNC_CHECKFP_MENU:
 		OpenPopupList(Area, "Check FP Menu", 1);
+		AddPopupListElement("Enable/Disable", "", TAG_FUNC_VFPC_ON_OFF, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		AddPopupListElement("Check FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
+		break;
+	case TAG_FUNC_VFPC_ON_OFF:
+		VFPCFPData[callsign].active = !VFPCFPData[callsign].active;
 		break;
 	case TAG_FUNC_CHECKFP_FLAS:
 		FLASMessage = VFPCFPData[callsign].FLASMessage;
@@ -298,6 +309,7 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 		VFPCFPData[callsign] = info;
 		VFPCFPData[callsign].errorCode = "CHK";
 		VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
+		VFPCFPData[callsign].active = true;
 	}
 
 	string flightRules = flightPlan.GetFlightPlanData().GetPlanType();

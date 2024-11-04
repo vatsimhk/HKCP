@@ -21,7 +21,7 @@ struct ValidationInfo {
 	string FLASMessage;
 	string errorMessage;
 	string preferredSID;
-	string preferredSIDwp;
+	bool active;
 };
 
 class CVFPCPlugin :
