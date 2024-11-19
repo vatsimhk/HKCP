@@ -321,11 +321,13 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 
 	if (flightRules == "V") {
 		VFPCFPData[callsign].errorCode = "VFR";
+		VFPCFPData[callsign].FLASMessage = "No altitude checks are run for VFR Traffic.";
 		return;
 	}
 
 	if (destination == departureAirport) {
 		VFPCFPData[callsign].errorCode = "LIFR";
+		VFPCFPData[callsign].FLASMessage = "No altitude checks are run for Local IFR Traffic.";
 		return;
 	}
 
