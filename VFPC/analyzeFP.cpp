@@ -281,7 +281,7 @@ string CVFPCPlugin::ValidateRules(const json& rule, const string& destination, c
 {
 	//sendMessage("Processing Rule " + rule.dump());
 
-	if (rule.contains("sid_07") || rule.contains("sid_25")) {
+	if (rule.contains("sid_07") || rule.contains("sid_25") || rule.contains("sid_all")) {
 		return "CHK";
 	}
 	
@@ -383,10 +383,6 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, in
 			}
 
 			const auto rule = sidEntry.value()[0];
-			if (!rule.contains("sid_07") || !rule.contains("sid_25")) {
-				continue;
-			}
-
 			time_t curr_time;
 			curr_time = time(NULL);
 			tm* tm_gmt = gmtime(&curr_time);
@@ -398,14 +394,24 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, in
 				if (rule.contains("sid_noise") && (tm_gmt->tm_hour >= 15 && tm_gmt->tm_hour <= 23 && config != FORCE_3RS) || config == FORCE_NAP) {
 					sidList = rule["sid_noise"].get<vector<string>>();
 				}
-				else {
+				else if (rule.contains("sid_07")) {
 					sidList = rule["sid_07"].get<vector<string>>();
 				}
 			}
-			else {
+			else if ( (activeDepRunways.find("25R") != activeDepRunways.end() ||
+				activeDepRunways.find("25C") != activeDepRunways.end() ||
+				activeDepRunways.find("25L") != activeDepRunways.end() ) &&
+				rule.contains("sid_25")) {
 				sidList = rule["sid_25"].get<vector<string>>();
 			}
+			
+			if (rule.contains("sid_all")) {
+				sidList = rule["sid_all"].get<vector<string>>();
+			}
 
+			if (sidList.empty()) {
+				continue;
+			}
 
 			for (const string& sid : sidList) {
 				// Extract runway from SID and check if that runway is active
