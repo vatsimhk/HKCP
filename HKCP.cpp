@@ -130,6 +130,12 @@ void HKCPPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, 
 
 void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
 	tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
+	VFPC->OnFlightPlanFlightPlanDataUpdate(FlightPlan);
+}
+
+void HKCPPlugin::OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan)
+{
+	VFPC->OnFlightPlanFlightPlanDataUpdate(FlightPlan);
 }
 
 void HKCPPlugin::OnTimer(int Count) {

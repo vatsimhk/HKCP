@@ -80,12 +80,11 @@ void CVFPCPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget,
 
 	switch (ItemCode) {
 	case TAG_ITEM_FPCHECK:
-		if (VFPCFPData[FlightPlan.GetCallsign()].active) {
+		if (VFPCFPData.find(FlightPlan.GetCallsign()) == VFPCFPData.end() || !VFPCFPData[FlightPlan.GetCallsign()].active) {
 			tagOutput = "-";
 			break;
 		}
 
-		ValidateFlightPlan(FlightPlan, sidData);
 		tagOutput = VFPCFPData[FlightPlan.GetCallsign()].errorCode;
 		break;
 	default:
@@ -131,10 +130,10 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 	case TAG_FUNC_CHECKFP_MENU:
 		OpenPopupList(Area, "VFPC Menu", 1);
 		if (VFPCFPData[callsign].active) {
-			AddPopupListElement("Enable Checks", "", TAG_FUNC_VFPC_ON_OFF, false, POPUP_ELEMENT_UNCHECKED, false);
+			AddPopupListElement("Enable Checks", "", TAG_FUNC_VFPC_ON_OFF, false, POPUP_ELEMENT_CHECKED, false);
 		}
 		else {
-			AddPopupListElement("Enable Checks", "", TAG_FUNC_VFPC_ON_OFF, false, POPUP_ELEMENT_CHECKED, false);
+			AddPopupListElement("Enable Checks", "", TAG_FUNC_VFPC_ON_OFF, false, POPUP_ELEMENT_UNCHECKED, false);
 		}
 		AddPopupListElement("Check FLAS", "", TAG_FUNC_CHECKFP_FLAS, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		AddPopupListElement("Assign SID", "", TAG_FUNC_ASSIGN_SID_AUTO, false, POPUP_ELEMENT_NO_CHECKBOX, false);
@@ -166,13 +165,15 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 		//AddPopupListElement("Manual", "", TAG_FUNC_ASSIGN_SID_MANUAL, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		break;
 	case TAG_FUNC_ASSIGN_SID_AUTO:
-		AutoAssignSid(FlightPlan, sidData, AUTO);
+		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_3RS:
-		AutoAssignSid(FlightPlan, sidData, FORCE_3RS);
+		UpdatePreferredSid(FlightPlan, sidData, FORCE_3RS);
+		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_NAP:
-		AutoAssignSid(FlightPlan, sidData, FORCE_NAP);
+		UpdatePreferredSid(FlightPlan, sidData, FORCE_NAP);
+		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_MANUAL:
 		//sendMessage(rect_coords);
@@ -186,6 +187,12 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 void CVFPCPlugin::OnAirportRunwayActivityChanged()
 {
 	UpdateActiveDepRunways();
+}
+
+void CVFPCPlugin::OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan)
+{
+	ValidateFlightPlan(FlightPlan, sidData);
+	UpdatePreferredSid(FlightPlan, sidData, AUTO);
 }
 
 /*
@@ -370,7 +377,7 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
 }
 
-void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, int config)
+void CVFPCPlugin::UpdatePreferredSid(CFlightPlan& flightPlan, const json& sidData, int config)
 {
 	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
@@ -430,8 +437,9 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, in
 					rwy = sid.substr(6, 2);
 				}
 				if (find(activeDepRunways.begin(), activeDepRunways.end(), rwy) != activeDepRunways.end()) {
-					// Insert first SID that matches departure ruinway
-					InsertSidFlightPlan(flightPlan, sid, sidWaypoint);
+					// Update struct with first SID that matches departure ruinway
+					VFPCFPData[callsign].preferredSID = sid;
+					VFPCFPData[callsign].preferredSIDwp = sidWaypoint;
 					break;
 				}
 			}
@@ -440,12 +448,15 @@ void CVFPCPlugin::AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, in
 			return;
 		}
 	}
-
-	sendMessage(callsign, "Unable to auto assign SID");
 }
 
 void CVFPCPlugin::InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint)
 {
+	if (sid.empty() || sidWaypoint.empty()) {
+		sendMessage(flightPlan.GetCallsign(), "Unable to auto assign SID");
+		return;
+	}
+	
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
 	size_t pos = flightRoute.find(sidWaypoint + " ");
 

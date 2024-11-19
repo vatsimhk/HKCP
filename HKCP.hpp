@@ -33,6 +33,8 @@ public:
 
 	virtual void OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType);
 
+	virtual void OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan);
+
 	virtual void OnFlightPlanDisconnect(CFlightPlan FlightPlan);
 
 	virtual bool OnCompileCommand(const char* sCommandLine);

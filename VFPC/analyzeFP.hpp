@@ -21,6 +21,7 @@ struct ValidationInfo {
 	string FLASMessage;
 	string errorMessage;
 	string preferredSID;
+	string preferredSIDwp;
 	bool active;
 };
 
@@ -47,6 +48,8 @@ public:
 
 	virtual void OnAirportRunwayActivityChanged();
 
+	virtual void OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan);
+
 	void sendMessage(string type, string message);
 
 	void sendMessage(string message);
@@ -63,7 +66,7 @@ public:
 
 	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
-	void AutoAssignSid(CFlightPlan& flightPlan, const json& sidData, int config);
+	void UpdatePreferredSid(CFlightPlan& flightPlan, const json& sidData, int config);
 
 	void InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint);
 
