@@ -165,15 +165,15 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 		//AddPopupListElement("Manual", "", TAG_FUNC_ASSIGN_SID_MANUAL, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		break;
 	case TAG_FUNC_ASSIGN_SID_AUTO:
-		UpdatePreferredSid(FlightPlan, sidData, AUTO);
+		UpdatePreferredSid(FlightPlan, AUTO);
 		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_3RS:
-		UpdatePreferredSid(FlightPlan, sidData, FORCE_3RS);
+		UpdatePreferredSid(FlightPlan, FORCE_3RS);
 		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_NAP:
-		UpdatePreferredSid(FlightPlan, sidData, FORCE_NAP);
+		UpdatePreferredSid(FlightPlan, FORCE_NAP);
 		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_MANUAL:
@@ -192,8 +192,8 @@ void CVFPCPlugin::OnAirportRunwayActivityChanged()
 
 void CVFPCPlugin::OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan)
 {
-	ValidateFlightPlan(FlightPlan, sidData);
-	UpdatePreferredSid(FlightPlan, sidData, AUTO);
+	ValidateFlightPlan(FlightPlan);
+	UpdatePreferredSid(FlightPlan, AUTO);
 }
 
 /*
@@ -314,7 +314,7 @@ string CVFPCPlugin::ValidateRules(const json& rule, const string& destination, c
 	}
 }
 
-void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData)
+void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan)
 {
 	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();
@@ -378,7 +378,7 @@ void CVFPCPlugin::ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidDat
 	VFPCFPData[callsign].FLASMessage = "No valid altitudes found";
 }
 
-void CVFPCPlugin::UpdatePreferredSid(CFlightPlan& flightPlan, const json& sidData, int config)
+void CVFPCPlugin::UpdatePreferredSid(CFlightPlan& flightPlan, int config)
 {
 	string departureAirport = flightPlan.GetFlightPlanData().GetOrigin();
 	string flightRoute = flightPlan.GetFlightPlanData().GetRoute();

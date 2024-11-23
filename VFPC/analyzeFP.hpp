@@ -64,9 +64,9 @@ public:
 
 	string ValidateRules(const json& rule, const string& destination, const string& route, int rfl);
 
-	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
+	void ValidateFlightPlan(CFlightPlan& flightPlan);
 
-	void UpdatePreferredSid(CFlightPlan& flightPlan, const json& sidData, int config);
+	void UpdatePreferredSid(CFlightPlan& flightPlan, int config);
 
 	void InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint);
 
