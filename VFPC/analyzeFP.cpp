@@ -165,6 +165,7 @@ void CVFPCPlugin::OnFunctionCall(int FunctionId, const char* sItemString, POINT 
 		//AddPopupListElement("Manual", "", TAG_FUNC_ASSIGN_SID_MANUAL, false, POPUP_ELEMENT_NO_CHECKBOX, false);
 		break;
 	case TAG_FUNC_ASSIGN_SID_AUTO:
+		UpdatePreferredSid(FlightPlan, sidData, AUTO);
 		InsertSidFlightPlan(FlightPlan, VFPCFPData[callsign].preferredSID, VFPCFPData[callsign].preferredSIDwp);
 		break;
 	case TAG_FUNC_ASSIGN_SID_3RS:
