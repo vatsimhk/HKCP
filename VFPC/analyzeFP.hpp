@@ -7,15 +7,23 @@
 #include <fstream>
 #include <vector>
 #include <map>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include "rapidjson/document.h"
-#include "rapidjson/stringbuffer.h"
+#include <set>
+#include <unordered_map>
+#include <nlohmann/json.hpp>
+#include <HKCPDisplay.hpp>
 
 using namespace std;
-using namespace boost;
-using namespace rapidjson;
 using namespace EuroScopePlugIn;
+using json = nlohmann::json;
+
+struct ValidationInfo {
+	string errorCode;
+	string FLASMessage;
+	string errorMessage;
+	string preferredSID;
+	string preferredSIDwp;
+	bool active;
+};
 
 class CVFPCPlugin :
 	public EuroScopePlugIn::CPlugIn
@@ -24,13 +32,6 @@ public:
 	CVFPCPlugin();
 	virtual ~CVFPCPlugin();
 
-	virtual void getSids();
-
-	virtual map<string, string> validizeSid(CFlightPlan flightPlan);
-
-	virtual void OnFunctionCall(int FunctionId, const char * ItemString, POINT Pt, RECT Area);
-
-	//Define OnGetTagItem function
 	virtual void OnGetTagItem(CFlightPlan FlightPlan,
 		CRadarTarget RadarTarget,
 		int ItemCode,
@@ -40,89 +41,42 @@ public:
 		COLORREF* pRGB,
 		double* pFontSize);
 
-	template <typename Out>
-	void split(const string& s, char delim, Out result) {
-		istringstream iss(s);
-		string item;
-		while (getline(iss, item, delim)) {
-			*result++ = item;
-		}
-	}
+	virtual void    OnFunctionCall(int FunctionId,
+		const char* sItemString,
+		POINT Pt,
+		RECT Area);
 
-	vector<string> split(const string& s, char delim) {
-		vector<string> elems;
-		split(s, delim, back_inserter(elems));
-		return elems;
-	}
+	virtual void OnAirportRunwayActivityChanged();
 
-	string destArrayContains(const Value& a, string s) {
-		for (SizeType i = 0; i < a.Size(); i++) {
-			string test = a[i].GetString();
-			SizeType x = static_cast<rapidjson::SizeType>(s.rfind(test, 0));
-			if (s.rfind(a[i].GetString(), 0) != -1)
-				return a[i].GetString();
-		}
-		return "";
-	}
+	virtual void OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan);
 
-	bool arrayContains(const Value& a, string s) {
-		for (SizeType i = 0; i < a.Size(); i++) {
-			if (a[i].GetString() == s)
-				return true;
-		}
-		return false;
-	}
+	void sendMessage(string type, string message);
 
-	bool arrayContains(const Value& a, char s) {
-		for (SizeType i = 0; i < a.Size(); i++) {
-			if (a[i].GetString()[0] == s)
-				return true;
-		}
-		return false;
-	}
+	void sendMessage(string message);
 
-	string arrayToString(const Value& a, char delimiter) {
-		string s;
-		for (SizeType i = 0; i < a.Size(); i++) {
-			s += a[i].GetString()[0];
-			if (i != a.Size() - 1)
-				s += delimiter;
-		}
-		return s;
-	}
-	bool routeContains(string s, const Value& a) {
-		for (SizeType i = 0; i < a.Size(); i++) {
-			bool dd = contains(s, a[i].GetString());
-			if (contains(s, a[i].GetString()))
-				return true;
-		}
-		return false;
-	}
+	bool IsStringInList(const string& target, const vector<string>& list);
 
-	virtual void OnFlightPlanDisconnect(CFlightPlan FlightPlan);
-	
-	virtual bool OnCompileCommand(const char * sCommandLine);
+	bool IsDestinationMatch(const string& destination, const json& rule);
 
-	virtual void debugMessage(string type, string message);
+	bool IsAirwayMatch(const string& route, const json& rule);
 
-	virtual void sendMessage(string type, string message);
+	string CheckAltitude(int rfl, const json& rules);
 
-	virtual void sendMessage(string message);
+	string ValidateRules(const json& rule, const string& destination, const string& route, int rfl);
 
-	virtual void checkFPDetail();
+	void ValidateFlightPlan(CFlightPlan& flightPlan, const json& sidData);
 
-	virtual void checkFLAS();
+	void UpdatePreferredSid(CFlightPlan& flightPlan, const json& sidData, int config);
 
-	virtual void flUp(CFlightPlan FlightPlan);
+	void InsertSidFlightPlan(CFlightPlan& flightPlan, string sid, string sidWaypoint);
 
-	virtual void flDown(CFlightPlan FlightPlan);
+	void UpdateActiveDepRunways();
 
-	virtual pair<string, int> getFails(map<string, string> messageBuffer);
-
-	virtual void OnTimer(int Count);
-
+	HKCPDisplay* DisplayPtr;
 protected:
-	Document config;
-	map<string, rapidjson::SizeType> airports;
+	json sidData;
+	unordered_map<string, ValidationInfo> VFPCFPData;
+	set<string> activeDepRunways;
+	string hongKongConf;
 };
 

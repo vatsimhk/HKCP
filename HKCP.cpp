@@ -106,8 +106,7 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 	else {
 		SaveDataToSettings("PlaneIconScale", "PlaneIconScale", to_string(PlaneIconScale).c_str());
 	}
-
-	return new HKCPDisplay(CJSLabelSize, 
+	HKCPDisplay* Display = new HKCPDisplay(CJSLabelSize, 
 						   CJSLabelOffset, 
 						   CJSLabelShowWhenTracked, 
 						   PlaneIconScale, 
@@ -115,6 +114,8 @@ CRadarScreen* HKCPPlugin::OnRadarScreenCreated(const char* sDisplayName, bool Ne
 						   colorAssumed, 
 						   colorNotAssumed, 
 						   colorRedundant);
+	VFPC->DisplayPtr = Display;
+	return Display;
 }
 
 void HKCPPlugin::OnFunctionCall(int FunctionId, const char* ItemString, POINT Pt, RECT Area) {
@@ -129,23 +130,36 @@ void HKCPPlugin::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, 
 
 void HKCPPlugin::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType) {
 	tags->OnFlightPlanControllerAssignedDataUpdate(FlightPlan, DataType);
+	VFPC->OnFlightPlanFlightPlanDataUpdate(FlightPlan);
+}
+
+void HKCPPlugin::OnFlightPlanFlightPlanDataUpdate(CFlightPlan FlightPlan)
+{
+	VFPC->OnFlightPlanFlightPlanDataUpdate(FlightPlan);
 }
 
 void HKCPPlugin::OnTimer(int Count) {
-	VFPC->OnTimer(Count);
+	//VFPC->OnTimer(Count);
 	tags->OnTimer(Count);
 }
 
 void HKCPPlugin::OnFlightPlanDisconnect(CFlightPlan FlightPlan) {
-	VFPC->OnFlightPlanDisconnect(FlightPlan);
+	//VFPC->OnFlightPlanDisconnect(FlightPlan);
 }
 
 bool HKCPPlugin::OnCompileCommand(const char* sCommandLine) {
-	return VFPC->OnCompileCommand(sCommandLine);
+	//return VFPC->OnCompileCommand(sCommandLine);
+	return false;
 }
 
 void HKCPPlugin::OnCompilePrivateChat(const char* sSenderCallsign, const char* sReceiverCallsign, const char* sChatMessage) {
 
+}
+
+void HKCPPlugin::OnAirportRunwayActivityChanged()
+{
+	VFPC->OnAirportRunwayActivityChanged();
+	Mapp->OnAirportRunwayActivityChanged();
 }
 
 //---EuroScopePlugInExit-----------------------------------------------
