@@ -29,6 +29,7 @@ AT3Tags::AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR) : CPlugIn(E
 	RegisterTagItemType("AT3 VS Indicator", TAG_ITEM_AT3_VS_INDICATOR);
 	RegisterTagItemType("AT3 Arrival Runway", TAG_ITEM_AT3_ARRIVAL_RWY);
 	RegisterTagItemType("AT3 AMAN Delay", TAG_ITEM_AT3_DELAY);
+	RegisterTagItemType("AT3 ALRT", TAG_ITEM_AT3_ALRT);
 
 	RegisterTagItemFunction("AT3 Approach Selection Menu", TAG_FUNC_APP_SEL_MENU);
 	RegisterTagItemFunction("AT3 Route Selection Menu", TAG_FUNC_RTE_SEL_MENU);
@@ -251,6 +252,10 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 			break;
 		case TAG_ITEM_AT3_ARRIVAL_RWY:
 			tagOutput = GetFormattedArrivalRwy(FlightPlan, RadarTarget);
+			break;
+		case TAG_ITEM_AT3_ALRT:
+			tagOutput = GetALRT(FlightPlan, RadarTarget);
+			*pRGB = colorRedundant;
 			break;
 		default:
 			tagOutput = "";
@@ -917,4 +922,24 @@ string AT3Tags::GetFormattedArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& Ra
 	} else {
 		return "   ";
 	}
+}
+
+string AT3Tags::GetALRT(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
+{
+	// HOW warning
+	if (FlightPlan.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
+		return "HOW";
+	}
+
+	// CJS warning
+	string controller = FlightPlan.GetCoordinatedNextController();
+	int controllerSuffix;
+
+	controllerSuffix = (controller.size() > 0) ? ControllerSelect(controller.c_str()).GetFacility() : 0;
+
+	if (FlightPlan.GetSectorExitMinutes() == -1 && FlightPlan.GetTrackingControllerIsMe() && controllerSuffix > 0 && controllerSuffix != 4) { // not unicom or tower
+		return "CJS";
+	}
+
+	return "";
 }

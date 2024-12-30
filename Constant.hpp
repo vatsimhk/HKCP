@@ -29,6 +29,7 @@ const int TAG_ITEM_AT3_ATYPWTC = 21;
 const int TAG_ITEM_AT3_VS_INDICATOR = 22;
 const int TAG_ITEM_AT3_ARRIVAL_RWY = 23;
 const int TAG_ITEM_AT3_DELAY = 24;
+const int TAG_ITEM_AT3_ALRT = 25;
 
 const int TAG_FUNC_APP_SEL_MENU = 200;
 const int TAG_FUNC_APP_SEL_ITEM_1 = 201;

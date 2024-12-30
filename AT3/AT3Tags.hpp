@@ -88,6 +88,8 @@ public:
 
 	string GetFormattedArrivalRwy(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
 
+	string GetALRT(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget);
+
 protected:
 	int minu;
 	json appsJson;
