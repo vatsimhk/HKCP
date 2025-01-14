@@ -586,6 +586,11 @@ string AT3Tags::GetFormattedAltitudedAssigned(CFlightPlan& FlightPlan, CRadarTar
 string AT3Tags::GetFormattedTrack(CFlightPlan& FlightPlan, CRadarTarget& RadarTarget)
 {
 	string track = to_string(static_cast<int>(trunc(RadarTarget.GetTrackHeading())));
+
+	if (track == "0") {
+		track = "360";
+	}
+
 	if (track.length() <= 3) {
 		track.insert(0, 3 - track.length(), '0');
 	}
