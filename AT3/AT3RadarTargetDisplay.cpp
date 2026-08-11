@@ -120,26 +120,26 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		g.RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
 
 		// Set Anti-aliasing
-		g.SetSmoothingMode(SmoothingModeAntiAlias);
+		//g.SetSmoothingMode(SmoothingModeAntiAlias);
 
 		// Define aircraft icon
 		Point aircraftIcon[19] = {
 			Point(0,-7),
 			Point(-1,-6),
 			Point(-1,-2),
+			Point(-7,1),
 			Point(-7,3),
-			Point(-7,4),
-			Point(-1,2),
-			Point(-1,6),
-			Point(-4,8),
-			Point(-4,9),
-			Point(0,8),
-			Point(4,9),
-			Point(4,8),
-			Point(1,6),
-			Point(1,2),
-			Point(7,4),
+			Point(-1,1),
+			Point(-1,4),
+			Point(-4,5),
+			Point(-4,7),
+			Point(0,6),
+			Point(4,7),
+			Point(4,5),
+			Point(1,4),
+			Point(1,1),
 			Point(7,3),
+			Point(7,1),
 			Point(1,-2),
 			Point(1,-6),
 			Point(0,-7)
