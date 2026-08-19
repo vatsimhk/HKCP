@@ -35,7 +35,9 @@
     <ClCompile Include="AT3\AT3Tags.cpp" />
     <ClCompile Include="HKCP.cpp" />
     <ClCompile Include="HKCPDisplay.cpp" />
-    <ClCompile Include="MissedApproach\MissedApproachAlarm.cpp" />
+    <ClCompile Include="MissedApproach\MissedApproachAlarm.cpp">
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</LanguageStandard>
+    </ClCompile>
     <ClCompile Include="MissedApproach\MissedApproachPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -10,8 +10,7 @@ using namespace EuroScopePlugIn;
 
 //Initialize static variables
 RECT MissedApproachAlarm::m_Area = { 190, 500, 490, 740 };
-RECT MissedApproachAlarm::c_Area = { 600, 900, 750, 1150 };
-RECT MissedApproachAlarm::c_Area_Min = { 600, 900, 650, 950 };
+RECT MissedApproachAlarm::c_Area = { 600, 700, 700, 720 };
 RECT MissedApproachAlarm::i_Area = { 200, 500, 480, 650 };
 RECT MissedApproachAlarm::i_Area_Min = { 200, 500, 250, 550 };
 POINT MissedApproachAlarm::m_Offset = { 300, 240 };
@@ -25,9 +24,15 @@ clock_t MissedApproachAlarm::now = 0;
 int MissedApproachAlarm::resetButtonState = 0; //-1 red on (no ack), 0 off, 1 green on (ack received)
 int MissedApproachAlarm::windowVisibility = 2; // 0 = hidden, 1 = minimised, 2 = full
 vector<string> MissedApproachAlarm::missedAcftData = {};
-vector<string> MissedApproachAlarm::activeMAPPRunways = {};
 vector<string> MissedApproachAlarm::selectedAcftData = {};
 string MissedApproachAlarm::ackStation = "???";
+unordered_map<string, bool> MissedApproachAlarm::selectedRunways = {
+	{"VHHH North 07L/25R", false},
+	{"VHHH Centre 07C/25C", false},
+	{"VHHH South 07R/25L", false},
+	{"VHHX 13/31", false},
+	{"VMMC 16/34", false}
+};
 
 MissedApproachAlarm::MissedApproachAlarm() {
 
@@ -101,7 +106,6 @@ void MissedApproachAlarm::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 
 	if (position <= 3) {
 		//Logged in as GND or DEL
-		activeMAPPRunways.clear();
 		selectedAcftData.clear();
 		missedAcftData.clear();
 		return;
@@ -189,66 +193,32 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC, HKCPDisplay* Display) {
 	if (windowVisibility == 0) {
 		return;
 	}
-	vector<string> activeRunways = MissedApproachPlugin::activeArrRunways;
 
 	CDC dc;
 	dc.Attach(hDC);
 	CFont fontTitle, fontLabel;
-	fontTitle.CreateFont(24, 0, 0, 0, 3, false, false,
-		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-		FIXED_PITCH | FF_MODERN, _T("Arial"));
-	fontLabel.CreateFont(18, 0, 0, 0, 0, false, false,
+	fontLabel.CreateFont(10, 0, 0, 0, 0, false, false,
 		0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN, _T("Arial"));
 	dc.SetTextColor(qTextColor);
 
+	CRect openConfigButton(c_Area);
 
-	if (windowVisibility == 1) {
-		//Draw minimised window
-		CRect configWindowRect(c_Area_Min);
-		configWindowRect.NormalizeRect();
-		dc.FillSolidRect(configWindowRect, qBackgroundColor);
-		Display->AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
-
-		CRect titleRect(configWindowRect.left, configWindowRect.top, configWindowRect.right, configWindowRect.bottom);
-		dc.SelectObject(&fontLabel);
-		dc.DrawText("MAPP", strlen("MAPP"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-		Display->AddScreenObject(WINDOW_TITLE_BAR, "config_minimised", titleRect, true, "");
-
-		dc.Detach();
-		return;
-	}
-
-	//Draw full window
-	CRect configWindowRect(c_Area);
-	configWindowRect.NormalizeRect();
-	dc.FillSolidRect(configWindowRect, qBackgroundColor);
-	Display->AddScreenObject(DRAWING_APPWINDOW, "config_window", configWindowRect, true, "");
-
-	//Draw title
-	CRect titleRect(configWindowRect.left, configWindowRect.top + 20, configWindowRect.right, configWindowRect.top + 50);
-	dc.SelectObject(&fontTitle);
-	dc.DrawText("MAPP Config", strlen("MAPP Config"), titleRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-	Display->AddScreenObject(WINDOW_TITLE_BAR, "config_full", titleRect, true, "");
-
-	//Loop, iterate through arrival runways, create buttons and text for each one
-	dc.SelectObject(&fontLabel);
-	int offset = 0;
-	for (auto& currentRunway : activeRunways) {
-		CRect runwayText(configWindowRect.left + 60, configWindowRect.top + 70 + offset, configWindowRect.left + 100, configWindowRect.top + 90 + offset);
-		dc.DrawText(currentRunway.c_str(), currentRunway.length(), runwayText, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-
-		CRect checkBox(configWindowRect.left + 20, configWindowRect.top + 70 + offset, configWindowRect.left + 40, configWindowRect.top + 90 + offset);
-		if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), currentRunway) != activeMAPPRunways.end()) {
-			dc.FillSolidRect(checkBox, BUTTON_GREEN);
+	COLORREF borderColor = BUTTON_ORANGE_OFF;
+	for (const auto& pair : selectedRunways) {
+		if (pair.second) {
+			// If any runway is active light up border
+			borderColor = BUTTON_ORANGE_ON;
 		}
-		else {
-			dc.FillSolidRect(checkBox, BUTTON_RED_ON);
-		}
-		string buttonNo = "runway_button_" + currentRunway;
-		Display->AddScreenObject(RWY_ENABLE_BUTTON, buttonNo.c_str(), checkBox, true, "");
-		offset += 30;
 	}
+	CBrush borderBrush(borderColor);
+
+	dc.FillSolidRect(openConfigButton, qBackgroundColor);
+	dc.FrameRect(openConfigButton, &borderBrush);
+
+	dc.DrawText("MAPP RWYs", -1, openConfigButton, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+	Display->AddScreenObject(DRAWING_APPWINDOW, "config_window", openConfigButton, true, "");
+
 	dc.Detach();
 }
 
@@ -398,7 +368,7 @@ void MissedApproachAlarm::flashButton(HDC hDC, CRect button) {
 	dc.Detach();
 }
 
-void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button) {
+void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button, HKCPDisplay* Display) {
 	if (Button != BUTTON_LEFT) return;
 
 	MissedApproachPlugin ma;
@@ -434,19 +404,19 @@ void MissedApproachAlarm::OnClickScreenObject(int ObjectType, const char* sObjec
 		}
 	}
 
-	//Handle buttons for enable/disabling other runways
-
-	if (strstr(sObjectId, "runway_button_") != NULL) {
-		vector<string> runways = MissedApproachPlugin::activeArrRunways;
-		string currentRunway = (sObjectId + 14);
-		auto it = find(activeMAPPRunways.begin(), activeMAPPRunways.end(), currentRunway);
-		if (it != activeMAPPRunways.end()) {
-			activeMAPPRunways.erase(it);
+	if (ObjectType == DRAWING_APPWINDOW && strcmp(sObjectId, "config_window") == 0) {
+		CPlugIn* p = Display->GetPlugIn();
+		p->OpenPopupList(Area, "MAPP RWYs", 1);
+		for (const auto& pair : selectedRunways) {
+			string runway = pair.first;
+			bool isSelected = pair.second;
+			if (isSelected) {	
+				p->AddPopupListElement(runway.c_str(), "", TAG_FUNC_MAPP_SEL_RWY, false, POPUP_ELEMENT_CHECKED, false, false);
+			}
+			else {
+				p->AddPopupListElement(runway.c_str(), "", TAG_FUNC_MAPP_SEL_RWY, false, POPUP_ELEMENT_UNCHECKED, false, false);
+			}
 		}
-		else {
-			activeMAPPRunways.push_back(currentRunway);
-		}
-		
 	}
 }
 
@@ -481,10 +451,24 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 		controllerData.SetScratchPadString(scratchPadString.c_str());
 
 		// Don't Trigger alarm (APP) unless runway is selected and active
-		if (find(activeMAPPRunways.begin(), activeMAPPRunways.end(), data.GetArrivalRwy()) == activeMAPPRunways.end()) return;
-		missedAcftData.push_back(FlightPlan.GetCallsign());
-		missedAcftData.push_back(data.GetDestination());
-		missedAcftData.push_back(data.GetArrivalRwy());
+		bool found = false;
+		for (const auto& pair : selectedRunways) {
+			if (!pair.second) {
+				continue;
+			}
+
+			if (pair.first.find(data.GetArrivalRwy()) != string::npos) {
+				// runway is active, break to send alarm
+				found = true;
+				break;
+			}
+		}
+
+		if (found) {
+			missedAcftData.push_back(FlightPlan.GetCallsign());
+			missedAcftData.push_back(data.GetDestination());
+			missedAcftData.push_back(data.GetArrivalRwy());
+		}
 	}
 }
 
@@ -531,13 +515,7 @@ void MissedApproachAlarm::OnMoveScreenObject(int ObjectType, const char* sObject
 		CRect newPos(TopLeft, BottomRight);
 		newPos.NormalizeRect();
 
-		CRect configWindowMinRect(c_Area_Min);
-		BottomRight = { TopLeft.x + configWindowMinRect.Width(), TopLeft.y + configWindowMinRect.Height() };
-		CRect newMinPos(TopLeft, BottomRight);
-		newMinPos.NormalizeRect();
-
 		c_Area = newPos;
-		c_Area_Min = newMinPos;
 	}
 }
 
@@ -597,4 +575,16 @@ bool MissedApproachAlarm::OnCompileCommand(const char* sCommandLine) {
 		return true;
 	}
 	return false;
+}
+
+void MissedApproachAlarm::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area, HKCPDisplay* Display)
+{
+	if (FunctionId != TAG_FUNC_MAPP_SEL_RWY) {
+		return;
+	}
+
+	string runway = sItemString;
+	if (selectedRunways.find(runway) != selectedRunways.end()) {
+		selectedRunways[runway] = !selectedRunways[runway];
+	}
 }

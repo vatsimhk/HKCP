@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <unordered_map>
 
 
 using namespace std;
@@ -37,9 +38,10 @@ private:
 	static int resetButtonState;
 	static int windowVisibility; // 0 = hidden, 1 = minimised, 2 = full
 	static vector<string> missedAcftData;
-	static vector<string> activeMAPPRunways;
 	static vector<string> selectedAcftData;
 	static string ackStation;
+
+	static unordered_map<string, bool> selectedRunways;
 
 public:
 
@@ -60,7 +62,7 @@ public:
 
 	//---OnClickScreenObject-----------------------------------------
 
-	virtual void OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button);
+	virtual void OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button, HKCPDisplay* Display);
 
 
 	//---OnMoveScreenObject---------------------------------------------
@@ -80,6 +82,8 @@ public:
 	virtual void OnFlightPlanControllerAssignedDataUpdate(CFlightPlan FlightPlan, int DataType);
 
 	virtual bool OnCompileCommand(const char* sCommandLine);
+
+	virtual void OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area, HKCPDisplay* Display);
 
 	void flashButton(HDC hDC, CRect button);
 

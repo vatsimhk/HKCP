@@ -54,6 +54,8 @@ const int TAG_FUNC_RTE_SEL_ITEM_7 = 307;
 const int TAG_FUNC_RTE_SEL_ITEM_8 = 308;
 const int TAG_FUNC_RTE_SEL_DUMMY = 309;
 
+const int TAG_FUNC_MAPP_SEL_RWY = 400;
+
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;
 const int TAG_FUNC_VFPC_ON_OFF = 102;
