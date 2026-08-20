@@ -208,7 +208,7 @@ void MissedApproachAlarm::drawConfigWindow(HDC hDC, HKCPDisplay* Display) {
 	for (const auto& pair : selectedRunways) {
 		if (pair.second) {
 			// If any runway is active light up border
-			borderColor = BUTTON_ORANGE_ON;
+			borderColor = BUTTON_GREEN;
 		}
 	}
 	CBrush borderBrush(borderColor);
