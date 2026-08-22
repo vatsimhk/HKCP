@@ -331,6 +331,10 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 }
 
 void AT3Tags::OnTimer(int Counter) {
+	for (auto& pair : callsignToHandoffTimer) {
+		pair.second++;
+	}
+
 	if (Counter % 10 != 0) {
 		return;
 	} else {
@@ -1068,7 +1072,15 @@ string AT3Tags::GetALRT(CFlightPlan& FlightPlan)
 
 	// HOW warning
 	if (FlightPlan.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-		return "HOW";
+		if (callsignToHandoffTimer.find(CurrentCallsign) == callsignToHandoffTimer.end()) {
+			callsignToHandoffTimer[CurrentCallsign] = 0;
+		}
+		else if (callsignToHandoffTimer[CurrentCallsign] >= HOW_WARNING_TIME) {
+			return "HOW";
+		}
+	}
+	else {
+		callsignToHandoffTimer.erase(CurrentCallsign);
 	}
 
 	// CJS warning

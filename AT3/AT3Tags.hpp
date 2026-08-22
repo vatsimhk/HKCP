@@ -106,11 +106,13 @@ protected:
 	json rteJson;
 	unordered_map<string, string> wtgMap;
 	set<string> arptSet;
+	unordered_map<string, int> callsignToHandoffTimer;
 
 	COLORREF colorAssumed;
 	COLORREF colorNotAssumed;
 	COLORREF colorRedundant;
 	COLORREF colorVFR;
+	static const int HOW_WARNING_TIME = 30;
 
 private:
 	template <typename Out>
