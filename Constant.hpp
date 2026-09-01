@@ -32,6 +32,7 @@ const int TAG_ITEM_AT3_DELAY = 24;
 const int TAG_ITEM_AT3_ALRT = 25;
 const int TAG_ITEM_AT3_ADSB_CALLSIGN = 26;
 const int TAG_ITEM_AT3_WTG = 27;
+const int TAG_ITEM_AT3_TSSR = 28;
 
 const int TAG_FUNC_APP_SEL_MENU = 200;
 const int TAG_FUNC_APP_SEL_ITEM_1 = 201;

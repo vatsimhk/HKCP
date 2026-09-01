@@ -89,7 +89,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		// Set brush color based on state
 		SolidBrush aircraftBrush(colorNotAssumed);
 		dc.SetTextColor(colorNotAssumed.ToCOLORREF());
-		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
+		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
 			aircraftBrush.SetColor(colorAssumed);
 			dc.SetTextColor(colorAssumed.ToCOLORREF());
 		}
@@ -97,7 +97,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 			aircraftBrush.SetColor(colorAssumed);
 			dc.SetTextColor(colorRedundant.ToCOLORREF());
 		}
-		else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+		else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_COORDINATED) {
 			aircraftBrush.SetColor(colorRedundant);
 			dc.SetTextColor(colorRedundant.ToCOLORREF());
 		}
@@ -251,8 +251,43 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		// Increment to next aircraft
 		acft = GetPlugIn()->RadarTargetSelectNext(acft);
 	}
-
+  
 	g.Restore(gState);
+  
+	// Draw ASEL highlight box
+	CRadarTarget aselRt = GetPlugIn()->RadarTargetSelectASEL();
+	if (aselRt.IsValid()) {
+		CPosition aselPos = aselRt.GetPosition().GetPosition();
+
+		GraphicsContainer gContainer = g.BeginContainer();
+		Pen aselPen(colorNotAssumed);
+
+		CFlightPlan aselFp = aselRt.GetCorrelatedFlightPlan();
+		if (aselFp.IsValid()) {
+			if (aselFp.GetState() == FLIGHT_PLAN_STATE_ASSUMED || aselFp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+				aselPen.SetColor(colorAssumed);
+			}
+		}
+
+		POINT aselLocation = Display->ConvertCoordFromPositionToPixel(aselPos);
+		g.ScaleTransform(PlaneIconScale, PlaneIconScale, MatrixOrderAppend);
+		g.TranslateTransform(aselLocation.x, aselLocation.y, MatrixOrderAppend);
+
+		Point aselIcon[4] = {
+			Point(14, 14),
+			Point(14, -14),
+			Point(-14, -14),
+			Point(-14, 14),
+		};
+
+		// Draw the aircraft icon
+		g.DrawPolygon(&aselPen, aselIcon, 4);
+
+		// Cleanup
+		g.EndContainer(gContainer);
+		DeleteObject(&aselIcon);
+	};
+  
 	// Restore context
 	dc.RestoreDC(sDC);
 

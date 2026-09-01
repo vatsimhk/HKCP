@@ -101,6 +101,8 @@ public:
 
 	string GetWTG(CFlightPlan& FlightPlan);
 
+	string GetTSSR(CRadarTarget& RadarTarget);
+  
 	static unordered_map<string, bool> showRouteDraw;
 
 protected:
