@@ -47,7 +47,7 @@ void HKCPDisplay::OnRefresh(HDC hDC, int Phase)
 
 void HKCPDisplay::OnClickScreenObject(int ObjectType, const char* sObjectId, POINT Pt, RECT Area, int Button)
 {
-	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button);
+	MissAlarm->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button, this);
 
 	if (isESRadarDisplay) {
 		RadarTargets->OnClickScreenObject(ObjectType, sObjectId, Pt, Area, Button, this);
@@ -96,3 +96,8 @@ void HKCPDisplay::OnAsrContentToBeClosed(void)
 	RadarTargets->OnAsrContentToBeClosed();
 	delete this;
 };
+
+void HKCPDisplay::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area) 
+{
+	MissAlarm->OnFunctionCall(FunctionId, sItemString, Pt, Area, this);
+}

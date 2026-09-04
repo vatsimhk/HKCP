@@ -8,11 +8,36 @@
 #include <iostream>
 #include <unordered_map>
 #include <gdiplus.h>
+#include "AT3Tags.hpp"
 
+namespace DrawRouteUI {
+	enum DrawType {
+		DRAW_ROUTE_TYPE_REGULAR,
+		DRAW_ROUTE_TYPE_OFF_ROUTE,
+		DRAW_ROUTE_TYPE_PROBE_DCT,
+		DRAW_ROUTE_TYPE_PROBE_DCT_NORMAL
+	};
+
+	// Leader line offsets
+	const int LeaderStartX = 3;
+	const int LeaderStartY = -9;
+	const int LeaderElbowX = 22;
+	const int LeaderElbowY = -66;
+	const int LeaderEndX = 32;
+	const int LeaderEndY = -66;
+	const int TextOffsetX = 42;
+
+	// Symbol layout (BMW Logo)
+	const int SymbolSize = 11;
+	const int SymbolRadius = SymbolSize / 2; // 5
+
+	const int TopSky_ToolbarHeight = 21;
+}
 
 using namespace std;
 using namespace EuroScopePlugIn;
 using namespace Gdiplus;
+using namespace DrawRouteUI;
 
 class HKCPDisplay;
 class HKCPPlugin;
@@ -51,5 +76,17 @@ private:
 	Color colorAssumed;
 	Color colorNotAssumed;
 	Color colorRedundant;
+	Color colorRouteDraw;
+	Color colorRouteDrawDCT;
+
+	string formatRouteTag(CFlightPlanExtractedRoute& extractedRoute, int nextPointID, tm* tm_gmt) const;
+
+	void drawRouteLine(Graphics* g, CDC* dc, HKCPDisplay* Display, CRect allowedArea, Pen& pen, POINT point1, POINT point2, const char* airway);
+
+	void drawRouteTag(Graphics* g, CDC* dc, HKCPDisplay* Display, CRect allowedArea, Pen& pen, POINT point, const char* routeTag);
+
+	void drawWPTSelectSymbol(Graphics* g, CDC* dc, Pen& pen, SolidBrush& Brush, POINT point);
+
+	void createRouteDraw(CFlightPlan* fp, POINT acftLocation, enum DrawType DrawType, int nextPointID, int probeNextID, Graphics* g, CDC* dc, HKCPDisplay* Display);
 };
 

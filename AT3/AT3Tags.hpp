@@ -6,6 +6,7 @@
 #include <string>
 #include <set>
 #include <iostream>
+#include <unordered_map>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "MAESTROapi.h"
@@ -90,9 +91,19 @@ public:
 
 	string GetFormattedArrivalRwy(CFlightPlan& FlightPlan);
 
+	static void SplitCallsign(const std::string& callsign, std::string& prefix, std::string& number);
+
+	static bool isSimilarCallsign(const std::string& CurrentPrefix, std::string& CurrentNum, std::string& otherPrefix, std::string& otherNum);
+
+	static bool isCorrelateCorrect(CFlightPlan FlightPlan, string CurrentCallsign);
+
 	string GetALRT(CFlightPlan& FlightPlan);
 
 	string GetWTG(CFlightPlan& FlightPlan);
+
+	string GetTSSR(CRadarTarget& RadarTarget);
+  
+	static unordered_map<string, bool> showRouteDraw;
 
 protected:
 	int minu;
@@ -100,11 +111,13 @@ protected:
 	json rteJson;
 	unordered_map<string, string> wtgMap;
 	set<string> arptSet;
+	unordered_map<string, int> callsignToHandoffTimer;
 
 	COLORREF colorAssumed;
 	COLORREF colorNotAssumed;
 	COLORREF colorRedundant;
 	COLORREF colorVFR;
+	static const int HOW_WARNING_TIME = 30;
 
 private:
 	template <typename Out>

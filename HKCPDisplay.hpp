@@ -76,4 +76,6 @@ public:
 	virtual bool OnCompileCommand(const char* sCommandLine);
 
 	virtual void OnAsrContentToBeClosed(void);
+
+	virtual void OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, RECT Area);
 };

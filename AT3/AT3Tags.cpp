@@ -12,6 +12,8 @@
 
 using namespace EuroScopePlugIn;
 
+unordered_map<string, bool> AT3Tags::showRouteDraw;
+
 AT3Tags::AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR, COLORREF colorV) : CPlugIn(EuroScopePlugIn::COMPATIBILITY_CODE, MY_PLUGIN_NAME, MY_PLUGIN_VERSION, MY_PLUGIN_DEVELOPER, MY_PLUGIN_COPYRIGHT)
 {
 	RegisterTagItemType("AT3 Altitude", TAG_ITEM_AT3_ALTITUDE);
@@ -32,9 +34,11 @@ AT3Tags::AT3Tags(COLORREF colorA, COLORREF colorNA, COLORREF colorR, COLORREF co
 	RegisterTagItemType("AT3 AMAN Delay", TAG_ITEM_AT3_DELAY);
 	RegisterTagItemType("AT3 ALRT", TAG_ITEM_AT3_ALRT);
 	RegisterTagItemType("AT3 WTG", TAG_ITEM_AT3_WTG);
+	RegisterTagItemType("AT3 TSSR (Uncorrelated)", TAG_ITEM_AT3_TSSR);
 
 	RegisterTagItemFunction("AT3 Approach Selection Menu", TAG_FUNC_APP_SEL_MENU);
 	RegisterTagItemFunction("AT3 Route Selection Menu", TAG_FUNC_RTE_SEL_MENU);
+	RegisterTagItemFunction("AT3 Route Draw Toggle", TAG_FUNC_RTE_DRAW_TOGGLE);
 
 	colorAssumed = colorA;
 	colorNotAssumed = colorNA;
@@ -223,10 +227,10 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 			*pRGB = colorNotAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_COORDINATED:
-			*pRGB = colorNotAssumed;
+			*pRGB = colorRedundant;
 			break;
 		case FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED:
-			*pRGB = colorRedundant;
+			*pRGB = colorAssumed;
 			break;
 		case FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED:
 			*pRGB = colorAssumed;
@@ -258,6 +262,16 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 		case TAG_ITEM_AT3_ADSB_CALLSIGN:
 			tagOutput = GetADSBCallsign(RadarTarget);
 			break;
+		case TAG_ITEM_AT3_TSSR: {
+			tagOutput = GetTSSR(RadarTarget);
+			CFlightPlan uncorrelFp = FlightPlanSelect(RadarTarget.GetCallsign()); // we have to this because es doesn't have a method to determine whether a Position is inside a sector or not (i think) :(
+			if (RadarTarget.IsValid()) {
+				if (RadarTarget.GetPosition().GetPressureAltitude() > 100 && strlen(uncorrelFp.GetTrackingControllerId()) == 0 && uncorrelFp.GetSectorEntryMinutes() == 0) {
+					*pRGB = OVERRIDE_EMER.ToCOLORREF();
+				}
+			}
+			break;
+		}
 		default:
 			tagOutput = "";
 			isAT3Item = false;
@@ -300,12 +314,16 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 				tagOutput = GetCallsign(FlightPlan);
 				if (string(FlightPlan.GetFlightPlanData().GetPlanType()) == "V") {
 					*pRGB = colorVFR;
+				} else if (FlightPlan.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+					*pRGB = OVERRIDE_AIW.ToCOLORREF();
 				}
 				break;
 			case TAG_ITEM_AT3_ATYPWTC:
 				tagOutput = GetATYPWTC(FlightPlan);
 				if (string(FlightPlan.GetFlightPlanData().GetPlanType()) == "V") {
 					*pRGB = colorVFR;
+				} else if (FlightPlan.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+					*pRGB = OVERRIDE_AIW.ToCOLORREF();
 				}
 				break;
 			case TAG_ITEM_AT3_ARRIVAL_RWY:
@@ -331,6 +349,10 @@ void AT3Tags::OnGetTagItem(CFlightPlan FlightPlan, CRadarTarget RadarTarget, int
 }
 
 void AT3Tags::OnTimer(int Counter) {
+	for (auto& pair : callsignToHandoffTimer) {
+		pair.second++;
+	}
+
 	if (Counter % 10 != 0) {
 		return;
 	} else {
@@ -346,6 +368,8 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 	if (!FlightPlan.IsValid()) {
 		return;
 	}
+
+	string callsign = FlightPlan.GetCallsign();
 
 	string dest = FlightPlan.GetFlightPlanData().GetDestination();
 	string destRunway = FlightPlan.GetFlightPlanData().GetArrivalRwy();
@@ -462,7 +486,7 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 		SetApp(7, FlightPlan, appsVec);
 		break;
 	}
-	case TAG_FUNC_RTE_SEL_MENU:
+	case TAG_FUNC_RTE_SEL_MENU: 
 		if (arptSet.find(FlightPlan.GetFlightPlanData().GetDestination()) != arptSet.end()) {
 			OpenPopupList(Area, RteMenuName.c_str(), 1);
 			if (rteVec.size() > 0) {
@@ -557,6 +581,62 @@ void AT3Tags::OnFunctionCall(int FunctionId, const char* sItemString, POINT Pt, 
 			SetRte(7, FlightPlan, rteVec, dest, destRunway);
 			break;
 		}
+		case TAG_FUNC_RTE_DRAW_TOGGLE: {
+		
+			if (showRouteDraw.find(callsign) == showRouteDraw.end()) {
+				showRouteDraw.emplace(callsign, true);
+			}
+			else {
+				showRouteDraw[callsign] = !showRouteDraw[callsign];
+			}
+			break;
+		}
+	}
+}
+
+void AT3Tags::SplitCallsign(const std::string& callsign, std::string& prefix, std::string& number) {
+	prefix = "";
+	number = "";
+	for (char c : callsign) {
+		// All letters belongs to prefix
+		if (std::isalpha(c) && number.empty()) {
+			prefix += c;
+		}
+		// Rest belongs to number
+		else {
+			number += c;
+		}
+	}
+}
+
+bool AT3Tags::isSimilarCallsign(const std::string & CurrentPrefix, std::string & CurrentNum, std::string & otherPrefix, std::string & otherNum) {
+	int matchCount = 0;
+	string tempNum2 = otherNum;
+	for (char c : CurrentNum) {
+		size_t pos = tempNum2.find(c);
+		if (pos != std::string::npos) {
+			matchCount++;
+			tempNum2.erase(pos, 1);
+		}
+	}
+	float longerNumLength = max(CurrentNum.length(), otherNum.length());
+	float numSimilarity = matchCount / longerNumLength;
+
+	if (CurrentNum == otherNum) {
+		return true;
+	}
+	else if (CurrentPrefix == otherPrefix && numSimilarity > 0.5) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool AT3Tags::isCorrelateCorrect(CFlightPlan FlightPlan, string CurrentCallsign) {
+	string correlatedCallsign = FlightPlan.GetCorrelatedRadarTarget().GetCallsign();
+	if (CurrentCallsign != correlatedCallsign) {
+		return false;
 	}
 }
 
@@ -1001,9 +1081,36 @@ string AT3Tags::GetFormattedArrivalRwy(CFlightPlan& FlightPlan)
 
 string AT3Tags::GetALRT(CFlightPlan& FlightPlan)
 {
+	string CurrentCallsign = FlightPlan.GetCallsign();
+
+	// ID warning
+	if (FlightPlan.GetCorrelatedRadarTarget().IsValid()) {
+		if (!isCorrelateCorrect(FlightPlan, CurrentCallsign)) {
+			return "ID";
+		}
+	}
+
+	// CC warning
+	if (FlightPlan.GetCorrelatedRadarTarget().IsValid()) {
+		string receivedSquawk = FlightPlan.GetCorrelatedRadarTarget().GetPosition().GetSquawk();
+		string assignedSquawk = FlightPlan.GetControllerAssignedData().GetSquawk();
+
+		if (assignedSquawk != "" && receivedSquawk != assignedSquawk) {
+			return "CC";
+		}
+	}
+
 	// HOW warning
 	if (FlightPlan.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-		return "HOW";
+		if (callsignToHandoffTimer.find(CurrentCallsign) == callsignToHandoffTimer.end()) {
+			callsignToHandoffTimer[CurrentCallsign] = 0;
+		}
+		else if (callsignToHandoffTimer[CurrentCallsign] >= HOW_WARNING_TIME) {
+			return "HOW";
+		}
+	}
+	else {
+		callsignToHandoffTimer.erase(CurrentCallsign);
 	}
 
 	// CJS warning
@@ -1016,6 +1123,27 @@ string AT3Tags::GetALRT(CFlightPlan& FlightPlan)
 		return "CJS";
 	}
 
+	// SCA warning
+
+	std::string CurrentPrefix, CurrentNum;
+	SplitCallsign(CurrentCallsign, CurrentPrefix, CurrentNum);
+
+	if (FlightPlan.GetTrackingControllerIsMe() == true) {
+		for (EuroScopePlugIn::CRadarTarget otherPlane = RadarTargetSelectFirst(); otherPlane.IsValid(); otherPlane = RadarTargetSelectNext(otherPlane)) {
+			if (!otherPlane.GetCorrelatedFlightPlan().GetTrackingControllerIsMe()) continue;
+			if (otherPlane.GetCallsign() == CurrentCallsign) continue;
+
+			string otherCallsign = otherPlane.GetCallsign();
+
+			std::string Prefix2, Num2;
+			SplitCallsign(otherCallsign, Prefix2, Num2);
+
+			if (isSimilarCallsign(CurrentPrefix, CurrentNum, Prefix2, Num2)){
+				return "SCA";
+			}
+		}
+	}
+	
 	return "";
 }
 
@@ -1044,4 +1172,8 @@ string AT3Tags::GetWTG(CFlightPlan& FlightPlan)
 		return "";
 
 	return aliasIt->second;
+}
+
+string AT3Tags::GetTSSR(CRadarTarget& RadarTarget) {
+	return RadarTarget.GetPosition().GetSquawk();
 }

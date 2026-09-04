@@ -3,7 +3,7 @@
 #include <gdiplus.h>
 
 #define MY_PLUGIN_NAME      "HKCP"
-#define MY_PLUGIN_VERSION   "2.3.0"
+#define MY_PLUGIN_VERSION   "2.4.0"
 #define MY_PLUGIN_DEVELOPER "HKvACC, Jan Fries, Hendrik Peter, Sven Czarnian"
 #define MY_PLUGIN_COPYRIGHT "GPL v3"
 #define MY_PLUGIN_VIEW_AVISO  "Hong Kong Controller Plugin"
@@ -32,6 +32,7 @@ const int TAG_ITEM_AT3_DELAY = 24;
 const int TAG_ITEM_AT3_ALRT = 25;
 const int TAG_ITEM_AT3_ADSB_CALLSIGN = 26;
 const int TAG_ITEM_AT3_WTG = 27;
+const int TAG_ITEM_AT3_TSSR = 28;
 
 const int TAG_FUNC_APP_SEL_MENU = 200;
 const int TAG_FUNC_APP_SEL_ITEM_1 = 201;
@@ -55,6 +56,8 @@ const int TAG_FUNC_RTE_SEL_ITEM_7 = 307;
 const int TAG_FUNC_RTE_SEL_ITEM_8 = 308;
 const int TAG_FUNC_RTE_SEL_DUMMY = 309;
 
+const int TAG_FUNC_MAPP_SEL_RWY = 400;
+
 const int TAG_FUNC_CHECKFP_MENU = 100;
 const int TAG_FUNC_CHECKFP_CHECK = 101;
 const int TAG_FUNC_VFPC_ON_OFF = 102;
@@ -67,6 +70,8 @@ const int TAG_FUNC_ASSIGN_SID_AUTO = 108;
 const int TAG_FUNC_ASSIGN_SID_3RS = 109;
 const int TAG_FUNC_ASSIGN_SID_NAP = 110;
 const int TAG_FUNC_ASSIGN_SID_MANUAL = 111;
+
+const int TAG_FUNC_RTE_DRAW_TOGGLE = 500;
 
 const int DRAWING_APPWINDOW = 1211;
 const int ACK_BUTTON = 1212;
@@ -100,6 +105,8 @@ const COLORREF BUTTON_GREY = RGB(140, 140, 140);
 const COLORREF DEFAULT_ASSUMED = RGB(241, 246, 255);
 const COLORREF DEFAULT_UNCONCERNED = RGB(117, 132, 142);
 const COLORREF DEFAULT_REDUNDANT = RGB(229, 214, 130);
+const COLORREF ROUTE_DRAW = RGB(216, 185, 158);
+const COLORREF ROUTE_DRAW_DCT = RGB(40, 255, 255);
 const COLORREF DEFAULT_VFR = RGB(110, 205, 229);
 const Gdiplus::Color OVERRIDE_AIW = Gdiplus::Color(255, 158, 112);
 const Gdiplus::Color OVERRIDE_EMER = Gdiplus::Color(255, 0, 0);
