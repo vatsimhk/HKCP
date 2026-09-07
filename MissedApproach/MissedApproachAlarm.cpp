@@ -451,14 +451,21 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 		controllerData.SetScratchPadString(scratchPadString.c_str());
 
 		// Don't Trigger alarm (APP) unless runway is selected and active
+		string destination = data.GetDestination();
+		string arrivalRwy = data.GetArrivalRwy();
+		if (destination.empty() || arrivalRwy.empty()) {
+			return;
+		}
+
 		bool found = false;
 		for (const auto& pair : selectedRunways) {
 			if (!pair.second) {
 				continue;
 			}
 
-			if (pair.first.find(data.GetArrivalRwy()) != string::npos) {
-				// runway is active, break to send alarm
+			if (pair.first.find(destination) != string::npos &&
+				pair.first.find(arrivalRwy) != string::npos) {
+				// airport and runway is active, break to send alarm
 				found = true;
 				break;
 			}
@@ -466,8 +473,8 @@ void MissedApproachAlarm::OnFlightPlanControllerAssignedDataUpdate(CFlightPlan F
 
 		if (found) {
 			missedAcftData.push_back(FlightPlan.GetCallsign());
-			missedAcftData.push_back(data.GetDestination());
-			missedAcftData.push_back(data.GetArrivalRwy());
+			missedAcftData.push_back(destination);
+			missedAcftData.push_back(arrivalRwy);
 		}
 	}
 }
