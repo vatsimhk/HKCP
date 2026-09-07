@@ -57,8 +57,9 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		DEFAULT_QUALITY,          // nQuality
 		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
 		_T("EuroScope")  // lpszFacename
-	);      
-	
+	);
+	dc.SelectObject(EuroScopeFont);
+	dc.SetTextAlign(TA_CENTER);
 
 	// Select first aircraft
 	CRadarTarget acft;
@@ -69,6 +70,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		// Get Flight plan and position data
 		CFlightPlan fp = Display->GetPlugIn()->FlightPlanSelect(acft.GetCallsign());
 		CRadarTargetPositionData pd = acft.GetPosition();
+		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
 
 		string callsign = fp.GetCallsign();
 
@@ -77,131 +79,125 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 			continue;
 		}
 
-		// Skip drawing if not mode C
-		if (!pd.GetTransponderC()) {
-			acft = GetPlugIn()->RadarTargetSelectNext(acft);
-			continue;
-		}
+		if (pd.GetTransponderC()) {
+			// Draw aircraft icon for Mode C targets
+			// Setup container
+			GraphicsContainer gContainer = g.BeginContainer();
 
-		// Setup container
-		GraphicsContainer gContainer = g.BeginContainer();
-
-		// Set brush color based on state
-		SolidBrush aircraftBrush(colorNotAssumed);
-		dc.SetTextColor(colorNotAssumed.ToCOLORREF());
-		if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
-			aircraftBrush.SetColor(colorAssumed);
-			dc.SetTextColor(colorAssumed.ToCOLORREF());
-		}
-		else if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-			aircraftBrush.SetColor(colorAssumed);
-			dc.SetTextColor(colorRedundant.ToCOLORREF());
-		}
-		else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_COORDINATED) {
-			aircraftBrush.SetColor(colorRedundant);
-			dc.SetTextColor(colorRedundant.ToCOLORREF());
-		}
-
-		// Override aircraft color conditions
-		if (pd.GetPressureAltitude() > 100 && strlen(fp.GetTrackingControllerId()) == 0 &&
-			fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0) {
-			if ((fp.GetDistanceFromOrigin() > 8 && fp.GetDistanceToDestination() > 8) || pd.GetPressureAltitude() > 3000) { //not approaching/departing
-				aircraftBrush.SetColor(OVERRIDE_AIW);
+			// Set brush color based on state
+			SolidBrush aircraftBrush(colorNotAssumed);
+			dc.SetTextColor(colorNotAssumed.ToCOLORREF());
+			if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+				aircraftBrush.SetColor(colorAssumed);
+				dc.SetTextColor(colorAssumed.ToCOLORREF());
 			}
-		}
-		if (strcmp(pd.GetSquawk(), "7700") == 0) {
-			aircraftBrush.SetColor(OVERRIDE_EMER);
-		}
+			else if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
+				aircraftBrush.SetColor(colorAssumed);
+				dc.SetTextColor(colorRedundant.ToCOLORREF());
+			}
+			else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_COORDINATED) {
+				aircraftBrush.SetColor(colorRedundant);
+				dc.SetTextColor(colorRedundant.ToCOLORREF());
+			}
 
-		// Get and set location
-		POINT acftLocation = Display->ConvertCoordFromPositionToPixel(acft.GetPosition().GetPosition());
-		g.ScaleTransform(PlaneIconScale, PlaneIconScale, MatrixOrderAppend);
-		g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
-		g.RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
+			// Override aircraft color conditions
+			if (pd.GetPressureAltitude() > 100 && strlen(fp.GetTrackingControllerId()) == 0 &&
+				fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0) {
+				if ((fp.GetDistanceFromOrigin() > 8 && fp.GetDistanceToDestination() > 8) || pd.GetPressureAltitude() > 3000) { //not approaching/departing
+					aircraftBrush.SetColor(OVERRIDE_AIW);
+				}
+			}
+			if (strcmp(pd.GetSquawk(), "7700") == 0) {
+				aircraftBrush.SetColor(OVERRIDE_EMER);
+			}
 
-		// Set Anti-aliasing
-		//g.SetSmoothingMode(SmoothingModeAntiAlias);
+			// Set location
+			g.ScaleTransform(PlaneIconScale, PlaneIconScale, MatrixOrderAppend);
+			g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
+			g.RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
 
-		// Define aircraft icon
-		Point aircraftIcon[19] = {
-			Point(0,-7),
-			Point(-1,-6),
-			Point(-1,-2),
-			Point(-7,1),
-			Point(-7,3),
-			Point(-1,1),
-			Point(-1,4),
-			Point(-4,5),
-			Point(-4,7),
-			Point(0,6),
-			Point(4,7),
-			Point(4,5),
-			Point(1,4),
-			Point(1,1),
-			Point(7,3),
-			Point(7,1),
-			Point(1,-2),
-			Point(1,-6),
-			Point(0,-7)
-		};
+			// Set Anti-aliasing
+			//g.SetSmoothingMode(SmoothingModeAntiAlias);
 
-		// Draw the aircraft icon
-		g.FillPolygon(&aircraftBrush, aircraftIcon, 19);
+			// Define aircraft icon
+			Point aircraftIcon[19] = {
+				Point(0,-7),
+				Point(-1,-6),
+				Point(-1,-2),
+				Point(-7,1),
+				Point(-7,3),
+				Point(-1,1),
+				Point(-1,4),
+				Point(-4,5),
+				Point(-4,7),
+				Point(0,6),
+				Point(4,7),
+				Point(4,5),
+				Point(1,4),
+				Point(1,1),
+				Point(7,3),
+				Point(7,1),
+				Point(1,-2),
+				Point(1,-6),
+				Point(0,-7)
+			};
 
-		// Cleanup
-		g.EndContainer(gContainer);
-		DeleteObject(&aircraftIcon);
+			// Draw the aircraft icon
+			g.FillPolygon(&aircraftBrush, aircraftIcon, 19);
 
-		// Draw CJS
-		dc.SelectObject(EuroScopeFont);
-		dc.SetTextAlign(TA_CENTER);
-		CSize CJSLabelSize;
+			// Cleanup
+			g.EndContainer(gContainer);
+			DeleteObject(&aircraftIcon);
 
-		if (fp.GetState() != FLIGHT_PLAN_STATE_ASSUMED || CJSLabelShowWhenTracked) {
-			// Set CJS label text to CJS or frequency based on saved state
-			string CJSLabelText;
-			CJSLabelShowFreq.emplace(fp.GetCallsign(), false);
-			if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-				if (CJSLabelShowFreq[fp.GetCallsign()]) {
-					CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
-					dc.SetTextColor(colorAssumed.ToCOLORREF());
+			// Draw CJS
+			CSize CJSLabelSize;
+			if (fp.GetState() != FLIGHT_PLAN_STATE_ASSUMED || CJSLabelShowWhenTracked) {
+				// Set CJS label text to CJS or frequency based on saved state
+				string CJSLabelText;
+				CJSLabelShowFreq.emplace(fp.GetCallsign(), false);
+				if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
+					if (CJSLabelShowFreq[fp.GetCallsign()]) {
+						CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
+						dc.SetTextColor(colorAssumed.ToCOLORREF());
+					}
+					else {
+						CJSLabelText = fp.GetHandoffTargetControllerId();
+					}
+				}
+				else if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
+					if (CJSLabelShowFreq[fp.GetCallsign()]) {
+						CJSLabelText = GetControllerFreqFromId(GetControllerIdFromCallsign(fp.GetCoordinatedNextController()));
+						dc.SetTextColor(colorAssumed.ToCOLORREF());
+					}
+					else {
+						CJSLabelText = GetControllerIdFromCallsign(fp.GetCoordinatedNextController());
+					}
 				}
 				else {
-					CJSLabelText = fp.GetHandoffTargetControllerId();
+					if (CJSLabelShowFreq[fp.GetCallsign()]) {
+						CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
+						dc.SetTextColor(colorAssumed.ToCOLORREF());
+					}
+					else {
+						CJSLabelText = fp.GetTrackingControllerId();
+					}
 				}
-			}
-			else if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
-				if (CJSLabelShowFreq[fp.GetCallsign()]) {
-					CJSLabelText = GetControllerFreqFromId(GetControllerIdFromCallsign(fp.GetCoordinatedNextController()));
-					dc.SetTextColor(colorAssumed.ToCOLORREF());
+
+				// Remove trailing up to two trailing zeroes
+				for (int i = 0; i < 2; i++) {
+					if (CJSLabelText.back() == '0') {
+						CJSLabelText.pop_back();
+					}
 				}
-				else {
-					CJSLabelText = GetControllerIdFromCallsign(fp.GetCoordinatedNextController());
-				}
-			}
-			else {
-				if (CJSLabelShowFreq[fp.GetCallsign()]) {
-					CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
-					dc.SetTextColor(colorAssumed.ToCOLORREF());
-				}
-				else {
-					CJSLabelText = fp.GetTrackingControllerId();
-				}
+				dc.ExtTextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, ETO_CLIPPED, CRect(0, Display->GetToolbarArea().bottom + TopSky_ToolbarHeight, 9999, 9999), CJSLabelText.c_str(), CJSLabelText.length(), NULL);
+
+				// Create rectangle around CJS label for click spot
+				CJSLabelSize = dc.GetTextExtent(CJSLabelText.c_str());
+				POINT CJSLabelPoint = { acftLocation.x - CJSLabelSize.cx / 2, acftLocation.y - CJSLabelOffset };
+				CRect CJSLabelRect(CJSLabelPoint, CJSLabelSize);
+				Display->AddScreenObject(CJS_INDICATOR, fp.GetCallsign(), CJSLabelRect, true, "");
 			}
 
-			// Remove trailing up to two trailing zeroes
-			for (int i = 0; i < 2; i++) {
-				if (CJSLabelText.back() == '0') {
-					CJSLabelText.pop_back();
-				}
-			}
-			dc.ExtTextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, ETO_CLIPPED, CRect(0, Display->GetToolbarArea().bottom + TopSky_ToolbarHeight, 9999, 9999), CJSLabelText.c_str(), CJSLabelText.length(), NULL);
-
-			// Create rectangle around CJS label for click spot
-			CJSLabelSize = dc.GetTextExtent(CJSLabelText.c_str());
-			POINT CJSLabelPoint = { acftLocation.x - CJSLabelSize.cx / 2, acftLocation.y - CJSLabelOffset };
-			CRect CJSLabelRect(CJSLabelPoint, CJSLabelSize);
-			Display->AddScreenObject(CJS_INDICATOR, fp.GetCallsign(), CJSLabelRect, true, "");
 		}
 
 		// Create route draw
