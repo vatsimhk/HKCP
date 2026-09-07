@@ -80,74 +80,7 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		}
 
 		if (pd.GetTransponderC()) {
-			// Draw aircraft icon for Mode C targets
-			// Setup container
-			GraphicsContainer gContainer = g.BeginContainer();
-
-			// Set brush color based on state
-			SolidBrush aircraftBrush(colorNotAssumed);
-			dc.SetTextColor(colorNotAssumed.ToCOLORREF());
-			if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
-				aircraftBrush.SetColor(colorAssumed);
-				dc.SetTextColor(colorAssumed.ToCOLORREF());
-			}
-			else if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-				aircraftBrush.SetColor(colorAssumed);
-				dc.SetTextColor(colorRedundant.ToCOLORREF());
-			}
-			else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_COORDINATED) {
-				aircraftBrush.SetColor(colorRedundant);
-				dc.SetTextColor(colorRedundant.ToCOLORREF());
-			}
-
-			// Override aircraft color conditions
-			if (pd.GetPressureAltitude() > 100 && strlen(fp.GetTrackingControllerId()) == 0 &&
-				fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0) {
-				if ((fp.GetDistanceFromOrigin() > 8 && fp.GetDistanceToDestination() > 8) || pd.GetPressureAltitude() > 3000) { //not approaching/departing
-					aircraftBrush.SetColor(OVERRIDE_AIW);
-				}
-			}
-			if (strcmp(pd.GetSquawk(), "7700") == 0) {
-				aircraftBrush.SetColor(OVERRIDE_EMER);
-			}
-
-			// Set location
-			g.ScaleTransform(PlaneIconScale, PlaneIconScale, MatrixOrderAppend);
-			g.TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
-			g.RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
-
-			// Set Anti-aliasing
-			//g.SetSmoothingMode(SmoothingModeAntiAlias);
-
-			// Define aircraft icon
-			Point aircraftIcon[19] = {
-				Point(0,-7),
-				Point(-1,-6),
-				Point(-1,-2),
-				Point(-7,1),
-				Point(-7,3),
-				Point(-1,1),
-				Point(-1,4),
-				Point(-4,5),
-				Point(-4,7),
-				Point(0,6),
-				Point(4,7),
-				Point(4,5),
-				Point(1,4),
-				Point(1,1),
-				Point(7,3),
-				Point(7,1),
-				Point(1,-2),
-				Point(1,-6),
-				Point(0,-7)
-			};
-
-			// Draw the aircraft icon
-			g.FillPolygon(&aircraftBrush, aircraftIcon, 19);
-
-			// Cleanup
-			g.EndContainer(gContainer);
-			DeleteObject(&aircraftIcon);
+			drawAircraftIcon(&g, &dc, fp, acft, pd, acftLocation);
 
 			// Draw CJS
 			CSize CJSLabelSize;
@@ -490,4 +423,75 @@ void AT3RadarTargetDisplay::createRouteDraw(CFlightPlan* fp, POINT acftLocation,
 		}
 		prevPoint = nextPoint;
 	}
+}
+
+void AT3RadarTargetDisplay::drawAircraftIcon(Graphics* g, CDC* dc, CFlightPlan& fp, CRadarTarget& acft, CRadarTargetPositionData& pd, POINT& acftLocation) 
+{
+	// Setup container
+	GraphicsContainer gContainer = g->BeginContainer();
+
+	// Set brush color based on state
+	SolidBrush aircraftBrush(colorNotAssumed);
+	dc->SetTextColor(colorNotAssumed.ToCOLORREF());
+	if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED || fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_TO_ME_INITIATED) {
+		aircraftBrush.SetColor(colorAssumed);
+		dc->SetTextColor(colorAssumed.ToCOLORREF());
+	}
+	else if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
+		aircraftBrush.SetColor(colorAssumed);
+		dc->SetTextColor(colorRedundant.ToCOLORREF());
+	}
+	else if (fp.GetState() == FLIGHT_PLAN_STATE_REDUNDANT || fp.GetState() == FLIGHT_PLAN_STATE_COORDINATED) {
+		aircraftBrush.SetColor(colorRedundant);
+		dc->SetTextColor(colorRedundant.ToCOLORREF());
+	}
+
+	// Override aircraft color conditions
+	if (pd.GetPressureAltitude() > 100 && strlen(fp.GetTrackingControllerId()) == 0 &&
+		fp.GetSectorEntryMinutes() <= 1 && fp.GetSectorEntryMinutes() >= 0) {
+		if ((fp.GetDistanceFromOrigin() > 8 && fp.GetDistanceToDestination() > 8) || pd.GetPressureAltitude() > 3000) { //not approaching/departing
+			aircraftBrush.SetColor(OVERRIDE_AIW);
+		}
+	}
+	if (strcmp(pd.GetSquawk(), "7700") == 0) {
+		aircraftBrush.SetColor(OVERRIDE_EMER);
+	}
+
+	// Set location
+	g->ScaleTransform(PlaneIconScale, PlaneIconScale, MatrixOrderAppend);
+	g->TranslateTransform(acftLocation.x, acftLocation.y, MatrixOrderAppend);
+	g->RotateTransform(acft.GetPosition().GetReportedHeadingTrueNorth());
+
+	// Set Anti-aliasing
+	//g.SetSmoothingMode(SmoothingModeAntiAlias);
+
+	// Define aircraft icon
+	Point aircraftIcon[19] = {
+		Point(0,-7),
+		Point(-1,-6),
+		Point(-1,-2),
+		Point(-7,1),
+		Point(-7,3),
+		Point(-1,1),
+		Point(-1,4),
+		Point(-4,5),
+		Point(-4,7),
+		Point(0,6),
+		Point(4,7),
+		Point(4,5),
+		Point(1,4),
+		Point(1,1),
+		Point(7,3),
+		Point(7,1),
+		Point(1,-2),
+		Point(1,-6),
+		Point(0,-7)
+	};
+
+	// Draw the aircraft icon
+	g->FillPolygon(&aircraftBrush, aircraftIcon, 19);
+
+	// Cleanup
+	g->EndContainer(gContainer);
+	DeleteObject(&aircraftIcon);
 }
