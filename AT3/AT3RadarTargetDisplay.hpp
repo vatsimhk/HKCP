@@ -90,5 +90,7 @@ private:
 	void createRouteDraw(CFlightPlan* fp, POINT acftLocation, enum DrawType DrawType, int nextPointID, int probeNextID, Graphics* g, CDC* dc, HKCPDisplay* Display);
 
 	void drawAircraftIcon(Graphics* g, CDC* dc, CFlightPlan& fp, CRadarTarget& acft, CRadarTargetPositionData& pd, POINT& acftLocation);
+
+	void drawCJSText(CDC* dc, HKCPDisplay* Display, CFlightPlan& fp, POINT& acftLocation);
 };
 

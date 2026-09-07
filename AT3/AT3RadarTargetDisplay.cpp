@@ -82,55 +82,9 @@ void AT3RadarTargetDisplay::OnRefresh(HDC hDC, int Phase, HKCPDisplay* Display)
 		if (pd.GetTransponderC()) {
 			drawAircraftIcon(&g, &dc, fp, acft, pd, acftLocation);
 
-			// Draw CJS
-			CSize CJSLabelSize;
 			if (fp.GetState() != FLIGHT_PLAN_STATE_ASSUMED || CJSLabelShowWhenTracked) {
-				// Set CJS label text to CJS or frequency based on saved state
-				string CJSLabelText;
-				CJSLabelShowFreq.emplace(fp.GetCallsign(), false);
-				if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
-					if (CJSLabelShowFreq[fp.GetCallsign()]) {
-						CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
-						dc.SetTextColor(colorAssumed.ToCOLORREF());
-					}
-					else {
-						CJSLabelText = fp.GetHandoffTargetControllerId();
-					}
-				}
-				else if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
-					if (CJSLabelShowFreq[fp.GetCallsign()]) {
-						CJSLabelText = GetControllerFreqFromId(GetControllerIdFromCallsign(fp.GetCoordinatedNextController()));
-						dc.SetTextColor(colorAssumed.ToCOLORREF());
-					}
-					else {
-						CJSLabelText = GetControllerIdFromCallsign(fp.GetCoordinatedNextController());
-					}
-				}
-				else {
-					if (CJSLabelShowFreq[fp.GetCallsign()]) {
-						CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
-						dc.SetTextColor(colorAssumed.ToCOLORREF());
-					}
-					else {
-						CJSLabelText = fp.GetTrackingControllerId();
-					}
-				}
-
-				// Remove trailing up to two trailing zeroes
-				for (int i = 0; i < 2; i++) {
-					if (CJSLabelText.back() == '0') {
-						CJSLabelText.pop_back();
-					}
-				}
-				dc.ExtTextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, ETO_CLIPPED, CRect(0, Display->GetToolbarArea().bottom + TopSky_ToolbarHeight, 9999, 9999), CJSLabelText.c_str(), CJSLabelText.length(), NULL);
-
-				// Create rectangle around CJS label for click spot
-				CJSLabelSize = dc.GetTextExtent(CJSLabelText.c_str());
-				POINT CJSLabelPoint = { acftLocation.x - CJSLabelSize.cx / 2, acftLocation.y - CJSLabelOffset };
-				CRect CJSLabelRect(CJSLabelPoint, CJSLabelSize);
-				Display->AddScreenObject(CJS_INDICATOR, fp.GetCallsign(), CJSLabelRect, true, "");
+				drawCJSText(&dc, Display, fp, acftLocation);
 			}
-
 		}
 
 		// Create route draw
@@ -494,4 +448,52 @@ void AT3RadarTargetDisplay::drawAircraftIcon(Graphics* g, CDC* dc, CFlightPlan& 
 	// Cleanup
 	g->EndContainer(gContainer);
 	DeleteObject(&aircraftIcon);
+}
+
+void AT3RadarTargetDisplay::drawCJSText(CDC* dc, HKCPDisplay* Display, CFlightPlan& fp, POINT& acftLocation)
+{
+	string CJSLabelText;
+	CSize CJSLabelSize;
+	CJSLabelShowFreq.emplace(fp.GetCallsign(), false);
+	if (fp.GetState() == FLIGHT_PLAN_STATE_TRANSFER_FROM_ME_INITIATED) {
+		if (CJSLabelShowFreq[fp.GetCallsign()]) {
+			CJSLabelText = GetControllerFreqFromId(fp.GetHandoffTargetControllerId());
+			dc->SetTextColor(colorAssumed.ToCOLORREF());
+		}
+		else {
+			CJSLabelText = fp.GetHandoffTargetControllerId();
+		}
+	}
+	else if (fp.GetState() == FLIGHT_PLAN_STATE_ASSUMED) {
+		if (CJSLabelShowFreq[fp.GetCallsign()]) {
+			CJSLabelText = GetControllerFreqFromId(GetControllerIdFromCallsign(fp.GetCoordinatedNextController()));
+			dc->SetTextColor(colorAssumed.ToCOLORREF());
+		}
+		else {
+			CJSLabelText = GetControllerIdFromCallsign(fp.GetCoordinatedNextController());
+		}
+	}
+	else {
+		if (CJSLabelShowFreq[fp.GetCallsign()]) {
+			CJSLabelText = GetControllerFreqFromId(fp.GetTrackingControllerId());
+			dc->SetTextColor(colorAssumed.ToCOLORREF());
+		}
+		else {
+			CJSLabelText = fp.GetTrackingControllerId();
+		}
+	}
+
+	// Remove up to two trailing zeroes
+	for (int i = 0; i < 2; i++) {
+		if (CJSLabelText.back() == '0') {
+			CJSLabelText.pop_back();
+		}
+	}
+	dc->ExtTextOutA(acftLocation.x, acftLocation.y - CJSLabelOffset, ETO_CLIPPED, CRect(0, Display->GetToolbarArea().bottom + TopSky_ToolbarHeight, 9999, 9999), CJSLabelText.c_str(), CJSLabelText.length(), NULL);
+
+	// Create rectangle around CJS label for click spot
+	CJSLabelSize = dc->GetTextExtent(CJSLabelText.c_str());
+	POINT CJSLabelPoint = { acftLocation.x - CJSLabelSize.cx / 2, acftLocation.y - CJSLabelOffset };
+	CRect CJSLabelRect(CJSLabelPoint, CJSLabelSize);
+	Display->AddScreenObject(CJS_INDICATOR, fp.GetCallsign(), CJSLabelRect, true, "");
 }
